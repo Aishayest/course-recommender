@@ -450,6 +450,7 @@ name = "course-recommender"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "certifi" },
     { name = "lightgbm" },
     { name = "numpy" },
     { name = "pandas" },
@@ -470,6 +471,7 @@ embeddings = [
 
 [package.metadata]
 requires-dist = [
+    { name = "certifi", specifier = ">=2024.8" },
     { name = "hnswlib", marker = "extra == 'embeddings'", specifier = ">=0.8" },
     { name = "jupyter", marker = "extra == 'dev'", specifier = ">=1.1" },
     { name = "lightgbm", specifier = ">=4.5" },
