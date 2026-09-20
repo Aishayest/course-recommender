@@ -6,16 +6,34 @@
 
 from __future__ import annotations
 
-from .domain import Course, CourseKind, Requirement, Student
+from .domain import Course, CourseKind, Requirement, Student, grade_points
+
+
+def passed_with(student: Student, code: str, min_grade: str | None) -> bool:
+    """Пройден ли курс с достаточной оценкой.
+
+    Сдать курс мало: handbook требует по ряду пререквизитов оценку выше
+    проходной, и слабая оценка закрывает дорогу к следующему курсу.
+    """
+    earned = student.grade_of(code)
+    if earned is None:
+        return False
+    required = grade_points(min_grade)
+    return required is None or earned >= required
 
 
 def prerequisites_met(course: Course, student: Student) -> bool:
-    """Выполнены ли пререквизиты курса.
+    """Выполнены ли пререквизиты курса, с учётом минимальных оценок.
 
     Пререквизиты заданы как КНФ: внешний список — И, внутренний — ИЛИ.
     """
-    done = student.completed_codes
-    return all(any(code in done for code in group) for group in course.prerequisites)
+    return all(
+        any(
+            passed_with(student, code, course.prerequisite_min_grades.get(code))
+            for code in group
+        )
+        for group in course.prerequisites
+    )
 
 
 def is_eligible(course: Course, student: Student, semester: int) -> bool:

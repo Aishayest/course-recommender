@@ -90,3 +90,39 @@ def test_satisfied_requirement_is_dropped():
     student = make_student("MATH101", "CS102")
     requirements = [Requirement(CourseKind.CORE, required_credits=6)]
     assert remaining_requirements(requirements, catalog, student) == {}
+
+
+ECON101 = Course("ECON101", "Microeconomics", 6, CourseKind.CORE)
+ECON201 = Course(
+    "ECON201",
+    "Intermediate Micro",
+    6,
+    CourseKind.MAJOR,
+    prerequisites=[["ECON101"]],
+    # handbook: ECON 101 сдаётся на C-, но как пререквизит требует B-
+    prerequisite_min_grades={"ECON101": "B-"},
+)
+
+
+def student_with(code: str, grade: float) -> Student:
+    return Student("s2", "ECON", year=2, gpa=grade, completed=[CompletedCourse(code, grade, 1)])
+
+
+def test_prerequisite_grade_too_low():
+    assert not prerequisites_met(ECON201, student_with("ECON101", 1.67))  # C-
+
+
+def test_prerequisite_grade_exactly_at_threshold():
+    assert prerequisites_met(ECON201, student_with("ECON101", 2.67))  # B-
+
+
+def test_prerequisite_grade_above_threshold():
+    assert prerequisites_met(ECON201, student_with("ECON101", 4.0))  # A
+
+
+def test_prerequisite_without_min_grade_accepts_any_pass():
+    assert prerequisites_met(CS201, student_with("CS102", 1.0))  # D
+
+
+def test_grade_of_returns_none_for_unknown_course():
+    assert student_with("CS102", 3.0).grade_of("MATH101") is None

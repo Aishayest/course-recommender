@@ -45,12 +45,45 @@ class Table:
 
 
 @dataclass
+class Block:
+    """Элемент страницы с координатами.
+
+    Порядок элементов в JSON не совпадает с визуальным, поэтому геометрия
+    обязательна: только по ней таблица плана связывается с заголовком
+    "YEAR N" над ней и с названием специальности.
+    """
+
+    kind: str  # "text" | "table"
+    top: float
+    left: float
+    width: float = 0.0
+    height: float = 0.0
+    text: str = ""
+    table: Table | None = None
+
+    @property
+    def right(self) -> float:
+        return self.left + self.width
+
+    @property
+    def center_x(self) -> float:
+        return self.left + self.width / 2
+
+
+@dataclass
 class Page:
-    """Страница презентации."""
+    """Страница презентации: блоки отсортированы сверху вниз."""
 
     number: int
-    texts: list[str] = field(default_factory=list)
-    tables: list[Table] = field(default_factory=list)
+    blocks: list[Block] = field(default_factory=list)
+
+    @property
+    def texts(self) -> list[str]:
+        return [b.text for b in self.blocks if b.kind == "text"]
+
+    @property
+    def tables(self) -> list[Table]:
+        return [b.table for b in self.blocks if b.kind == "table" and b.table]
 
 
 def _ssl_context() -> ssl.SSLContext:
@@ -116,23 +149,35 @@ def _table_of(element: dict) -> Table | None:
     return Table(rows=[[grid.get((r, c), "") for c in columns] for r in rows])
 
 
+def _geometry(element: dict) -> tuple[float, float, float, float]:
+    """Геометрия элемента: A — сверху, B — слева, D — ширина, C — высота."""
+
+    def number(key: str) -> float:
+        value = element.get(key)
+        return float(value) if isinstance(value, (int, float)) else 0.0
+
+    return number("A"), number("B"), number("D"), number("C")
+
+
 def parse_pages(bootstrap: dict) -> list[Page]:
-    """Разобрать дизайн на страницы с текстом и таблицами."""
+    """Разобрать дизайн на страницы с блоками, упорядоченными сверху вниз."""
     raw_pages = bootstrap["page"]["Bj"]["A"]["D"]["A"]["A"]
     pages: list[Page] = []
     for index, raw_page in enumerate(raw_pages, start=1):
-        page = Page(number=index)
+        blocks: list[Block] = []
         for element in raw_page.get("E", []):
             if not isinstance(element, dict):
                 continue
+            top, left, width, height = _geometry(element)
             table = _table_of(element)
             if table is not None:
-                page.tables.append(table)
+                blocks.append(Block("table", top, left, width, height, table=table))
                 continue
             text = _text_of(element)
             if text:
-                page.texts.append(text)
-        pages.append(page)
+                blocks.append(Block("text", top, left, width, height, text=text))
+        blocks.sort(key=lambda b: (b.top, b.left))
+        pages.append(Page(number=index, blocks=blocks))
     return pages
 
 
@@ -144,11 +189,45 @@ def to_dict(pages: list[Page]) -> list[dict]:
     return [
         {
             "page": page.number,
-            "texts": page.texts,
-            "tables": [table.rows for table in page.tables],
+            "blocks": [
+                {
+                    "kind": block.kind,
+                    "top": round(block.top, 2),
+                    "left": round(block.left, 2),
+                    "width": round(block.width, 2),
+                    "height": round(block.height, 2),
+                    **({"text": block.text} if block.kind == "text" else {}),
+                    **({"rows": block.table.rows} if block.table else {}),
+                }
+                for block in page.blocks
+            ],
         }
         for page in pages
     ]
+
+
+def from_dict(payload: list[dict]) -> list[Page]:
+    """Обратная операция: восстановить страницы из сохранённого JSON."""
+    pages: list[Page] = []
+    for raw_page in payload:
+        blocks = [
+            Block(
+                kind=b["kind"],
+                top=b["top"],
+                left=b["left"],
+                width=b.get("width", 0.0),
+                height=b.get("height", 0.0),
+                text=b.get("text", ""),
+                table=Table(rows=b["rows"]) if "rows" in b else None,
+            )
+            for b in raw_page["blocks"]
+        ]
+        pages.append(Page(number=raw_page["page"], blocks=blocks))
+    return pages
+
+
+def load(path: Path) -> list[Page]:
+    return from_dict(json.loads(path.read_text(encoding="utf-8")))
 
 
 def main() -> None:
