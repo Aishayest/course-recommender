@@ -19,6 +19,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from ..config import HANDBOOK_SOURCES, handbook_path
+
 BOOTSTRAP_START = "JSON.parse('"
 CELL_REF = re.compile(r"^([A-Z]+)(\d+)$")
 USER_AGENT = (
@@ -153,17 +155,29 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Выгрузить handbook из Canva в JSON")
-    parser.add_argument("url", help="публичная ссылка на дизайн Canva")
-    parser.add_argument("-o", "--output", type=Path, required=True)
+    parser.add_argument("url", nargs="?", help="публичная ссылка на дизайн Canva")
+    parser.add_argument("-o", "--output", type=Path)
+    parser.add_argument(
+        "--all", action="store_true", help="выгрузить все годы из config.HANDBOOK_SOURCES"
+    )
     args = parser.parse_args()
 
-    pages = parse_url(args.url)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps(to_dict(pages), ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    tables = sum(len(p.tables) for p in pages)
-    print(f"{len(pages)} страниц, {tables} таблиц -> {args.output}")
+    if args.all:
+        targets = [(year, url, handbook_path(year)) for year, url in HANDBOOK_SOURCES.items()]
+    elif args.url and args.output:
+        targets = [(None, args.url, args.output)]
+    else:
+        parser.error("нужно указать url и -o, либо --all")
+
+    for year, url, output in targets:
+        pages = parse_url(url)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(
+            json.dumps(to_dict(pages), ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        tables = sum(len(p.tables) for p in pages)
+        label = f"{year}: " if year else ""
+        print(f"{label}{len(pages)} страниц, {tables} таблиц -> {output}")
 
 
 if __name__ == "__main__":
