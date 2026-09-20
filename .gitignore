@@ -1,0 +1,28 @@
+# данные студентов — никогда в репозиторий
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+!data/**/README.md
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# модели и артефакты
+models/*.pkl
+models/*.bin
+*.faiss
+
+# окружение
+.env
+.DS_Store
+
+# локальные правила и настройки Claude Code
+CLAUDE.md
+.claude/
