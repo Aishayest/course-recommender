@@ -28,6 +28,7 @@ src/course_recommender/
 │   ├── canva.py           извлечение handbook из Canva
 │   ├── handbook.py        учебные планы по семестрам
 │   ├── requirements.py    требования по категориям
+│   ├── registration.py    пререквизиты и тиры приоритета регистрации
 │   ├── assemble.py        сборка Program: каталог + требования
 │   ├── catalog.py         каталог курсов университета (заглушка)
 │   └── transcripts.py     истории регистраций (заглушка)
@@ -41,6 +42,14 @@ Handbook выгружается из Canva по годам поступлени�
 ```bash
 uv run python -m course_recommender.data.canva --all
 uv run python -m course_recommender.data.assemble --year 2026 --program "COMPUTER SCIENCE"
+```
+
+Пререквизиты и приоритеты — из документа Registrar, который публикуется перед
+каждой регистрацией:
+
+```bash
+uv run python -m course_recommender.data.registration "Course Requirements ... Fall 2026.pdf" \
+  -o data/raw/requirements_fall2026.json
 ```
 
 ## Установка
@@ -65,8 +74,7 @@ uv sync --extra embeddings
 
 Не хватает двух источников:
 
-- **каталог курсов** с описаниями и настоящими пререквизитами — handbook даёт
-  только названия и порядок курсов в плане. До него порядок прохождения
-  приближается позицией курса в плане (`respect_plan`).
-- **история регистраций** — без неё модель вероятности получить место обучать
-  не на чем.
+- **описания курсов** для content-based эмбеддингов — handbook и документ
+  Registrar дают только названия.
+- **снимки заполняемости во время регистрации** — расписание с `Enr`/`Cap`
+  показывает состояние до и после, но не скорость, с которой разбирают места.
