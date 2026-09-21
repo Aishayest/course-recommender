@@ -46,10 +46,23 @@ def is_eligible(course: Course, student: Student, semester: int) -> bool:
 
 
 def eligible_courses(
-    catalog: list[Course], student: Student, semester: int
+    catalog: list[Course], student: Student, semester: int, respect_plan: bool = False
 ) -> list[Course]:
-    """Все допустимые курсы — вход для этапа ранжирования."""
-    return [c for c in catalog if is_eligible(c, student, semester)]
+    """Все допустимые курсы — вход для этапа ранжирования.
+
+    respect_plan отсекает курсы, стоящие в плане позже текущего семестра.
+    Это временная замена графу пререквизитов: без него второкурснику
+    формально доступен Senior Project с четвёртого курса. Когда появится
+    каталог с настоящими пререквизитами, фильтр станет не нужен.
+    """
+    courses = [c for c in catalog if is_eligible(c, student, semester)]
+    if respect_plan:
+        courses = [
+            c
+            for c in courses
+            if c.recommended_semester is None or c.recommended_semester <= semester
+        ]
+    return courses
 
 
 def remaining_requirements(

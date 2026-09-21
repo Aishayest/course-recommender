@@ -126,3 +126,19 @@ def test_prerequisite_without_min_grade_accepts_any_pass():
 
 def test_grade_of_returns_none_for_unknown_course():
     assert student_with("CS102", 3.0).grade_of("MATH101") is None
+
+
+def test_respect_plan_hides_courses_scheduled_later():
+    early = Course("CS100", "Intro", 6, CourseKind.MAJOR, recommended_semester=1)
+    late = Course("CS400", "Senior Project", 6, CourseKind.MAJOR, recommended_semester=7)
+    student = make_student()
+    assert {c.code for c in eligible_courses([early, late], student, 3)} == {"CS100", "CS400"}
+    assert {c.code for c in eligible_courses([early, late], student, 3, respect_plan=True)} == {
+        "CS100"
+    }
+
+
+def test_respect_plan_keeps_courses_without_plan_position():
+    floating = Course("CS150", "Elective", 6, CourseKind.ELECTIVE)
+    result = eligible_courses([floating], make_student(), 3, respect_plan=True)
+    assert [c.code for c in result] == ["CS150"]
