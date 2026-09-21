@@ -158,15 +158,32 @@ def parse_program_heading(text: str) -> tuple[str, str] | None:
     return degree, match.group(2).upper().strip()
 
 
+def _term_at(header: list[str], offset: int) -> str | None:
+    """Семестр, если с этой колонки начинается блок плана."""
+    if len(header) < offset + 3:
+        return None
+    label = header[offset]
+    if not label.startswith(("fall", "spring")):
+        return None
+    if not header[offset + 1].startswith("minimum") or "ects" not in header[offset + 2]:
+        return None
+    return "fall" if label.startswith("fall") else "spring"
+
+
+def plan_terms(table: Table) -> list[tuple[str, int]]:
+    """Семестры таблицы и смещение их колонок.
+
+    Обычно план идёт одной таблицей на шесть колонок (осень и весна рядом),
+    но кое-где семестры разнесены по отдельным таблицам на три колонки.
+    """
+    header = [normalize(c).lower() for c in table.header]
+    terms = [(term, offset) for offset in (0, 3) if (term := _term_at(header, offset))]
+    return terms
+
+
 def is_plan_table(table: Table) -> bool:
     """Таблица учебного плана, а не календаря или списка курсов."""
-    header = [normalize(c).lower() for c in table.header]
-    return (
-        len(header) >= 6
-        and header[0].startswith("fall")
-        and header[3].startswith("spring")
-        and "ects" in header[2]
-    )
+    return bool(plan_terms(table))
 
 
 def _page_footnotes(page: Page) -> dict[str, str]:
@@ -236,9 +253,10 @@ def parse_plans(pages: list[Page], admission_year: int) -> list[PlanEntry]:
             if study_year is None:
                 continue
 
+            terms = plan_terms(table)
             last: dict[str, PlanEntry] = {}
             for row in table.body:
-                for term, offset in (("fall", 0), ("spring", 3)):
+                for term, offset in terms:
                     if len(row) < offset + 3:
                         continue
                     options = parse_course_cell(row[offset])
