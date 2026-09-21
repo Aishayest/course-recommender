@@ -33,6 +33,9 @@ class CourseKind(str, Enum):
     MAJOR = "major"
     MINOR = "minor"
     ELECTIVE = "elective"
+    # Курс есть в плане, но handbook не относит его явно ни к одной категории.
+    # Лучше честно не знать, чем приписать не ту и посчитать кредиты неверно.
+    UNSPECIFIED = "unspecified"
 
 
 @dataclass(frozen=True)
@@ -51,6 +54,8 @@ class Course:
     capacity: int | None = None
     # Минимальная оценка, с которой курс засчитывается в план.
     min_grade: str | None = None
+    # Семестр, в котором курс стоит в рекомендованном плане (1..8).
+    recommended_semester: int | None = None
     # Минимальная оценка по конкретному пререквизиту: ECON 101 сам по себе
     # сдаётся на C-, но как пререквизит к ECON 201 требует B-.
     prerequisite_min_grades: dict[str, str] = field(default_factory=dict)
