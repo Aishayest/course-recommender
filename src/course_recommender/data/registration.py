@@ -87,10 +87,15 @@ class CourseOffering:
 
 
 def _norm(value: str | None) -> str:
-    """Сравнение названий без учёта регистра, лишних пробелов и пометки (UG)."""
+    """Сравнение названий специальностей.
+
+    В handbook программа записана как "COMPUTER SCIENCE (CS)", а в документе
+    регистрации — как "Computer Science". Скобочные уточнения и регистр
+    отбрасываются, иначе приоритет не находится ни у одной программы.
+    """
     if not value:
         return ""
-    value = re.sub(r"\(UG\)", "", value)
+    value = re.sub(r"\([^)]*\)", " ", value)
     return re.sub(r"\s+", " ", value).strip().upper()
 
 

@@ -12,8 +12,10 @@ DATA_PROCESSED = ROOT / "data" / "processed"
 # на русском, казахском и английском вперемешку.
 EMBEDDING_MODEL = "intfloat/multilingual-e5-base"
 
-# Веса итоговой полезности: релевантность / шанс попасть / ожидаемая оценка.
-UTILITY_WEIGHTS = {"relevance": 0.5, "availability": 0.35, "grade": 0.15}
+# Веса итоговой полезности: нужность курса против шанса на него попасть.
+# Ожидаемой оценки в формуле нет: модели оценок пока не существует, и класть
+# в вес несуществующую величину значило бы выдумывать точность.
+UTILITY_WEIGHTS = {"need": 0.6, "access": 0.4}
 
 TOP_K_CANDIDATES = 50
 TOP_K_RECOMMENDATIONS = 5

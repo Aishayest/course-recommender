@@ -194,6 +194,69 @@ class CourseDemand:
         return bool(self.capacity) and self.enrolled >= self.capacity
 
 
+@dataclass(frozen=True)
+class CourseHistory:
+    """Как курс заполнялся в прошлые семестры."""
+
+    code: str
+    title: str
+    observations: tuple[tuple[str, float], ...] = ()  # (семестр, заполняемость)
+
+    @property
+    def terms(self) -> int:
+        return len(self.observations)
+
+    @property
+    def last_fill(self) -> float | None:
+        """Заполняемость в последний известный семестр."""
+        return self.observations[-1][1] if self.observations else None
+
+    @property
+    def mean_fill(self) -> float | None:
+        if not self.observations:
+            return None
+        return sum(rate for _, rate in self.observations) / len(self.observations)
+
+    @property
+    def ever_full(self) -> bool:
+        return any(rate >= 1.0 for _, rate in self.observations)
+
+
+def history(snapshots: list[Snapshot], kinds: tuple[str, ...] = ("L",)) -> dict[str, CourseHistory]:
+    """Свести снимки в историю заполняемости по курсам.
+
+    Снимки до открытия регистрации пропускаются: в них нули, и принять их за
+    "никто не записался" значило бы занизить спрос. Если семестр представлен
+    несколькими снимками, берётся самый поздний.
+    """
+    latest: dict[str, Snapshot] = {}
+    for snapshot in snapshots:
+        if snapshot.is_pre_registration or not snapshot.sections:
+            continue
+        current = latest.get(snapshot.term)
+        if current is None or (
+            snapshot.taken_at and current.taken_at and snapshot.taken_at > current.taken_at
+        ):
+            latest[snapshot.term] = snapshot
+
+    collected: dict[str, list[tuple[str, float, str]]] = {}
+    # Снимки без отметки времени ставим в начало — порядок семестров важнее.
+    ordered = sorted(latest.values(), key=lambda s: (s.taken_at is not None, s.taken_at))
+    for snapshot in ordered:
+        for code, demand in snapshot.demand(kinds).items():
+            if demand.fill_rate is not None:
+                collected.setdefault(code, []).append((snapshot.term, demand.fill_rate, demand.title))
+
+    return {
+        code: CourseHistory(
+            code=code,
+            title=items[-1][2],
+            observations=tuple((term, rate) for term, rate, _ in items),
+        )
+        for code, items in collected.items()
+    }
+
+
 def normalize(text: str) -> str:
     return re.sub(r"\s+", " ", (text or "").replace("\n", " ")).strip()
 
