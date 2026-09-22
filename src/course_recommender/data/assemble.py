@@ -16,6 +16,7 @@ from dataclasses import dataclass, field, replace
 from ..conditions import All
 from ..domain import Course, CourseKind, Requirement
 from .canva import Page
+from .catalog import Catalog
 from .electives import (
     ElectiveGroup,
     groups_from_requirements,
@@ -307,34 +308,37 @@ def electives_of(
     return own
 
 
-def attach_requirements(programs: dict[str, Program], offerings) -> int:
-    """Проставить курсам настоящие условия допуска из документа регистрации.
+def attach_catalog(programs: dict[str, Program], catalog: Catalog, term: str | None = None) -> int:
+    """Проставить курсам плана то, что известно из каталога Registrar.
 
-    Курс, который в документе есть, но без пререквизитов, получает пустое
+    Курс, который в каталоге есть, но без пререквизитов, получает пустое
     условие All(()) — оно всегда истинно. Это не то же самое, что отсутствие
     данных: пустое условие означает "точно известно, что пререквизитов нет",
     и такому курсу подстраховка по позиции в плане уже не нужна.
+
+    Оттуда же берутся семестры, в которых курс реально читают. Handbook знает
+    только, в каком семестре курс стоит в плане, а каталог — в каком он бывает
+    на самом деле, и это разные вещи: курс из осеннего плана может читаться
+    и весной.
     """
-    by_code = {o.code: o for o in offerings}
     updated = 0
     for program in programs.values():
         for code, course in list(program.courses.items()):
-            offering = by_code.get(code)
-            if offering is None:
+            entry = catalog.get(code)
+            if entry is None:
                 continue
             program.courses[code] = replace(
-                course, requirement=offering.prerequisite or All(())
+                course,
+                requirement=entry.prerequisite(term) or All(()),
+                semesters_offered=entry.semesters_offered or course.semesters_offered,
+                title=course.title or entry.title,
+                credits=course.credits or (entry.credits_ects or 0),
             )
             updated += 1
     return updated
 
 
-def attach_electives(
-    programs: dict[str, Program],
-    catalog: dict[str, str],
-    schools: dict[str, str] | None = None,
-    credits: dict[str, int] | None = None,
-) -> int:
+def attach_electives(programs: dict[str, Program], catalog: Catalog, term: str | None = None) -> int:
     """Развернуть слоты плана в конкретные курсы по спискам элективов.
 
     До этого момента "Technical Elective" — только название позиции. Каталог
@@ -343,12 +347,21 @@ def attach_electives(
 
     Курсы, уже стоящие в плане обязательными, из списка вычитаются: закрыть
     ими свободную позицию нельзя, они и так обязательны.
+
+    Позиция плана знает всё, чем её разрешено закрыть, а в каталог
+    специальности попадают только курсы, которые в целевом семестре
+    действительно читают: предлагать то, чего в этом семестре нет, бессмысленно.
     """
+    titles = catalog.titles
+    schools = catalog.schools
+    credits = catalog.credits
+    offered = catalog.offered(term)
+
     filled = 0
     for program in programs.values():
         required = frozenset(program.courses)
         resolved = {
-            kind: group.resolve(catalog, required, schools) - required
+            kind: group.resolve(titles, required, schools) - required
             for kind, group in program.electives.items()
         }
         program.slots = [
@@ -362,20 +375,19 @@ def attach_electives(
             for requirement in program.requirements
         ]
 
-        # Курсы, которыми закрываются свободные позиции, попадают в каталог
-        # специальности: без этого их некому предложить — в плане они не стоят.
-        # Только те, что в каталоге действительно есть: handbook перечисляет
-        # и курсы, которые в этом семестре не читают, и предлагать их нельзя.
         for kind, codes in resolved.items():
-            for code in sorted(codes & set(catalog)):
+            for code in sorted(codes & offered):
                 if code in program.courses:
                     continue
+                entry = catalog.get(code)
                 program.courses[code] = Course(
                     code=code,
-                    title=catalog.get(code, ""),
-                    credits=(credits or {}).get(code, 0),
+                    title=titles.get(code, ""),
+                    credits=credits.get(code, 0),
                     kind=CourseKind.ELECTIVE,
                     elective_kind=kind,
+                    semesters_offered=entry.semesters_offered if entry else (),
+                    requirement=entry.prerequisite(term) or All(()) if entry else None,
                 )
                 filled += 1
     return filled
@@ -416,21 +428,25 @@ def main() -> None:
     parser.add_argument("--year", type=int, required=True)
     parser.add_argument("--program", help="часть названия, без учёта регистра")
     parser.add_argument(
-        "--catalog", type=Path, help="PDF Course Requirements — раскрыть списки элективов"
+        "--catalog",
+        type=Path,
+        nargs="*",
+        help="каталог курсов: PDF Course Requirements или собранный catalog.json",
     )
+    parser.add_argument("--term", help="семестр каталога: \"Fall 2026\"")
     args = parser.parse_args()
 
     programs = load_programs(args.year)
     if args.catalog:
-        from .registration import parse_pdf
+        from .catalog import from_pdfs, load
 
-        offerings = parse_pdf(args.catalog)
-        attach_electives(
-            programs,
-            {o.code: o.title for o in offerings},
-            {o.code: o.school for o in offerings},
-            {o.code: o.credits_ects or 0 for o in offerings},
+        catalog = (
+            load(args.catalog[0])
+            if len(args.catalog) == 1 and args.catalog[0].suffix == ".json"
+            else from_pdfs(args.catalog)
         )
+        attach_catalog(programs, catalog, args.term)
+        attach_electives(programs, catalog, args.term)
 
     if not args.program:
         for name in sorted(programs):

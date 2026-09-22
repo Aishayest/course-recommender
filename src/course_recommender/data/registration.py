@@ -36,6 +36,11 @@ AUDIENCE = re.compile(
 )
 PERMISSION = re.compile(r"instructor'?s permission", re.IGNORECASE)
 SCHOOLS = {"GSB", "SCAI", "SEDS", "SMG", "SOE", "SOM", "SSH"}
+# Школа SEDS разделилась на SCAI и SoE. Документы до 2026 знают только SEDS,
+# и приоритет, выданный тогда всей школе, сегодня относится к студентам обеих.
+# Связь односторонняя: приоритет, выданный сегодня SoE, на студента SCAI
+# не распространяется.
+SCHOOL_SUCCESSORS = {"SEDS": frozenset({"SCAI", "SOE"})}
 
 
 @dataclass(frozen=True)
@@ -56,7 +61,7 @@ class Audience:
         """
         if self.year is not None and self.year != year:
             return False
-        if self.school and _norm(self.school) != _norm(school):
+        if self.school and not _same_school(self.school, school):
             return False
         return not (self.program and _norm(self.program) != _norm(program))
 
@@ -78,8 +83,15 @@ class CourseOffering:
     priorities: list[list[Audience]] = field(default_factory=list)
     instructor_permission: bool = False
 
-    def priority_for(self, year: int, school: str | None, program: str | None) -> int | None:
-        """Тир приоритета студента: 1 — самый высокий, None — приоритета нет."""
+    def priority_for(
+        self, year: int, school: str | None, program: str | None, term: str | None = None
+    ) -> int | None:
+        """Тир приоритета студента: 1 — самый высокий, None — приоритета нет.
+
+        Семестр здесь не спрашивается: строка описывает один семестр, свой
+        собственный. Аргумент есть ради единообразия с каталогом, который
+        хранит приоритеты по семестрам и умеет отдать нужный.
+        """
         for tier, audiences in enumerate(self.priorities, start=1):
             if any(a.matches(year, school, program) for a in audiences):
                 return tier
@@ -97,6 +109,12 @@ def _norm(value: str | None) -> str:
         return ""
     value = re.sub(r"\([^)]*\)", " ", value)
     return re.sub(r"\s+", " ", value).strip().upper()
+
+
+def _same_school(audience: str | None, student: str | None) -> bool:
+    """Та же ли это школа с поправкой на переименования."""
+    named, actual = _norm(audience), _norm(student)
+    return named == actual or actual in SCHOOL_SUCCESSORS.get(named, frozenset())
 
 
 def normalize(text: str) -> str:

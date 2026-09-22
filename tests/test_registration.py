@@ -135,6 +135,35 @@ def test_priority_tier_lookup():
     assert offering.priority_for(2, "SSH", "Sociology") is None
 
 
+def test_priority_of_old_seds_covers_both_successor_schools():
+    # Документы до 2026 знают школу SEDS, а студенты сегодня в SCAI или SoE
+    offering = CourseOffering(
+        term="Spring 2025",
+        school="SEDS",
+        department="Computer Science",
+        code="CSCI 333",
+        title="Computer Networks",
+        priorities=[[Audience(year=3, school="SEDS", program="Computer Science")]],
+    )
+    assert offering.priority_for(3, "SCAI", "Computer Science") == 1
+    assert offering.priority_for(3, "SEDS", "Computer Science") == 1
+    assert offering.priority_for(3, "SSH", "Computer Science") is None
+
+
+def test_priority_of_new_school_does_not_leak_to_the_other():
+    # Обратной силы у разделения нет: приоритет SoE не относится к SCAI
+    offering = CourseOffering(
+        term="Fall 2026",
+        school="SoE",
+        department="Mechanical and Aerospace Engineering",
+        code="MAE 301",
+        title="Thermodynamics",
+        priorities=[[Audience(school="SoE")]],
+    )
+    assert offering.priority_for(3, "SoE", "Mechanical Engineering") == 1
+    assert offering.priority_for(3, "SCAI", "Computer Science") is None
+
+
 def test_section_header_detection():
     assert is_section_header(["GSB"] + [""] * 11)
     assert not is_section_header(["1", "BBA 208", "Data Analytics", "3", "6"] + [""] * 7)

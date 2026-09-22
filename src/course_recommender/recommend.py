@@ -210,14 +210,15 @@ def recommend(
     fill_history: dict | None = None,
     sections: dict[str, list] | None = None,
     school: str | None = None,
+    term: str | None = None,
     limit: int = 5,
     known_tests: dict[str, float] | None = None,
 ) -> list[Recommendation]:
     """Ранжировать курсы, доступные студенту в этом семестре.
 
-    offerings — курсы документа регистрации (тиры приоритета), fill_history —
-    заполняемость прошлых семестров, sections — секции семестра для проверки
-    конфликтов по времени. Любой из источников можно не передавать: тогда
+    offerings — курсы каталога (тиры приоритета), term — семестр регистрации,
+    за который эти тиры брать, fill_history — заполняемость прошлых семестров,
+    sections — секции семестра для проверки конфликтов по времени. Любой из источников можно не передавать: тогда
     соответствующее свидетельство просто отсутствует, а не подменяется нулём.
     """
     offerings = offerings or {}
@@ -241,7 +242,7 @@ def recommend(
     for course in available:
         offering = offerings.get(course.code)
         tier = (
-            offering.priority_for(student.year, school, program.name)
+            offering.priority_for(student.year, school, program.name, term)
             if offering is not None and school is not None
             else None
         )
@@ -278,8 +279,9 @@ def main() -> None:
     import argparse
     from pathlib import Path
 
-    from .data.assemble import attach_electives, attach_requirements, load_programs
-    from .data.registration import parse_pdf as parse_requirements
+    from .data.assemble import attach_catalog, attach_electives, load_programs
+    from .data.catalog import Catalog, from_pdfs
+    from .data.catalog import load as load_catalog
     from .data.schedule import history
     from .data.schedule import parse_pdf as parse_schedule
     from .domain import CompletedCourse
@@ -296,7 +298,15 @@ def main() -> None:
         help="считать пройденными все курсы плана по этот семестр включительно",
     )
     parser.add_argument("--gpa", type=float, default=3.0)
-    parser.add_argument("--requirements", type=Path, help="PDF Course Requirements")
+    parser.add_argument(
+        "--requirements",
+        type=Path,
+        nargs="*",
+        default=[],
+        help="PDF Course Requirements: можно несколько, тогда известны и весенние курсы",
+    )
+    parser.add_argument("--catalog", type=Path, help="собранный catalog.json вместо PDF")
+    parser.add_argument("--term", help='семестр регистрации: "Fall 2026"')
     parser.add_argument("--schedule", type=Path, nargs="*", default=[], help="PDF расписаний")
     parser.add_argument("--limit", type=int, default=5)
     args = parser.parse_args()
@@ -307,18 +317,17 @@ def main() -> None:
         parser.error(f"специальность не найдена: {args.program}")
     program = matches[0]
 
-    offerings = {}
-    if args.requirements:
-        offerings = {o.code: o for o in parse_requirements(args.requirements)}
-        # Сначала элективы: они добавляют курсы в каталог специальности,
-        # и условия допуска нужно проставить уже им тоже.
-        attach_electives(
-            {program.name: program},
-            {code: o.title for code, o in offerings.items()},
-            {code: o.school for code, o in offerings.items()},
-            {code: o.credits_ects or 0 for code, o in offerings.items()},
-        )
-        attach_requirements({program.name: program}, offerings.values())
+    catalog = Catalog()
+    if args.catalog:
+        catalog = load_catalog(args.catalog)
+    elif args.requirements:
+        catalog = from_pdfs(args.requirements)
+    # Семестр регистрации: по умолчанию самый поздний из известных каталогу.
+    term = args.term or (catalog.terms[-1] if catalog.terms else None)
+    if len(catalog):
+        attach_catalog({program.name: program}, catalog, term)
+        attach_electives({program.name: program}, catalog, term)
+    offerings = catalog.entries
 
     snapshots = [parse_schedule(path).filter_level("UG") for path in args.schedule]
     fill_history = history(snapshots)
@@ -352,6 +361,7 @@ def main() -> None:
         fill_history=fill_history,
         sections=sections,
         school=args.school,
+        term=term,
         limit=args.limit,
     )
     if not results:

@@ -12,7 +12,7 @@ data/registration.py.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from .domain import Student, grade_points
 
@@ -156,3 +156,38 @@ def course_codes(node) -> set[str]:
     if isinstance(node, CourseNeeded):
         return {node.code}
     return set()
+
+
+# Узлы дерева по имени — для чтения условий с диска.
+NODE_TYPES = {
+    cls.__name__: cls for cls in (CourseNeeded, SubjectRange, ExamScore, Placement, All, Any)
+}
+
+
+def to_json(node):
+    """Дерево условий в JSON-совместимую структуру.
+
+    Строковое представление здесь не годится: str(node) читается человеком,
+    но разобрать его обратно нельзя, а каталог курсов должен переживать
+    сохранение на диск без потери условий допуска.
+    """
+    if node is None:
+        return None
+    payload = {"type": type(node).__name__}
+    for field in fields(node):
+        value = getattr(node, field.name)
+        payload[field.name] = (
+            [to_json(term) for term in value] if field.name == "terms" else value
+        )
+    return payload
+
+
+def from_json(data):
+    """Дерево условий обратно из JSON."""
+    if data is None:
+        return None
+    node = NODE_TYPES[data["type"]]
+    values = {key: value for key, value in data.items() if key != "type"}
+    if "terms" in values:
+        values["terms"] = tuple(from_json(term) for term in values["terms"])
+    return node(**values)

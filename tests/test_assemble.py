@@ -1,4 +1,5 @@
 from course_recommender.data.assemble import (
+    attach_catalog,
     attach_electives,
     build_courses,
     build_program,
@@ -9,8 +10,10 @@ from course_recommender.data.assemble import (
     resolve_kind,
     semester_index,
 )
+from course_recommender.data.catalog import build as build_catalog
 from course_recommender.data.electives import ElectiveGroup, ElectiveRule
 from course_recommender.data.handbook import CourseRef, PlanEntry
+from course_recommender.data.registration import CourseOffering
 from course_recommender.data.requirements import RequirementRow
 from course_recommender.domain import CourseKind
 
@@ -141,21 +144,27 @@ def test_semester_courses_filters_by_plan_position():
     assert [c.code for c in program.semester_courses(3)] == ["CSCI 231"]
 
 
-class _Offering:
-    def __init__(self, code, prerequisite=None):
-        self.code = code
-        self.prerequisite = prerequisite
+def offering(code, prerequisite=None, *, term="Fall 2026", title="", credits=6, school="SCAI"):
+    return CourseOffering(
+        term=term,
+        school=school,
+        department="Computer Science",
+        code=code,
+        title=title,
+        credits_ects=credits,
+        prerequisite=prerequisite,
+    )
 
 
-def test_attach_requirements_sets_condition():
+def test_attach_catalog_sets_condition():
     from course_recommender.conditions import All, CourseNeeded
-    from course_recommender.data.assemble import attach_requirements
 
     programs = {"CS": build_program([entry("CSCI 151"), entry("CSCI 231", year=2)], [], 2026, "CS")}
-    updated = attach_requirements(
-        programs,
-        [_Offering("CSCI 231", CourseNeeded("CSCI 151", min_grade="C-")), _Offering("CSCI 151")],
+    catalog = build_catalog(
+        [offering("CSCI 231", CourseNeeded("CSCI 151", min_grade="C-")), offering("CSCI 151")]
     )
+    updated = attach_catalog(programs, catalog)
+
     courses = programs["CS"].courses
     assert updated == 2
     assert courses["CSCI 231"].requirement == CourseNeeded("CSCI 151", min_grade="C-")
@@ -163,12 +172,35 @@ def test_attach_requirements_sets_condition():
     assert courses["CSCI 151"].requirement == All(())
 
 
-def test_attach_requirements_leaves_unknown_courses_alone():
-    from course_recommender.data.assemble import attach_requirements
-
+def test_attach_catalog_leaves_unknown_courses_alone():
     programs = {"CS": build_program([entry("CSCI 152")], [], 2026, "CS")}
-    assert attach_requirements(programs, [_Offering("OTHER 101")]) == 0
+    assert attach_catalog(programs, build_catalog([offering("OTHER 101")])) == 0
     assert programs["CS"].courses["CSCI 152"].requirement is None
+
+
+def test_attach_catalog_takes_real_terms_from_catalog():
+    # План ставит курс в осенний семестр, а читают его и весной тоже
+    programs = {"CS": build_program([entry("CSCI 152", term="fall")], [], 2026, "CS")}
+    catalog = build_catalog(
+        [offering("CSCI 152", term="Spring 2026"), offering("CSCI 152", term="Spring 2025")]
+    )
+    attach_catalog(programs, catalog)
+    assert programs["CS"].courses["CSCI 152"].semesters_offered == (2, 4, 6, 8)
+
+
+def test_attach_catalog_uses_condition_of_the_asked_term():
+    from course_recommender.conditions import CourseNeeded
+
+    programs = {"CS": build_program([entry("CSCI 231", year=2)], [], 2026, "CS")}
+    catalog = build_catalog(
+        [
+            offering("CSCI 231", CourseNeeded("CSCI 151"), term="Fall 2024"),
+            offering("CSCI 231", CourseNeeded("CSCI 152"), term="Fall 2026"),
+        ]
+    )
+    attach_catalog(programs, catalog, term="Fall 2025")
+    # За Fall 2025 условия нет, берётся последнее известное до него
+    assert programs["CS"].courses["CSCI 231"].requirement == CourseNeeded("CSCI 151")
 
 
 def test_build_slots_labels_elective_positions():
@@ -192,12 +224,14 @@ def test_attach_electives_fills_slots_from_program_own_list():
             )
         },
     )
-    catalog = {
-        "MATH 322": "Mathematical Statistics",
-        "CSCI 434": "Information Security",
-        "CSCI 151": "Programming",
-    }
-    added = attach_electives({program.name: program}, catalog, credits={"CSCI 434": 6})
+    catalog = build_catalog(
+        [
+            offering("MATH 322", title="Mathematical Statistics"),
+            offering("CSCI 434", title="Information Security"),
+            offering("CSCI 151", title="Programming"),
+        ]
+    )
+    added = attach_electives({program.name: program}, catalog)
 
     slot = next(s for s in program.slots if s.kind == "technical")
     assert slot.eligible_codes == {"MATH 322", "CSCI 434"}
@@ -224,7 +258,10 @@ def test_attach_electives_adds_only_courses_present_in_catalog():
             )
         },
     )
-    attach_electives({program.name: program}, {"MATH 322": "Mathematical Statistics"})
+    attach_electives(
+        {program.name: program},
+        build_catalog([offering("MATH 322", title="Mathematical Statistics")]),
+    )
 
     slot = program.slots[0]
     # Позиция закрывается обоими — так сказал handbook
