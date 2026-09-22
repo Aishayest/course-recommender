@@ -38,6 +38,9 @@ class Evidence:
 
     course: Course
     on_plan: bool = False
+    # Свободная позиция плана этого семестра, которую курс закрывает:
+    # "Technical Elective". Позицию всё равно чем-то закрывать придётся.
+    fills_slot: str | None = None
     covers: CourseKind | None = None
     prerequisites: bool | None = None
     missing: tuple[str, ...] = ()
@@ -83,6 +86,8 @@ class Evidence:
         """Насколько курс нужен именно сейчас."""
         if self.on_plan:
             return 1.0
+        if self.fills_slot is not None:
+            return 0.9
         if self.covers is not None:
             return 0.7
         if self.course.kind is CourseKind.MAJOR:
@@ -104,6 +109,8 @@ class Recommendation:
         parts = []
         if self.evidence.on_plan:
             parts.append("стоит в плане на этот семестр")
+        elif self.evidence.fills_slot is not None:
+            parts.append(f"закрывает позицию плана «{self.evidence.fills_slot}»")
         elif self.evidence.covers is not None:
             parts.append(f"закрывает {self.evidence.covers.value}")
         tier = self.evidence.priority_tier
@@ -127,6 +134,7 @@ def build_evidence(
     tier: int | None = None,
     course_history=None,
     known_tests: dict[str, float] | None = None,
+    slots: dict[str, str] | None = None,
 ) -> Evidence:
     """Собрать всё известное про курс."""
     satisfied = (
@@ -140,6 +148,7 @@ def build_evidence(
     return Evidence(
         course=course,
         on_plan=course.recommended_semester == semester,
+        fills_slot=(slots or {}).get(course.code),
         covers=course.kind if gaps.get(course.kind, 0) > 0 else None,
         prerequisites=satisfied,
         missing=missing,
@@ -219,6 +228,14 @@ def recommend(
     available = eligible_courses(
         program.catalog, student, semester, respect_plan=True, known_tests=known_tests
     )
+    # Свободные позиции этого семестра: что бы студент ни выбрал, закрыть их
+    # чем-то нужно, и курс, который их закрывает, нужнее произвольного.
+    open_slots = {
+        code: slot.name
+        for slot in program.slots
+        if slot.semester == semester
+        for code in slot.eligible_codes
+    }
 
     pool = []
     for course in available:
@@ -237,6 +254,7 @@ def recommend(
                 tier=tier,
                 course_history=fill_history.get(course.code),
                 known_tests=known_tests,
+                slots=open_slots,
             )
         )
 
@@ -260,7 +278,7 @@ def main() -> None:
     import argparse
     from pathlib import Path
 
-    from .data.assemble import attach_requirements, load_programs
+    from .data.assemble import attach_electives, attach_requirements, load_programs
     from .data.registration import parse_pdf as parse_requirements
     from .data.schedule import history
     from .data.schedule import parse_pdf as parse_schedule
@@ -292,6 +310,14 @@ def main() -> None:
     offerings = {}
     if args.requirements:
         offerings = {o.code: o for o in parse_requirements(args.requirements)}
+        # Сначала элективы: они добавляют курсы в каталог специальности,
+        # и условия допуска нужно проставить уже им тоже.
+        attach_electives(
+            {program.name: program},
+            {code: o.title for code, o in offerings.items()},
+            {code: o.school for code, o in offerings.items()},
+            {code: o.credits_ects or 0 for code, o in offerings.items()},
+        )
         attach_requirements({program.name: program}, offerings.values())
 
     snapshots = [parse_schedule(path).filter_level("UG") for path in args.schedule]

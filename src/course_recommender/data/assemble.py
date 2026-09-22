@@ -16,6 +16,14 @@ from dataclasses import dataclass, field, replace
 from ..conditions import All
 from ..domain import Course, CourseKind, Requirement
 from .canva import Page
+from .electives import (
+    ElectiveGroup,
+    groups_from_requirements,
+    kind_of_row,
+    merge,
+    parse_electives,
+    slot_kind,
+)
 from .handbook import PlanEntry, parse_plans
 from .requirements import RequirementRow, degree_credits, parse_requirements
 
@@ -37,6 +45,12 @@ class PlanSlot:
     term: str
     credits: int | None
     min_grade: str | None = None
+    # Тип электива, если это позиция на выбор: "Technical Elective 2" ->
+    # technical. Списки у типов разные, и у каждой специальности свои.
+    kind: str | None = None
+    # Чем эту позицию можно закрыть. Пусто, пока не известен каталог курсов:
+    # правило "любой курс CS 200+" без каталога не разворачивается.
+    eligible_codes: frozenset[str] = frozenset()
 
 
 @dataclass
@@ -51,6 +65,10 @@ class Program:
     slots: list[PlanSlot] = field(default_factory=list)
     total_credits: int | None = None
     min_major_grade: str | None = None
+    # Списки элективов специальности по типам: technical, natural science,
+    # major. Это и есть то, чем отличаются свободные позиции плана у CS
+    # и у математиков при одинаковом названии "Technical Elective".
+    electives: dict[str, ElectiveGroup] = field(default_factory=dict)
 
     @property
     def catalog(self) -> list[Course]:
@@ -163,9 +181,27 @@ def build_slots(entries: list[PlanEntry]) -> list[PlanSlot]:
                     term=entry.term,
                     credits=entry.credits[0] if entry.credits else None,
                     min_grade=entry.min_grade,
+                    kind=slot_kind(option.title),
                 )
             )
     return slots
+
+
+def build_requirements(rows: list[RequirementRow]) -> list[Requirement]:
+    """Требования по категориям, с пометкой типа электива там, где он есть."""
+    requirements = []
+    for row in rows:
+        if row.is_total or not row.credits:
+            continue
+        kind = row.kind
+        requirements.append(
+            Requirement(
+                kind=kind,
+                required_credits=row.credits,
+                elective_kind=kind_of_row(row) if kind is CourseKind.ELECTIVE else None,
+            )
+        )
+    return requirements
 
 
 def build_program(
@@ -174,6 +210,7 @@ def build_program(
     admission_year: int,
     name: str,
     shared_kinds: dict[str, CourseKind] | None = None,
+    electives: dict[str, ElectiveGroup] | None = None,
     ) -> Program:
     """Собрать специальность из позиций плана и строк требований.
 
@@ -188,14 +225,11 @@ def build_program(
         name=name,
         degree=entries[0].degree if entries else "",
         courses=build_courses(entries, own_kinds, shared_kinds or {}, subject),
-        requirements=[
-            Requirement(kind=row.kind, required_credits=row.credits)
-            for row in rows
-            if not row.is_total and row.credits
-        ],
+        requirements=build_requirements(rows),
         slots=build_slots(entries),
         total_credits=degree_credits(rows),
         min_major_grade=grades[0] if grades else None,
+        electives=dict(electives or {}),
     )
 
 
@@ -237,12 +271,40 @@ def build_programs(
     for row in all_rows:
         requirements.setdefault(row.program, []).append(row)
 
+    names = set(plans) | set(requirements)
+    groups = merge(
+        parse_electives(pages, admission_year, names),
+        groups_from_requirements(all_rows, admission_year),
+    )
+
     return {
         name: build_program(
-            plans.get(name, []), requirements.get(name, []), admission_year, name, shared
+            plans.get(name, []),
+            requirements.get(name, []),
+            admission_year,
+            name,
+            shared,
+            electives_of(groups, name),
         )
-        for name in set(plans) | set(requirements)
+        for name in names
     }
+
+
+def electives_of(
+    groups: dict[tuple[str, str], ElectiveGroup], program: str
+) -> dict[str, ElectiveGroup]:
+    """Списки элективов одной специальности, дополненные общеуниверситетскими.
+
+    Свой список всегда важнее: технический электив у CS и у робототехники
+    называется одинаково, а состоит из разного. Общеуниверситетская страница
+    добавляется только там, где у специальности своего списка нет — так
+    устроены социальные и гуманитарные элективы, они на всех одни.
+    """
+    own = {kind: group for (name, kind), group in groups.items() if name == program}
+    for (name, kind), group in groups.items():
+        if not name:
+            own.setdefault(kind, group)
+    return own
 
 
 def attach_requirements(programs: dict[str, Program], offerings) -> int:
@@ -265,6 +327,58 @@ def attach_requirements(programs: dict[str, Program], offerings) -> int:
             )
             updated += 1
     return updated
+
+
+def attach_electives(
+    programs: dict[str, Program],
+    catalog: dict[str, str],
+    schools: dict[str, str] | None = None,
+    credits: dict[str, int] | None = None,
+) -> int:
+    """Развернуть слоты плана в конкретные курсы по спискам элективов.
+
+    До этого момента "Technical Elective" — только название позиции. Каталог
+    превращает его в набор кодов: часть handbook назвал поимённо, часть задана
+    правилом, которое без каталога не разворачивается вовсе.
+
+    Курсы, уже стоящие в плане обязательными, из списка вычитаются: закрыть
+    ими свободную позицию нельзя, они и так обязательны.
+    """
+    filled = 0
+    for program in programs.values():
+        required = frozenset(program.courses)
+        resolved = {
+            kind: group.resolve(catalog, required, schools) - required
+            for kind, group in program.electives.items()
+        }
+        program.slots = [
+            replace(slot, eligible_codes=frozenset(resolved.get(slot.kind, ())))
+            for slot in program.slots
+        ]
+        program.requirements = [
+            replace(requirement, eligible_codes=frozenset(resolved[requirement.elective_kind]))
+            if requirement.elective_kind in resolved
+            else requirement
+            for requirement in program.requirements
+        ]
+
+        # Курсы, которыми закрываются свободные позиции, попадают в каталог
+        # специальности: без этого их некому предложить — в плане они не стоят.
+        # Только те, что в каталоге действительно есть: handbook перечисляет
+        # и курсы, которые в этом семестре не читают, и предлагать их нельзя.
+        for kind, codes in resolved.items():
+            for code in sorted(codes & set(catalog)):
+                if code in program.courses:
+                    continue
+                program.courses[code] = Course(
+                    code=code,
+                    title=catalog.get(code, ""),
+                    credits=(credits or {}).get(code, 0),
+                    kind=CourseKind.ELECTIVE,
+                    elective_kind=kind,
+                )
+                filled += 1
+    return filled
 
 
 def shared_core_kinds() -> dict[str, CourseKind]:
@@ -296,13 +410,28 @@ def load_programs(admission_year: int, cross_year_core: bool = True) -> dict[str
 
 def main() -> None:
     import argparse
+    from pathlib import Path
 
     parser = argparse.ArgumentParser(description="Показать собранную специальность")
     parser.add_argument("--year", type=int, required=True)
     parser.add_argument("--program", help="часть названия, без учёта регистра")
+    parser.add_argument(
+        "--catalog", type=Path, help="PDF Course Requirements — раскрыть списки элективов"
+    )
     args = parser.parse_args()
 
     programs = load_programs(args.year)
+    if args.catalog:
+        from .registration import parse_pdf
+
+        offerings = parse_pdf(args.catalog)
+        attach_electives(
+            programs,
+            {o.code: o.title for o in offerings},
+            {o.code: o.school for o in offerings},
+            {o.code: o.credits_ects or 0 for o in offerings},
+        )
+
     if not args.program:
         for name in sorted(programs):
             program = programs[name]
@@ -317,7 +446,15 @@ def main() -> None:
     print(f"{program.degree} in {program.name} ({program.admission_year})")
     print(f"кредитов на диплом: {program.total_credits or '—'}")
     print(f"минимальная оценка по профильным: {program.min_major_grade or '—'}")
-    print(f"курсов в плане: {len(program.courses)}, слотов на выбор: {len(program.slots)}")
+    on_plan = sum(1 for c in program.courses.values() if c.recommended_semester is not None)
+    print(
+        f"курсов в плане: {on_plan}, слотов на выбор: {len(program.slots)}, "
+        f"кандидатов в элективы: {len(program.courses) - on_plan}"
+    )
+    for kind, group in sorted(program.electives.items()):
+        from .electives import describe
+
+        print(f"элективы «{kind}»: {describe(group)}")
 
     for semester in range(1, 9):
         courses = sorted(program.semester_courses(semester), key=lambda c: c.code)
@@ -330,8 +467,9 @@ def main() -> None:
             print(f"  {course.code:10s} {course.credits:2d} ECTS  {course.min_grade or '—':3s}  "
                   f"{course.kind.value:11s} {course.title[:40]}")
         for slot in slots:
+            choice = f"  ({len(slot.eligible_codes)} вариантов)" if slot.eligible_codes else ""
             print(f"  {'—':10s} {slot.credits or 0:2d} ECTS  {slot.min_grade or '—':3s}  "
-                  f"{'слот':11s} {slot.name[:40]}")
+                  f"{'слот':11s} {slot.name[:40]}{choice}")
 
 
 if __name__ == "__main__":

@@ -60,6 +60,9 @@ class Course:
     min_grade: str | None = None
     # Семестр, в котором курс стоит в рекомендованном плане (1..8).
     recommended_semester: int | None = None
+    # Каким типом электива курс засчитывается: technical, natural science,
+    # major. У обязательных курсов плана пусто.
+    elective_kind: str | None = None
     # Настоящее условие допуска из документа регистрации: дерево AND/OR
     # с порогом оценки по каждому курсу. Если оно есть, поля prerequisites
     # и prerequisite_min_grades не используются.
@@ -112,3 +115,7 @@ class Requirement:
     required_credits: int
     # Если задано — засчитываются только курсы из этого списка.
     eligible_codes: frozenset[str] | None = None
+    # Для требований, закрываемых элективом, — какого он типа: технический,
+    # естественнонаучный, профильный. Список курсов у каждого типа свой,
+    # и у каждой специальности тоже свой.
+    elective_kind: str | None = None

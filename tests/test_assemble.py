@@ -1,12 +1,15 @@
 from course_recommender.data.assemble import (
+    attach_electives,
     build_courses,
     build_program,
     build_slots,
     core_kinds,
     dominant_subject,
+    electives_of,
     resolve_kind,
     semester_index,
 )
+from course_recommender.data.electives import ElectiveGroup, ElectiveRule
 from course_recommender.data.handbook import CourseRef, PlanEntry
 from course_recommender.data.requirements import RequirementRow
 from course_recommender.domain import CourseKind
@@ -166,3 +169,76 @@ def test_attach_requirements_leaves_unknown_courses_alone():
     programs = {"CS": build_program([entry("CSCI 152")], [], 2026, "CS")}
     assert attach_requirements(programs, [_Offering("OTHER 101")]) == 0
     assert programs["CS"].courses["CSCI 152"].requirement is None
+
+
+def test_build_slots_labels_elective_positions():
+    slots = build_slots([entry(None, year=4, title="Technical Elective 2")])
+    assert slots[0].kind == "technical"
+
+
+def test_attach_electives_fills_slots_from_program_own_list():
+    program = build_program(
+        [entry("CSCI 151", year=1), entry(None, year=4, title="Technical Elective")],
+        [],
+        2026,
+        "COMPUTER SCIENCE (CS)",
+        electives={
+            "technical": ElectiveGroup(
+                admission_year=2026,
+                program="COMPUTER SCIENCE (CS)",
+                kind="technical",
+                courses=[CourseRef(code="MATH 322", title="")],
+                rules=[ElectiveRule(subjects=("CSCI",), min_level=200, exclude_required=True)],
+            )
+        },
+    )
+    catalog = {
+        "MATH 322": "Mathematical Statistics",
+        "CSCI 434": "Information Security",
+        "CSCI 151": "Programming",
+    }
+    added = attach_electives({program.name: program}, catalog, credits={"CSCI 434": 6})
+
+    slot = next(s for s in program.slots if s.kind == "technical")
+    assert slot.eligible_codes == {"MATH 322", "CSCI 434"}
+    # CSCI 151 обязателен по плану — свободную позицию им не закрыть
+    assert "CSCI 151" not in slot.eligible_codes
+    assert added == 2
+    assert program.courses["CSCI 434"].kind is CourseKind.ELECTIVE
+    assert program.courses["CSCI 434"].credits == 6
+
+
+def test_attach_electives_adds_only_courses_present_in_catalog():
+    # handbook перечисляет и то, что в этом семестре не читают
+    program = build_program(
+        [entry(None, year=4, title="Technical Elective")],
+        [],
+        2026,
+        "COMPUTER SCIENCE (CS)",
+        electives={
+            "technical": ElectiveGroup(
+                admission_year=2026,
+                program="COMPUTER SCIENCE (CS)",
+                kind="technical",
+                courses=[CourseRef(code="PHYS 270", title=""), CourseRef(code="MATH 322", title="")],
+            )
+        },
+    )
+    attach_electives({program.name: program}, {"MATH 322": "Mathematical Statistics"})
+
+    slot = program.slots[0]
+    # Позиция закрывается обоими — так сказал handbook
+    assert slot.eligible_codes == {"PHYS 270", "MATH 322"}
+    # А предложить можно только то, что читают
+    assert set(program.courses) == {"MATH 322"}
+
+
+def test_electives_of_falls_back_to_university_wide_lists():
+    own = ElectiveGroup(admission_year=2026, program="SOCIOLOGY", kind="major")
+    shared = ElectiveGroup(admission_year=2026, program="", kind="humanities")
+    groups = {("SOCIOLOGY", "major"): own, ("", "humanities"): shared}
+
+    resolved = electives_of(groups, "SOCIOLOGY")
+    assert resolved["major"] is own
+    assert resolved["humanities"] is shared
+    assert "major" not in electives_of(groups, "PHYSICS")

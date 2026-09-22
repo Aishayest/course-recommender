@@ -1,7 +1,7 @@
 from datetime import time
 
 from course_recommender.conditions import All, CourseNeeded
-from course_recommender.data.assemble import Program
+from course_recommender.data.assemble import PlanSlot, Program
 from course_recommender.data.schedule import CourseHistory, Meeting, Section
 from course_recommender.domain import CompletedCourse, Course, CourseKind, Requirement, Student
 from course_recommender.recommend import Evidence, _conflicts, _fallback, recommend, utility
@@ -141,3 +141,33 @@ def test_recommend_explains_itself():
     )
     assert "стоит в плане" in result.why
     assert "90%" in result.why
+
+
+def test_need_prefers_course_closing_an_open_plan_position():
+    # Позицию "Technical Elective" всё равно чем-то закрывать придётся,
+    # поэтому закрывающий её курс нужнее произвольного профильного.
+    fills = evidence(fills_slot="Technical Elective")
+    covering = evidence(covers=CourseKind.MAJOR)
+    assert evidence(on_plan=True).need > fills.need > covering.need
+
+
+def test_recommend_offers_elective_for_open_plan_position():
+    program = make_program(course("CSCI 408", semester=7))
+    program.slots = [
+        PlanSlot(
+            name="Technical Elective",
+            semester=7,
+            term="fall",
+            credits=6,
+            kind="technical",
+            eligible_codes=frozenset({"CSCI 434"}),
+        )
+    ]
+    program.courses["CSCI 434"] = Course(
+        "CSCI 434", "Information Security", 6, CourseKind.ELECTIVE, requirement=NO_PREREQUISITES
+    )
+    student = Student("s1", "COMPUTER SCIENCE (CS)", 4, 3.0, [])
+
+    results = {r.course.code: r for r in recommend(program, student, semester=7)}
+    assert set(results) == {"CSCI 408", "CSCI 434"}
+    assert "закрывает позицию плана «Technical Elective»" in results["CSCI 434"].why
