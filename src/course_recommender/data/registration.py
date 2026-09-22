@@ -10,8 +10,9 @@
   вторую и так далее. Это и есть та самая причина, по которой handbook
   советует одно, а на регистрации выходит другое.
 
-Пререквизиты разбираются в дерево условий. Приоритет AND выше, чем у OR,
-как в обычной логике: в исходном тексте скобки расставлены не везде.
+Здесь только разбор текста в дерево условий; сами условия и их вычисление
+живут в conditions.py. Приоритет AND выше, чем у OR, как в обычной логике:
+в исходном тексте скобки расставлены не везде.
 """
 
 from __future__ import annotations
@@ -19,6 +20,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from ..conditions import All, Any, CourseNeeded, ExamScore, Placement, SubjectRange, course_codes
 
 # Код курса: CSCI 151, NUSM 411a, NUR 406.1, WCS 150/ASC 100, WLL 102 /PHIL 102
 CODE = r"[A-Z]{2,5}\s?\d{3}[A-Za-z]?(?:\.\d)?(?:\s*/\s*[A-Z]{2,5}\s?\d{3}[A-Za-z]?)?"
@@ -33,81 +36,6 @@ AUDIENCE = re.compile(
 )
 PERMISSION = re.compile(r"instructor'?s permission", re.IGNORECASE)
 SCHOOLS = {"GSB", "SCAI", "SEDS", "SMG", "SOE", "SOM", "SSH"}
-
-
-@dataclass(frozen=True)
-class CourseNeeded:
-    """Пройденный курс как условие."""
-
-    code: str
-    title: str
-    catalog_id: str
-    min_grade: str | None = None
-    outcome: str | None = None  # "P" — зачтено, "F" — только как антиреквизит
-
-    def __str__(self) -> str:
-        if self.outcome:
-            return f"{self.code} ({self.outcome})"
-        return f"{self.code} ≥ {self.min_grade}" if self.min_grade else self.code
-
-
-@dataclass(frozen=True)
-class SubjectRange:
-    """Любой курс предмета в диапазоне номеров: Subject "HST" BETWEEN 200 and 299."""
-
-    subject: str
-    low: int
-    high: int
-
-    def __str__(self) -> str:
-        return f"{self.subject} {self.low}-{self.high}"
-
-
-@dataclass(frozen=True)
-class ExamScore:
-    """Балл теста: Test "IELTS" BETWEEN 6.5 and 9.
-
-    Без префикса Test в имени: pytest принял бы такой класс за набор тестов.
-    """
-
-    name: str
-    low: float
-    high: float
-
-    def __str__(self) -> str:
-        return f"{self.name} {self.low}-{self.high}"
-
-
-@dataclass(frozen=True)
-class Placement:
-    """Уровень по результатам размещения: KLL "[C1.1] Advanced"."""
-
-    scale: str
-    level: str
-    label: str = ""
-
-    def __str__(self) -> str:
-        return f"{self.scale} {self.level}"
-
-
-@dataclass(frozen=True)
-class All:
-    """Все условия сразу (AND)."""
-
-    terms: tuple
-
-    def __str__(self) -> str:
-        return "(" + " AND ".join(str(t) for t in self.terms) + ")"
-
-
-@dataclass(frozen=True)
-class Any:
-    """Хотя бы одно условие (OR)."""
-
-    terms: tuple
-
-    def __str__(self) -> str:
-        return "(" + " OR ".join(str(t) for t in self.terms) + ")"
 
 
 @dataclass(frozen=True)
@@ -388,77 +316,6 @@ def parse_pdf(path: Path, term: str | None = None) -> list[CourseOffering]:
                 if offering is not None:
                     offerings.append(offering)
     return offerings
-
-
-def evaluate(node, student, known_tests: dict[str, float] | None = None) -> bool | None:
-    """Выполнено ли условие для студента.
-
-    Логика трёхзначная: None означает "неизвестно". Про баллы IELTS и уровень
-    казахского в транскрипте ничего нет, и честнее вернуть "неизвестно", чем
-    объявить курс недоступным — иначе ASC 200 пропал бы у всех, кто прошёл
-    по языковому тесту, а не по курсу.
-    """
-    from ..domain import grade_points
-
-    if node is None:
-        return True
-
-    if isinstance(node, All):
-        results = [evaluate(t, student, known_tests) for t in node.terms]
-        if any(r is False for r in results):
-            return False
-        return None if any(r is None for r in results) else True
-
-    if isinstance(node, Any):
-        results = [evaluate(t, student, known_tests) for t in node.terms]
-        if any(r is True for r in results):
-            return True
-        return None if any(r is None for r in results) else False
-
-    if isinstance(node, CourseNeeded):
-        earned = student.grade_of(node.code)
-        if node.outcome == "F":
-            # Антиреквизит по F: условие "курс провален" — его нельзя проверить
-            # как обычный порог, поэтому считаем выполненным только при явном F.
-            return earned is not None and earned == 0.0
-        if earned is None:
-            return False
-        if node.outcome == "P":
-            return True
-        required = grade_points(node.min_grade)
-        return required is None or earned >= required
-
-    if isinstance(node, SubjectRange):
-        for course in student.completed:
-            parts = course.code.split()
-            if (
-                len(parts) == 2
-                and parts[0] == node.subject
-                and parts[1][:3].isdigit()
-                and node.low <= int(parts[1][:3]) <= node.high
-            ):
-                return True
-        return False
-
-    if isinstance(node, ExamScore):
-        score = (known_tests or {}).get(node.name)
-        return None if score is None else node.low <= score <= node.high
-
-    if isinstance(node, Placement):
-        return None
-
-    return None
-
-
-def course_codes(node) -> set[str]:
-    """Все коды курсов, упомянутые в условии — для построения графа зависимостей."""
-    if node is None:
-        return set()
-    if isinstance(node, (All, Any)):
-        return set().union(*(course_codes(t) for t in node.terms)) if node.terms else set()
-    if isinstance(node, CourseNeeded):
-        return {node.code}
-    return set()
 
 
 def main() -> None:
