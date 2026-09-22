@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .conditions import Requirement
 
 # Буквенные оценки NU в баллах GPA.
 GRADE_POINTS: dict[str, float] = {
@@ -56,6 +60,10 @@ class Course:
     min_grade: str | None = None
     # Семестр, в котором курс стоит в рекомендованном плане (1..8).
     recommended_semester: int | None = None
+    # Настоящее условие допуска из документа регистрации: дерево AND/OR
+    # с порогом оценки по каждому курсу. Если оно есть, поля prerequisites
+    # и prerequisite_min_grades не используются.
+    requirement: Requirement | None = None
     # Минимальная оценка по конкретному пререквизиту: ECON 101 сам по себе
     # сдаётся на C-, но как пререквизит к ECON 201 требует B-.
     prerequisite_min_grades: dict[str, str] = field(default_factory=dict)

@@ -1,3 +1,4 @@
+from course_recommender.conditions import All, CourseNeeded, ExamScore
 from course_recommender.constraints import (
     eligible_courses,
     is_eligible,
@@ -142,3 +143,55 @@ def test_respect_plan_keeps_courses_without_plan_position():
     floating = Course("CS150", "Elective", 6, CourseKind.ELECTIVE)
     result = eligible_courses([floating], make_student(), 3, respect_plan=True)
     assert [c.code for c in result] == ["CS150"]
+
+
+def requirement_course(code: str, requirement, semester: int | None = None) -> Course:
+    return Course(code, "", 6, CourseKind.MAJOR, requirement=requirement, recommended_semester=semester)
+
+
+def test_requirement_replaces_handbook_prerequisites():
+    course = requirement_course("CS300", CourseNeeded("CS200", min_grade="C"))
+    assert prerequisites_met(course, student_with("CS200", 2.0))
+    assert not prerequisites_met(course, student_with("CS200", 1.67))
+
+
+def test_requirement_wins_over_legacy_fields():
+    # если настоящее условие известно, приближение из handbook не используется
+    course = Course(
+        "CS300",
+        "",
+        6,
+        CourseKind.MAJOR,
+        prerequisites=[["NEVER"]],
+        requirement=CourseNeeded("CS200", min_grade="C"),
+    )
+    assert prerequisites_met(course, student_with("CS200", 3.0))
+
+
+def test_empty_requirement_means_no_prerequisites():
+    assert prerequisites_met(requirement_course("CS100", All(())), make_student())
+
+
+def test_unknown_condition_allowed_by_default():
+    course = requirement_course("ASC200", ExamScore("IELTS", 6.5, 9.0))
+    assert prerequisites_met(course, make_student())
+    assert not prerequisites_met(course, make_student(), allow_unknown=False)
+
+
+def test_known_test_score_resolves_unknown():
+    course = requirement_course("ASC200", ExamScore("IELTS", 6.5, 9.0))
+    assert prerequisites_met(course, make_student(), known_tests={"IELTS": 7.0})
+    assert not prerequisites_met(course, make_student(), known_tests={"IELTS": 5.0})
+
+
+def test_plan_fallback_skipped_when_requirement_known():
+    # курс из плана позже текущего семестра, но условие выполнено -> идём с опережением
+    late = requirement_course("CS400", All(()), semester=7)
+    result = eligible_courses([late], make_student(), 3, respect_plan=True)
+    assert [c.code for c in result] == ["CS400"]
+
+
+def test_plan_fallback_still_guards_courses_without_data():
+    late = Course("CS400", "", 6, CourseKind.MAJOR, recommended_semester=7)
+    assert eligible_courses([late], make_student(), 3, respect_plan=True) == []
+    assert [c.code for c in eligible_courses([late], make_student(), 3)] == ["CS400"]

@@ -11,8 +11,9 @@
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
+from ..conditions import All
 from ..domain import Course, CourseKind, Requirement
 from .canva import Page
 from .handbook import PlanEntry, parse_plans
@@ -242,6 +243,28 @@ def build_programs(
         )
         for name in set(plans) | set(requirements)
     }
+
+
+def attach_requirements(programs: dict[str, Program], offerings) -> int:
+    """Проставить курсам настоящие условия допуска из документа регистрации.
+
+    Курс, который в документе есть, но без пререквизитов, получает пустое
+    условие All(()) — оно всегда истинно. Это не то же самое, что отсутствие
+    данных: пустое условие означает "точно известно, что пререквизитов нет",
+    и такому курсу подстраховка по позиции в плане уже не нужна.
+    """
+    by_code = {o.code: o for o in offerings}
+    updated = 0
+    for program in programs.values():
+        for code, course in list(program.courses.items()):
+            offering = by_code.get(code)
+            if offering is None:
+                continue
+            program.courses[code] = replace(
+                course, requirement=offering.prerequisite or All(())
+            )
+            updated += 1
+    return updated
 
 
 def shared_core_kinds() -> dict[str, CourseKind]:

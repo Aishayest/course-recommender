@@ -136,3 +136,33 @@ def test_semester_courses_filters_by_plan_position():
     entries = [entry("CSCI 151", year=1), entry("CSCI 231", year=2, term="fall")]
     program = build_program(entries, [], 2026, "CS")
     assert [c.code for c in program.semester_courses(3)] == ["CSCI 231"]
+
+
+class _Offering:
+    def __init__(self, code, prerequisite=None):
+        self.code = code
+        self.prerequisite = prerequisite
+
+
+def test_attach_requirements_sets_condition():
+    from course_recommender.conditions import All, CourseNeeded
+    from course_recommender.data.assemble import attach_requirements
+
+    programs = {"CS": build_program([entry("CSCI 151"), entry("CSCI 231", year=2)], [], 2026, "CS")}
+    updated = attach_requirements(
+        programs,
+        [_Offering("CSCI 231", CourseNeeded("CSCI 151", min_grade="C-")), _Offering("CSCI 151")],
+    )
+    courses = programs["CS"].courses
+    assert updated == 2
+    assert courses["CSCI 231"].requirement == CourseNeeded("CSCI 151", min_grade="C-")
+    # курс без пререквизитов получает пустое условие, а не None
+    assert courses["CSCI 151"].requirement == All(())
+
+
+def test_attach_requirements_leaves_unknown_courses_alone():
+    from course_recommender.data.assemble import attach_requirements
+
+    programs = {"CS": build_program([entry("CSCI 152")], [], 2026, "CS")}
+    assert attach_requirements(programs, [_Offering("OTHER 101")]) == 0
+    assert programs["CS"].courses["CSCI 152"].requirement is None
