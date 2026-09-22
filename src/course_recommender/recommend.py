@@ -21,15 +21,20 @@ from .config import UTILITY_WEIGHTS
 from .constraints import eligible_courses, remaining_requirements
 from .domain import Course, CourseKind, Student
 
-# Какая доля желающих регистрируется раньше студента этого тира. Числа
-# подобраны, а не выведены из данных: кто в каком порядке жал кнопку, в
-# выгрузках не видно. Именно их и должна заменить обученная модель — это
-# самое слабое место эвристики, и оно вынесено наружу намеренно.
-TIER_SHARE = {1: 0.15, 2: 0.40, 3: 0.65, 4: 0.85}
-NO_TIER_SHARE = 0.95
+# Шанс получить место, ЕСЛИ курс заполнился. Эти числа подобраны, а не
+# выведены: выгрузки показывают, сколько человек записалось, но не кто из них
+# какого тира, и очередь по ним не восстанавливается ни одной моделью. Пока
+# нет данных о том, кому досталось место, здесь останется предположение —
+# и оно нарочно стоит отдельно от измеренного.
+TIER_PLACE = {1: 0.85, 2: 0.60, 3: 0.35, 4: 0.15}
+NO_TIER_PLACE = 0.05
+# Курс без истории: ни да, ни нет.
 UNKNOWN_FILL_CHANCE = 0.5
-# Насколько резко шанс падает у границы "мест хватило / не хватило".
-BOUNDARY_SLOPE = 3.0
+# Полной уверенности система не выдаёт: секцию могут отменить, а места
+# сократить, и в снимках расписания этого не видно. Потолок нарочно высокий:
+# он страхует только вырожденный случай "точно не заполнится", а не
+# подрезает оценки в том диапазоне, где живёт большинство курсов.
+MAX_CHANCE = 0.99
 
 
 @dataclass
@@ -45,6 +50,9 @@ class Evidence:
     prerequisites: bool | None = None
     missing: tuple[str, ...] = ()
     priority_tier: int | None = None
+    # Вероятность, что курс заполнится, — из обученной модели. None означает
+    # "модели нет", и тогда работает старое правило по средней заполняемости.
+    fill_chance: float | None = None
     last_fill: float | None = None
     mean_fill: float | None = None
     terms_observed: int = 0
@@ -52,34 +60,35 @@ class Evidence:
     conflicts: tuple[str, ...] = ()
 
     @property
-    def served_share(self) -> float | None:
-        """Какая доля желающих получила место в прошлый раз.
+    def fills_up(self) -> float:
+        """Вероятность, что курс вообще заполнится.
 
-        Курс, заполненный на 158%, обслужил примерно 1/1.58 ≈ 63% спроса.
-        Если заполнился меньше чем на 100%, мест хватило всем.
+        Из обученной модели, если она есть. Если нет — старое правило:
+        средняя заполняемость выше 100% означает "заполнится". Правило даёт
+        только 0 или 1, и именно поэтому его заменяют моделью.
         """
-        if not self.last_fill:
-            return None
-        return min(1.0, 1.0 / self.last_fill)
+        if self.fill_chance is not None:
+            return self.fill_chance
+        if self.mean_fill is None:
+            return UNKNOWN_FILL_CHANCE
+        return 1.0 if self.mean_fill >= 1.0 else 0.0
 
     @property
     def seat_chance(self) -> float:
-        """Оценка шанса получить место — модель очереди, а не обученная модель.
+        """Оценка шанса получить место.
 
-        Идея простая: курс обслуживает столько-то процентов желающих, а тир
-        приоритета говорит, какая доля очереди проходит раньше тебя. Если
-        раньше проходит меньше, чем курс успевает принять, место достаётся.
-        Вокруг этой границы значение сглажено, потому что точной очереди
-        никто не публикует.
+        Задача распадается надвое: заполнится ли курс — и, если заполнится,
+        достанется ли место именно этому тиру. Первое измеримо и обучено на
+        истории регистраций, второе из имеющихся данных не выводится и
+        остаётся предположением. Разделение нужно как раз затем, чтобы
+        предположение не растворялось в общей формуле.
 
         Это оценка уровня курса и тира, а не персональная вероятность:
         данных о том, кому именно досталось место, в выгрузках нет.
         """
-        served = self.served_share
-        if served is None:
-            return UNKNOWN_FILL_CHANCE
-        ahead = TIER_SHARE.get(self.priority_tier, NO_TIER_SHARE)
-        return min(0.95, max(0.05, 0.5 + BOUNDARY_SLOPE * (served - ahead)))
+        filled = self.fills_up
+        placed = TIER_PLACE.get(self.priority_tier, NO_TIER_PLACE)
+        return min(MAX_CHANCE, (1.0 - filled) + filled * placed)
 
     @property
     def need(self) -> float:
@@ -115,7 +124,12 @@ class Recommendation:
             parts.append(f"закрывает {self.evidence.covers.value}")
         tier = self.evidence.priority_tier
         parts.append(f"приоритет: тир {tier}" if tier else "приоритета нет")
-        if self.evidence.last_fill is not None:
+        # Модель смотрит на среднее по всем семестрам, и объяснение показывает
+        # то же самое: иначе рядом стоят "заполнен на 92%" и "заполнится с
+        # вероятностью 11%", и читать это невозможно.
+        if self.evidence.terms_observed > 1 and self.evidence.mean_fill is not None:
+            parts.append(f"в среднем заполнен на {self.evidence.mean_fill:.0%}")
+        elif self.evidence.last_fill is not None:
             parts.append(f"в прошлый раз заполнен на {self.evidence.last_fill:.0%}")
         return "; ".join(parts)
 
@@ -135,6 +149,7 @@ def build_evidence(
     course_history=None,
     known_tests: dict[str, float] | None = None,
     slots: dict[str, str] | None = None,
+    availability=None,
 ) -> Evidence:
     """Собрать всё известное про курс."""
     satisfied = (
@@ -153,6 +168,7 @@ def build_evidence(
         prerequisites=satisfied,
         missing=missing,
         priority_tier=tier,
+        fill_chance=availability.predict(course_history) if availability else None,
         last_fill=course_history.last_fill if course_history else None,
         mean_fill=course_history.mean_fill if course_history else None,
         terms_observed=course_history.terms if course_history else 0,
@@ -211,6 +227,7 @@ def recommend(
     sections: dict[str, list] | None = None,
     school: str | None = None,
     term: str | None = None,
+    availability=None,
     limit: int = 5,
     known_tests: dict[str, float] | None = None,
 ) -> list[Recommendation]:
@@ -218,7 +235,8 @@ def recommend(
 
     offerings — курсы каталога (тиры приоритета), term — семестр регистрации,
     за который эти тиры брать, fill_history — заполняемость прошлых семестров,
-    sections — секции семестра для проверки конфликтов по времени. Любой из источников можно не передавать: тогда
+    availability — обученная модель заполняемости, sections — секции семестра
+    для проверки конфликтов по времени. Любой из источников можно не передавать: тогда
     соответствующее свидетельство просто отсутствует, а не подменяется нулём.
     """
     offerings = offerings or {}
@@ -256,6 +274,7 @@ def recommend(
                 course_history=fill_history.get(course.code),
                 known_tests=known_tests,
                 slots=open_slots,
+                availability=availability,
             )
         )
 
@@ -285,6 +304,9 @@ def main() -> None:
     from .data.schedule import history
     from .data.schedule import parse_pdf as parse_schedule
     from .domain import CompletedCourse
+    from .models.availability import can_train, observations
+    from .models.availability import load as load_availability
+    from .models.availability import train as train_availability
 
     parser = argparse.ArgumentParser(description="Что брать в следующем семестре")
     parser.add_argument("--admission-year", type=int, required=True)
@@ -308,6 +330,9 @@ def main() -> None:
     parser.add_argument("--catalog", type=Path, help="собранный catalog.json вместо PDF")
     parser.add_argument("--term", help='семестр регистрации: "Fall 2026"')
     parser.add_argument("--schedule", type=Path, nargs="*", default=[], help="PDF расписаний")
+    parser.add_argument(
+        "--availability", type=Path, help="обученная модель заполняемости (JSON)"
+    )
     parser.add_argument("--limit", type=int, default=5)
     args = parser.parse_args()
 
@@ -331,6 +356,15 @@ def main() -> None:
 
     snapshots = [parse_schedule(path).filter_level("UG") for path in args.schedule]
     fill_history = history(snapshots)
+
+    # Модель учится на семестрах строго до целевого: иначе она знает ответ.
+    availability = None
+    if args.availability:
+        availability = load_availability(args.availability)
+    elif snapshots:
+        rows = observations(snapshots)
+        if can_train(rows, term):
+            availability = train_availability(rows, before=term)
     current = next(
         (s for s in snapshots if not s.is_pre_registration),
         None,
@@ -351,7 +385,10 @@ def main() -> None:
     )
 
     print(f"{program.degree} in {program.name}, семестр {args.semester}")
-    print(f"пройдено курсов: {len(completed)}\n")
+    print(f"пройдено курсов: {len(completed)}")
+    if availability is not None:
+        print(f"модель заполняемости: {availability.describe()}")
+    print()
 
     results = recommend(
         program,
@@ -362,6 +399,7 @@ def main() -> None:
         sections=sections,
         school=args.school,
         term=term,
+        availability=availability,
         limit=args.limit,
     )
     if not results:
@@ -373,7 +411,11 @@ def main() -> None:
         print(f"{result.course.code:10s} {result.course.title[:40]:42s} балл {result.score:.2f}")
         print(f"   {result.why}")
         print(f"   шанс получить место ≈ {evidence.seat_chance:.0%}", end="")
-        print(f"   (семестров в истории: {evidence.terms_observed})")
+        if evidence.fill_chance is not None:
+            print(f"   (заполнится с вероятностью {evidence.fill_chance:.0%}, "
+                  f"семестров в истории: {evidence.terms_observed})")
+        else:
+            print(f"   (семестров в истории: {evidence.terms_observed})")
         if evidence.missing:
             print(f"   не хватает: {', '.join(evidence.missing)}")
         if evidence.conflicts:

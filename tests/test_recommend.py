@@ -26,29 +26,48 @@ def section(code, label="1L", days=("M",), start=time(9, 0), end=time(9, 50)):
     )
 
 
-def test_served_share_from_fill_rate():
-    assert evidence(last_fill=0.8).served_share == 1.0  # мест хватило всем
-    assert round(evidence(last_fill=1.58).served_share, 2) == 0.63
-    assert evidence(last_fill=None).served_share is None
+def test_fills_up_falls_back_to_mean_fill_without_a_model():
+    # Правило без модели умеет только "да" или "нет" — за этим её и заводят
+    assert evidence(mean_fill=1.2).fills_up == 1.0
+    assert evidence(mean_fill=0.8).fills_up == 0.0
+    assert evidence(mean_fill=None).fills_up == 0.5
 
 
-def test_priority_saves_place_on_crowded_course():
-    crowded = {"last_fill": 1.58}
-    assert evidence(priority_tier=1, **crowded).seat_chance == 0.95
+def test_model_outranks_the_rule_when_it_is_there():
+    assert evidence(fill_chance=0.3, mean_fill=1.2).fills_up == 0.3
+
+
+def test_priority_matters_only_when_the_course_fills_up():
+    crowded = {"fill_chance": 1.0}
+    assert evidence(priority_tier=1, **crowded).seat_chance == 0.85
     assert evidence(priority_tier=None, **crowded).seat_chance == 0.05
 
+    # Если курс не заполняется, тир не важен: мест хватает всем
+    spare = {"fill_chance": 0.0}
+    assert evidence(priority_tier=None, **spare).seat_chance == 0.99
+    assert evidence(priority_tier=4, **spare).seat_chance == 0.99
 
-def test_course_with_spare_seats_is_reachable_without_priority():
-    assert evidence(last_fill=0.78, priority_tier=None).seat_chance > 0.5
+
+def test_seat_chance_grows_with_priority():
+    crowded = {"fill_chance": 0.8}
+    chances = [evidence(priority_tier=tier, **crowded).seat_chance for tier in (1, 2, 3, 4)]
+    assert chances == sorted(chances, reverse=True)
 
 
 def test_unknown_history_gives_middle_estimate():
-    assert evidence(last_fill=None, priority_tier=1).seat_chance == 0.5
+    # Ни истории, ни модели: половина вероятности на то, что курс заполнится
+    assert evidence(mean_fill=None, priority_tier=None).seat_chance == 0.525
 
 
-def test_seat_chance_stays_inside_bounds():
-    assert evidence(last_fill=5.0, priority_tier=None).seat_chance == 0.05
-    assert evidence(last_fill=0.1, priority_tier=1).seat_chance == 0.95
+def test_seat_chance_never_claims_certainty():
+    assert evidence(fill_chance=0.0, priority_tier=1).seat_chance == 0.99
+
+
+def test_seat_chance_separates_courses_of_the_same_tier():
+    # Ради этого и заводили модель: внутри одного тира курсы должны различаться
+    likely = evidence(fill_chance=0.9, priority_tier=1).seat_chance
+    unlikely = evidence(fill_chance=0.2, priority_tier=1).seat_chance
+    assert unlikely > likely
 
 
 def test_need_prefers_course_standing_in_plan():
@@ -82,9 +101,9 @@ def test_conflicts_ignore_courses_without_schedule():
 
 
 def test_fallback_offers_easier_course_of_same_kind():
-    hard = evidence(course=course("CSCI 494"), last_fill=1.58, priority_tier=None)
-    easy = evidence(course=course("CSCI 341"), last_fill=0.5, priority_tier=None)
-    other_kind = evidence(course=course("HST 100", kind=CourseKind.CORE), last_fill=0.1)
+    hard = evidence(course=course("CSCI 494"), fill_chance=0.9, priority_tier=None)
+    easy = evidence(course=course("CSCI 341"), fill_chance=0.2, priority_tier=None)
+    other_kind = evidence(course=course("HST 100", kind=CourseKind.CORE), fill_chance=0.0)
     assert _fallback(hard, [hard, easy, other_kind]) is easy.course
     assert _fallback(easy, [hard, easy]) is None
 
