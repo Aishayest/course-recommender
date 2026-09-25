@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from .conditions import course_codes, evaluate
 from .config import UTILITY_WEIGHTS
 from .constraints import eligible_courses, remaining_requirements
+from .data.grades import CourseGrades
 from .domain import Course, CourseKind, Student
 
 # Шанс получить место, ЕСЛИ курс заполнился. Эти числа подобраны, а не
@@ -30,6 +31,10 @@ TIER_PLACE = {1: 0.85, 2: 0.60, 3: 0.35, 4: 0.15}
 NO_TIER_PLACE = 0.05
 # Курс без истории: ни да, ни нет.
 UNKNOWN_FILL_CHANCE = 0.5
+# Балл, который приписывается курсу без известной статистики оценок. Середина
+# шкалы: незнание не должно ни поощрять курс, ни наказывать его.
+UNKNOWN_EASE = 0.5
+GRADE_SCALE = 4.0
 # Полной уверенности система не выдаёт: секцию могут отменить, а места
 # сократить, и в снимках расписания этого не видно. Потолок нарочно высокий:
 # он страхует только вырожденный случай "точно не заполнится", а не
@@ -50,6 +55,9 @@ class Evidence:
     prerequisites: bool | None = None
     missing: tuple[str, ...] = ()
     priority_tier: int | None = None
+    # Курс берут только с согласия преподавателя: мест может быть сколько
+    # угодно, но сами по себе они ничего не решают.
+    needs_permission: bool = False
     # Вероятность, что курс заполнится, — из обученной модели. None означает
     # "модели нет", и тогда работает старое правило по средней заполняемости.
     fill_chance: float | None = None
@@ -57,6 +65,11 @@ class Evidence:
     mean_fill: float | None = None
     terms_observed: int = 0
     ever_full: bool = False
+    # Чем курс заканчивался у тех, кто его брал. Не оценка этого студента:
+    # предсказывать её не на чем, это статистика курса.
+    grades: CourseGrades | None = None
+    # Кто ведёт в этом семестре — из расписания.
+    instructors: tuple[str, ...] = ()
     conflicts: tuple[str, ...] = ()
 
     @property
@@ -88,7 +101,24 @@ class Evidence:
         """
         filled = self.fills_up
         placed = TIER_PLACE.get(self.priority_tier, NO_TIER_PLACE)
-        return min(MAX_CHANCE, (1.0 - filled) + filled * placed)
+        chance = min(MAX_CHANCE, (1.0 - filled) + filled * placed)
+        if self.needs_permission:
+            # Курсы по согласованию с преподавателем стоят полупустыми не
+            # потому, что на них легко попасть, а потому, что берут их по
+            # договорённости. Дают согласие или нет — в выгрузках не видно,
+            # и честный ответ здесь "неизвестно", а не "почти наверняка".
+            return min(chance, UNKNOWN_FILL_CHANCE)
+        return chance
+
+    @property
+    def ease(self) -> float:
+        """Насколько курс благополучно заканчивается — от 0 до 1.
+
+        Средний балл по шкале GPA, приведённый к долям. Курс без статистики
+        получает середину шкалы: незнание не повод ни советовать, ни отговаривать.
+        """
+        average = self.grades.average if self.grades else None
+        return UNKNOWN_EASE if average is None else min(1.0, average / GRADE_SCALE)
 
     @property
     def need(self) -> float:
@@ -124,6 +154,8 @@ class Recommendation:
             parts.append(f"закрывает {self.evidence.covers.value}")
         tier = self.evidence.priority_tier
         parts.append(f"приоритет: тир {tier}" if tier else "приоритета нет")
+        if self.evidence.needs_permission:
+            parts.append("нужно согласие преподавателя")
         # Модель смотрит на среднее по всем семестрам, и объяснение показывает
         # то же самое: иначе рядом стоят "заполнен на 92%" и "заполнится с
         # вероятностью 11%", и читать это невозможно.
@@ -134,10 +166,20 @@ class Recommendation:
         return "; ".join(parts)
 
 
-def utility(need: float, access: float) -> float:
-    """Взвешенная полезность курса."""
-    weights = UTILITY_WEIGHTS
-    return weights["need"] * need + weights["access"] * access
+def utility(need: float, access: float, ease: float = 0.0, weights: dict | None = None) -> float:
+    """Взвешенная полезность курса.
+
+    Сумма весов нормируется, чтобы балл оставался в тех же пределах, когда
+    "лёгкость" включают: иначе рекомендации с флагом и без него нельзя
+    сравнить между собой.
+    """
+    weights = weights or UTILITY_WEIGHTS
+    total = (
+        weights["need"] * need
+        + weights["access"] * access
+        + weights.get("ease", 0.0) * ease
+    )
+    return total / sum(weights.values())
 
 
 def build_evidence(
@@ -150,6 +192,9 @@ def build_evidence(
     known_tests: dict[str, float] | None = None,
     slots: dict[str, str] | None = None,
     availability=None,
+    grades: CourseGrades | None = None,
+    instructors: tuple[str, ...] = (),
+    needs_permission: bool = False,
 ) -> Evidence:
     """Собрать всё известное про курс."""
     satisfied = (
@@ -168,12 +213,21 @@ def build_evidence(
         prerequisites=satisfied,
         missing=missing,
         priority_tier=tier,
+        needs_permission=needs_permission,
         fill_chance=availability.predict(course_history) if availability else None,
         last_fill=course_history.last_fill if course_history else None,
         mean_fill=course_history.mean_fill if course_history else None,
         terms_observed=course_history.terms if course_history else 0,
         ever_full=bool(course_history and course_history.ever_full),
+        grades=grades,
+        instructors=instructors,
     )
+
+
+def teaching(code: str, sections: dict[str, list]) -> tuple[str, ...]:
+    """Кто ведёт курс в этом семестре — по лекциям расписания."""
+    names = {name for section in _lectures(sections.get(code, [])) for name in section.faculty}
+    return tuple(sorted(names))
 
 
 def _lectures(sections: list) -> list:
@@ -228,6 +282,8 @@ def recommend(
     school: str | None = None,
     term: str | None = None,
     availability=None,
+    grades: dict[str, CourseGrades] | None = None,
+    weights: dict | None = None,
     limit: int = 5,
     known_tests: dict[str, float] | None = None,
 ) -> list[Recommendation]:
@@ -242,6 +298,7 @@ def recommend(
     offerings = offerings or {}
     fill_history = fill_history or {}
     sections = sections or {}
+    grades = grades or {}
 
     gaps = remaining_requirements(program.requirements, program.courses, student)
     available = eligible_courses(
@@ -275,10 +332,18 @@ def recommend(
                 known_tests=known_tests,
                 slots=open_slots,
                 availability=availability,
+                grades=grades.get(course.code),
+                instructors=teaching(course.code, sections),
+                needs_permission=bool(
+                    offering is not None and getattr(offering, "instructor_permission", False)
+                ),
             )
         )
 
-    ranked = sorted(pool, key=lambda e: utility(e.need, e.seat_chance), reverse=True)[:limit]
+    def score(evidence: Evidence) -> float:
+        return utility(evidence.need, evidence.seat_chance, evidence.ease, weights)
+
+    ranked = sorted(pool, key=score, reverse=True)[:limit]
     codes = [e.course.code for e in ranked]
     recommendations = []
     for evidence in ranked:
@@ -286,7 +351,7 @@ def recommend(
         recommendations.append(
             Recommendation(
                 course=evidence.course,
-                score=utility(evidence.need, evidence.seat_chance),
+                score=score(evidence),
                 evidence=evidence,
                 fallback=_fallback(evidence, pool),
             )
@@ -301,6 +366,7 @@ def main() -> None:
     from .data.assemble import attach_catalog, attach_electives, load_programs
     from .data.catalog import Catalog, from_pdfs
     from .data.catalog import load as load_catalog
+    from .data.grades import load_reports
     from .data.schedule import history
     from .data.schedule import parse_pdf as parse_schedule
     from .data.transcripts import parse_pdf as parse_transcript
@@ -334,6 +400,14 @@ def main() -> None:
     parser.add_argument("--schedule", type=Path, nargs="*", default=[], help="PDF расписаний")
     parser.add_argument(
         "--availability", type=Path, help="обученная модель заполняемости (JSON)"
+    )
+    parser.add_argument(
+        "--grades", type=Path, nargs="*", default=[],
+        help="PDF UG_Grade_Report_* — чем курс заканчивался у тех, кто его брал",
+    )
+    parser.add_argument(
+        "--prefer-easy", type=float, default=0.0, metavar="ВЕС",
+        help="учитывать средний балл при ранжировании: 0 — не учитывать (по умолчанию)",
     )
     parser.add_argument("--limit", type=int, default=5)
     args = parser.parse_args()
@@ -377,6 +451,8 @@ def main() -> None:
 
     snapshots = [parse_schedule(path).filter_level("UG") for path in args.schedule]
     fill_history = history(snapshots)
+    grades = load_reports(args.grades, args.schedule) if args.grades else {}
+    weights = {**UTILITY_WEIGHTS, "ease": args.prefer_easy}
 
     # Модель учится на семестрах строго до целевого: иначе она знает ответ.
     availability = None
@@ -414,6 +490,8 @@ def main() -> None:
     print(f"пройдено курсов: {len(student.completed)}, кредитов: {student.earned_credits}")
     if availability is not None:
         print(f"модель заполняемости: {availability.describe()}")
+    if args.prefer_easy:
+        print(f"средний балл учитывается при ранжировании с весом {args.prefer_easy}")
     print()
 
     results = recommend(
@@ -426,6 +504,8 @@ def main() -> None:
         school=school,
         term=term,
         availability=availability,
+        grades=grades,
+        weights=weights,
         limit=args.limit,
     )
     if not results:
@@ -442,6 +522,19 @@ def main() -> None:
                   f"семестров в истории: {evidence.terms_observed})")
         else:
             print(f"   (семестров в истории: {evidence.terms_observed})")
+        stats = evidence.grades
+        if stats is not None and stats.average is not None:
+            line = f"   средний балл {stats.average:.2f}"
+            if stats.risky:
+                line += f"; плохо кончился у {stats.risky:.0f}%"
+            spread = stats.spread()
+            if spread and spread >= 0.3:
+                line += f"; секции расходятся на {spread:.2f}"
+            print(line)
+            for name in evidence.instructors:
+                record = stats.record_of(name)
+                known = f"раньше {record.average:.2f} (n={record.graded})" if record else "раньше не вёл"
+                print(f"      ведёт {name}: {known}")
         if evidence.missing:
             print(f"   не хватает: {', '.join(evidence.missing)}")
         if evidence.conflicts:

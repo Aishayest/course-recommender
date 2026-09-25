@@ -68,6 +68,16 @@ class SectionGrades:
         return self.failed + self.shares.get("D", 0.0) + self.withdrew
 
 
+@dataclass(frozen=True)
+class InstructorRecord:
+    """Чем курс кончался у одного преподавателя."""
+
+    name: str
+    average: float
+    graded: int
+    terms: tuple[str, ...] = ()
+
+
 @dataclass
 class CourseGrades:
     """Свод по курсу за все известные семестры."""
@@ -119,6 +129,27 @@ class CourseGrades:
             for name in section.instructors:
                 grouped.setdefault(name, []).append(section)
         return grouped
+
+    def instructors(self) -> list[InstructorRecord]:
+        """Средний балл каждого преподавателя по его секциям, от высокого к низкому."""
+        records = []
+        for name, sections in self.by_instructor().items():
+            graded = sum(s.graded for s in sections)
+            if not graded:
+                continue
+            records.append(
+                InstructorRecord(
+                    name=name,
+                    average=sum(s.average * s.graded for s in sections) / graded,
+                    graded=graded,
+                    terms=tuple(dict.fromkeys(s.term for s in sections)),
+                )
+            )
+        return sorted(records, key=lambda r: -r.average)
+
+    def record_of(self, name: str) -> InstructorRecord | None:
+        """Как заканчивался этот курс у конкретного преподавателя."""
+        return next((r for r in self.instructors() if r.name == name), None)
 
 
 def parse_row(line: str, term: str, school: str, department: str) -> SectionGrades | None:
@@ -227,6 +258,29 @@ def attach_instructors(rows: list[SectionGrades], snapshots) -> list[SectionGrad
     ]
 
 
+def load_reports(reports, schedules=()) -> dict[str, CourseGrades]:
+    """Разобрать отчёты и, если дано расписание, проставить преподавателей.
+
+    Один и тот же отчёт мог быть скачан дважды, поэтому строки
+    дедуплицируются по семестру, школе, курсу и номеру секции.
+    """
+    from .schedule import parse_pdf as parse_schedule
+
+    rows: list[SectionGrades] = []
+    seen: set[tuple[str, str, str, int]] = set()
+    for path in reports:
+        for row in parse_pdf(Path(path)):
+            key = (row.term, row.school, row.code, row.section)
+            if key not in seen:
+                seen.add(key)
+                rows.append(row)
+
+    if schedules:
+        snapshots = [parse_schedule(Path(path)).filter_level("UG") for path in schedules]
+        rows = attach_instructors(rows, snapshots)
+    return by_course(rows)
+
+
 def by_course(rows: list[SectionGrades]) -> dict[str, CourseGrades]:
     """Свести строки по курсам."""
     courses: dict[str, CourseGrades] = {}
@@ -247,23 +301,8 @@ def main() -> None:
     parser.add_argument("--course", help="показать один курс подробно")
     args = parser.parse_args()
 
-    rows: list[SectionGrades] = []
-    seen: set[tuple[str, str, str, int]] = set()
-    for path in args.report:
-        for row in parse_pdf(path):
-            key = (row.term, row.school, row.code, row.section)
-            # Один и тот же отчёт мог быть скачан дважды.
-            if key not in seen:
-                seen.add(key)
-                rows.append(row)
-
-    if args.schedule:
-        from .schedule import parse_pdf as parse_schedule
-
-        snapshots = [parse_schedule(path).filter_level("UG") for path in args.schedule]
-        rows = attach_instructors(rows, snapshots)
-
-    courses = by_course(rows)
+    courses = load_reports(args.report, args.schedule)
+    rows = [section for course in courses.values() for section in course.sections]
     named = sum(1 for row in rows if row.instructors)
     terms = sorted({row.term for row in rows})
     print(f"семестров: {len(terms)} ({', '.join(terms)})")
@@ -288,6 +327,11 @@ def main() -> None:
             f"   {section.term:12s} секция {section.section}  балл {section.average:.2f}  "
             f"медиана {section.median:.2f}  n={section.graded:3d}  ушли {section.withdrew:4.1f}%  {who[:40]}"
         )
+    records = course.instructors()
+    if len(records) > 1:
+        print("\n   по преподавателям:")
+        for record in records:
+            print(f"      {record.average:.2f}  n={record.graded:4d}  {record.name}")
 
 
 if __name__ == "__main__":

@@ -2,9 +2,18 @@ from datetime import time
 
 from course_recommender.conditions import All, CourseNeeded
 from course_recommender.data.assemble import PlanSlot, Program
+from course_recommender.data.grades import CourseGrades, SectionGrades
 from course_recommender.data.schedule import CourseHistory, Meeting, Section
 from course_recommender.domain import CompletedCourse, Course, CourseKind, Requirement, Student
-from course_recommender.recommend import Evidence, _conflicts, _fallback, recommend, utility
+from course_recommender.recommend import (
+    Evidence,
+    Recommendation,
+    _conflicts,
+    _fallback,
+    recommend,
+    teaching,
+    utility,
+)
 
 NO_PREREQUISITES = All(())
 
@@ -190,3 +199,68 @@ def test_recommend_offers_elective_for_open_plan_position():
     results = {r.course.code: r for r in recommend(program, student, semester=7)}
     assert set(results) == {"CSCI 408", "CSCI 434"}
     assert "закрывает позицию плана «Technical Elective»" in results["CSCI 434"].why
+
+
+def grades_for(code="CSCI 341", average=3.0, graded=50, risky=None):
+    shares = {"D": 0.0, "F": 0.0, "W": 0.0} if risky is None else risky
+    return CourseGrades(
+        code=code,
+        title=code,
+        sections=[
+            SectionGrades(
+                term="Fall 2025", school="SEDS", department="CS", code=code, title=code,
+                section=1, graded=graded, average=average, deviation=0.5, median=average,
+                shares=shares, letters=graded,
+            )
+        ],
+    )
+
+
+def test_ease_comes_from_the_average_grade():
+    assert evidence(grades=grades_for(average=4.0)).ease == 1.0
+    assert evidence(grades=grades_for(average=2.0)).ease == 0.5
+    # Курс без статистики получает середину шкалы, а не ноль
+    assert evidence().ease == 0.5
+
+
+def test_utility_ignores_grades_by_default():
+    easy = evidence(course=course("A 101"), grades=grades_for(average=4.0))
+    hard = evidence(course=course("B 101"), grades=grades_for(average=1.0))
+    assert utility(easy.need, easy.seat_chance, easy.ease) == utility(
+        hard.need, hard.seat_chance, hard.ease
+    )
+
+
+def test_utility_can_be_told_to_prefer_easy_courses():
+    weights = {"need": 0.6, "access": 0.4, "ease": 0.5}
+    easy = utility(1.0, 1.0, 1.0, weights)
+    hard = utility(1.0, 1.0, 0.0, weights)
+    assert easy > hard
+    # Сумма весов нормируется, иначе балл с флагом и без него несравним
+    assert easy == 1.0
+
+
+def test_permission_course_does_not_promise_a_place():
+    # Курс стоит полупустым не потому, что на него легко попасть
+    free = evidence(fill_chance=0.0, priority_tier=1)
+    by_consent = evidence(fill_chance=0.0, priority_tier=1, needs_permission=True)
+    assert free.seat_chance == 0.99
+    assert by_consent.seat_chance == 0.5
+
+
+def test_permission_is_named_in_the_explanation():
+    result = Recommendation(
+        course=course(), score=0.5, evidence=evidence(needs_permission=True)
+    )
+    assert "нужно согласие преподавателя" in result.why
+
+
+def test_teaching_reads_lecturers_from_the_schedule():
+    sections = {
+        "CSCI 341": [
+            Section(term="Fall 2026", code="CSCI 341", section="1L", faculty=("Лектор",)),
+            Section(term="Fall 2026", code="CSCI 341", section="1Lb", faculty=("Ассистент",)),
+        ]
+    }
+    assert teaching("CSCI 341", sections) == ("Лектор",)
+    assert teaching("CSCI 999", sections) == ()
