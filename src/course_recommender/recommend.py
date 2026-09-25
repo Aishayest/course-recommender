@@ -303,21 +303,23 @@ def main() -> None:
     from .data.catalog import load as load_catalog
     from .data.schedule import history
     from .data.schedule import parse_pdf as parse_schedule
+    from .data.transcripts import parse_pdf as parse_transcript
     from .domain import CompletedCourse
     from .models.availability import can_train, observations
     from .models.availability import load as load_availability
     from .models.availability import train as train_availability
 
     parser = argparse.ArgumentParser(description="Что брать в следующем семестре")
-    parser.add_argument("--admission-year", type=int, required=True)
-    parser.add_argument("--program", required=True, help="часть названия специальности")
+    parser.add_argument("--transcript", type=Path, help="PDF транскрипта — настоящее пройденное")
+    parser.add_argument("--admission-year", type=int, help="год поступления")
+    parser.add_argument("--program", help="часть названия специальности")
     parser.add_argument("--school", help="школа студента: SCAI, SSH, SoE, SoM, GSB, SMG")
-    parser.add_argument("--semester", type=int, required=True, help="целевой семестр, 1..8")
+    parser.add_argument("--semester", type=int, help="целевой семестр, 1..8")
     parser.add_argument(
         "--completed-through",
         type=int,
         default=0,
-        help="считать пройденными все курсы плана по этот семестр включительно",
+        help="без транскрипта: считать пройденными все курсы плана по этот семестр",
     )
     parser.add_argument("--gpa", type=float, default=3.0)
     parser.add_argument(
@@ -336,11 +338,30 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=5)
     args = parser.parse_args()
 
-    programs = load_programs(args.admission_year)
-    matches = [p for name, p in programs.items() if args.program.upper() in name]
+    transcript = None
+    if args.transcript:
+        transcript = parse_transcript(args.transcript)
+        if transcript.is_partial:
+            parser.error(
+                f"в файле не все страницы транскрипта: разобрано {transcript.earned} кредитов "
+                f"из {transcript.credits_earned}"
+            )
+
+    year = args.admission_year or (transcript.admission_year if transcript else None)
+    name = args.program or (transcript.major if transcript else None)
+    school = args.school or (transcript.school_code if transcript else None)
+    if not year or not name:
+        parser.error("нужен --transcript либо --admission-year вместе с --program")
+
+    programs = load_programs(year)
+    matches = [p for key, p in programs.items() if name.upper() in key]
     if not matches:
-        parser.error(f"специальность не найдена: {args.program}")
+        parser.error(f"специальность не найдена: {name}")
     program = matches[0]
+    # Следующий семестр после последнего пройденного, если он не задан явно.
+    semester = args.semester or (transcript.next_semester if transcript else None)
+    if not semester:
+        parser.error("нужен --semester либо --transcript, по которому его видно")
 
     catalog = Catalog()
     if args.catalog:
@@ -371,21 +392,26 @@ def main() -> None:
     )
     sections = current.by_course() if current else {}
 
-    completed = [
-        CompletedCourse(course.code, 3.0, semester)
-        for semester in range(1, args.completed_through + 1)
-        for course in program.semester_courses(semester)
-    ]
-    student = Student(
-        "student",
-        major=program.name,
-        year=(args.semester + 1) // 2,
-        gpa=args.gpa,
-        completed=completed,
-    )
+    if transcript is not None:
+        student = transcript.student()
+    else:
+        # Без транскрипта остаётся допущение "шёл строго по плану". Оно
+        # заведомо неверно для конкретного студента и годится только чтобы
+        # посмотреть, что система советует потоку вообще.
+        student = Student(
+            "student",
+            major=program.name,
+            year=(semester + 1) // 2,
+            gpa=args.gpa,
+            completed=[
+                CompletedCourse(course.code, 3.0, index, credits=course.credits)
+                for index in range(1, args.completed_through + 1)
+                for course in program.semester_courses(index)
+            ],
+        )
 
-    print(f"{program.degree} in {program.name}, семестр {args.semester}")
-    print(f"пройдено курсов: {len(completed)}")
+    print(f"{program.degree} in {program.name}, семестр {semester}")
+    print(f"пройдено курсов: {len(student.completed)}, кредитов: {student.earned_credits}")
     if availability is not None:
         print(f"модель заполняемости: {availability.describe()}")
     print()
@@ -393,11 +419,11 @@ def main() -> None:
     results = recommend(
         program,
         student,
-        args.semester,
+        semester,
         offerings=offerings,
         fill_history=fill_history,
         sections=sections,
-        school=args.school,
+        school=school,
         term=term,
         availability=availability,
         limit=args.limit,

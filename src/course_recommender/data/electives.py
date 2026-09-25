@@ -38,6 +38,8 @@ MAJOR = "major"
 GENERAL = "general"
 SOCIAL_SCIENCE = "social science"
 HUMANITIES = "humanities"
+# Позиция общеуниверситетского ядра: язык, этика, письмо.
+CORE = "core"
 
 # Порядок важен: "Natural Science" проверяется раньше "Science", иначе
 # естественнонаучный электив попал бы в социальные науки.
@@ -119,6 +121,8 @@ SUBJECT_WORDS = re.compile(
     r"((?:[A-Za-z0-9][A-Za-z0-9–-]{1,19}[\s,]+){0,4})(?:courses?|electives?)\b", re.IGNORECASE
 )
 ANY_COURSES = re.compile(r"\bany\b[^.]{0,40}?\b(?:courses?|electives?)\b", re.IGNORECASE)
+# Категория, записанная одними кодами предметов: "ANT ECON PLS SOC".
+SUBJECT_LIST = re.compile(r"^(?:[A-Z]{2,5}[\s,/]+)+[A-Z]{2,5}$")
 
 # Школы в правилах записаны сокращением, и состав школы известен не из handbook,
 # а из документа регистрации: там у каждого курса проставлена школа.
@@ -343,6 +347,24 @@ def parse_rule(text: str) -> ElectiveRule | None:
     )
 
 
+def parse_subject_list(text: str) -> ElectiveRule | None:
+    """Правило из голого перечня предметов.
+
+    Под заголовком "Social Science electives" стоит строка "ANT ECON PLS SOC"
+    и больше ничего: это и есть определение категории — любой курс этих
+    предметов. Слова "courses" в ней нет, поэтому обычный разбор правила её
+    не видит и принимает за название курса.
+    """
+    text = normalize(text)
+    if not SUBJECT_LIST.match(text):
+        return None
+    subjects = tuple(
+        token for token in re.split(r"[\s,/]+", text) if token and token not in STOP_SUBJECTS
+    )
+    # Один код — это скорее обрывок названия, чем перечень категорий.
+    return ElectiveRule(subjects=subjects, raw=text) if len(subjects) > 1 else None
+
+
 def parse_rules(text: str) -> list[ElectiveRule]:
     """Разобрать текст правила, в котором может быть несколько предложений.
 
@@ -489,6 +511,15 @@ def parse_page(page: Page, admission_year: int) -> list[ElectiveGroup]:
             continue
 
         rows = block.table.rows
+        body = filled_rows(rows)
+        if len(body) == 1 and len([c for c in body[0] if clean_cell(c)]) == 1:
+            subjects = parse_subject_list(next(c for c in body[0] if clean_cell(c)))
+            if subjects is not None and section is not None:
+                group = group_for(section)
+                group.rules.append(subjects)
+                group.notes.append(subjects.raw)
+                continue
+
         if is_prose(rows):
             text = normalize(next(c for c in filled_rows(rows)[0] if clean_cell(c)))
             kind = leading_kind(text) or section or page_kind
@@ -741,3 +772,62 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+def core_categories(rows, admission_year: int) -> dict[str, ElectiveGroup]:
+    """Чем закрываются общеуниверситетские позиции плана.
+
+    В плане позиция названа категорией — "Kazakh Language", "Ethics", — и сама
+    по себе не говорит, каким курсом её закрывают. Зато таблицы требований
+    говорят, и одинаково у всех специальностей: "Kazakh | Two KAZ courses",
+    "Ethics | One Ethics course (PHIL 210, 211 or 212)". Это утверждение
+    handbook, а не догадка, и повторяется оно во всех выпусках.
+
+    Элективы сюда не попадают: у них свои списки, свои у каждой специальности,
+    и разбираются они отдельно.
+    """
+    collected: dict[str, ElectiveGroup] = {}
+    for row in rows:
+        source = normalize(f"{row.name} {row.explanation}")
+        if row.section != "core" or row.is_total or not source:
+            continue
+        if ELECTIVE.search(source) or ANY_COURSES.search(source):
+            continue
+
+        subjects, _ = parse_subjects(source)
+        codes = [ref.code for ref in row.courses if ref.code]
+        if not subjects and not codes:
+            continue
+
+        key = normalize_title(row.name)
+        if not key:
+            continue
+        group = collected.setdefault(
+            key,
+            ElectiveGroup(admission_year=admission_year, program="", kind=CORE),
+        )
+        group.courses.extend(CourseRef(code=code, title="") for code in codes)
+        if subjects:
+            group.rules.append(
+                ElectiveRule(subjects=subjects, min_level=parse_min_level(source), raw=source)
+            )
+        group.notes.append(source)
+    return collected
+
+
+def match_category(name: str, categories: dict[str, ElectiveGroup]) -> ElectiveGroup | None:
+    """Найти категорию, которой соответствует позиция плана.
+
+    "Kazakh Language" в плане и "Kazakh" в таблице требований — одно и то же.
+    Сравниваем по словам, а не по буквам: иначе "Ethics" совпадёт с
+    "Bioethics", и позиция закроется курсом из чужой программы. Сначала
+    пробуем самые подробные названия.
+    """
+    target = set(normalize_title(name).split())
+    if not target:
+        return None
+    for key in sorted(categories, key=lambda k: -len(k.split())):
+        words = set(key.split())
+        if words and (words <= target or target <= words):
+            return categories[key]
+    return None

@@ -18,9 +18,12 @@ from ..domain import Course, CourseKind, Requirement
 from .canva import Page
 from .catalog import Catalog
 from .electives import (
+    CORE,
     ElectiveGroup,
+    core_categories,
     groups_from_requirements,
     kind_of_row,
+    match_category,
     merge,
     parse_electives,
     slot_kind,
@@ -70,6 +73,9 @@ class Program:
     # major. Это и есть то, чем отличаются свободные позиции плана у CS
     # и у математиков при одинаковом названии "Technical Elective".
     electives: dict[str, ElectiveGroup] = field(default_factory=dict)
+    # Общеуниверситетские позиции плана: чем закрывается "Kazakh Language"
+    # или "Ethics". У всех специальностей они одни и те же.
+    core: dict[str, ElectiveGroup] = field(default_factory=dict)
 
     @property
     def catalog(self) -> list[Course]:
@@ -212,6 +218,7 @@ def build_program(
     name: str,
     shared_kinds: dict[str, CourseKind] | None = None,
     electives: dict[str, ElectiveGroup] | None = None,
+    core: dict[str, ElectiveGroup] | None = None,
     ) -> Program:
     """Собрать специальность из позиций плана и строк требований.
 
@@ -231,6 +238,7 @@ def build_program(
         total_credits=degree_credits(rows),
         min_major_grade=grades[0] if grades else None,
         electives=dict(electives or {}),
+        core=dict(core or {}),
     )
 
 
@@ -277,6 +285,10 @@ def build_programs(
         parse_electives(pages, admission_year, names),
         groups_from_requirements(all_rows, admission_year),
     )
+    # Ядро у всех специальностей общее, поэтому собирается по всем таблицам
+    # сразу: у CS своей таблицы требований нет вовсе, а казахский и этику
+    # ему всё равно сдавать.
+    categories = core_categories(all_rows, admission_year)
 
     return {
         name: build_program(
@@ -286,6 +298,7 @@ def build_programs(
             name,
             shared,
             electives_of(groups, name),
+            categories,
         )
         for name in names
     }
@@ -338,6 +351,37 @@ def attach_catalog(programs: dict[str, Program], catalog: Catalog, term: str | N
     return updated
 
 
+def resolve_slots(
+    program: Program,
+    titles: dict[str, str],
+    schools: dict[str, str] | None,
+    required: frozenset[str],
+) -> dict[str, frozenset[str]]:
+    """Чем можно закрыть каждую позицию плана.
+
+    Профильные позиции разворачиваются по типу электива, а позиции без типа —
+    по названию: "Kazakh Language" и "Ethics" описаны не в плане, а в таблицах
+    требований, и там же сказано, какими курсами они закрываются.
+    """
+
+    def expand(group: ElectiveGroup) -> frozenset[str]:
+        return frozenset(group.resolve(titles, required, schools) - required)
+
+    resolved = {kind: expand(group) for kind, group in program.electives.items()}
+    for slot in program.slots:
+        if slot.kind in resolved or slot.name in resolved:
+            continue
+        group = match_category(slot.name, program.core)
+        if group is not None:
+            resolved[slot.name] = expand(group)
+    return resolved
+
+
+def slot_codes(slot: PlanSlot, resolved: dict[str, frozenset[str]]) -> frozenset[str]:
+    """Список для конкретной позиции: по типу, иначе по названию."""
+    return resolved.get(slot.kind) or resolved.get(slot.name) or frozenset()
+
+
 def attach_electives(programs: dict[str, Program], catalog: Catalog, term: str | None = None) -> int:
     """Развернуть слоты плана в конкретные курсы по спискам элективов.
 
@@ -360,13 +404,9 @@ def attach_electives(programs: dict[str, Program], catalog: Catalog, term: str |
     filled = 0
     for program in programs.values():
         required = frozenset(program.courses)
-        resolved = {
-            kind: group.resolve(titles, required, schools) - required
-            for kind, group in program.electives.items()
-        }
+        resolved = resolve_slots(program, titles, schools, required)
         program.slots = [
-            replace(slot, eligible_codes=frozenset(resolved.get(slot.kind, ())))
-            for slot in program.slots
+            replace(slot, eligible_codes=slot_codes(slot, resolved)) for slot in program.slots
         ]
         program.requirements = [
             replace(requirement, eligible_codes=frozenset(resolved[requirement.elective_kind]))
@@ -375,17 +415,19 @@ def attach_electives(programs: dict[str, Program], catalog: Catalog, term: str |
             for requirement in program.requirements
         ]
 
+        elective_kinds = set(program.electives)
         for kind, codes in resolved.items():
             for code in sorted(codes & offered):
                 if code in program.courses:
                     continue
                 entry = catalog.get(code)
+                is_elective = kind in elective_kinds
                 program.courses[code] = Course(
                     code=code,
                     title=titles.get(code, ""),
                     credits=credits.get(code, 0),
-                    kind=CourseKind.ELECTIVE,
-                    elective_kind=kind,
+                    kind=CourseKind.ELECTIVE if is_elective else CourseKind.CORE,
+                    elective_kind=kind if is_elective else CORE,
                     semesters_offered=entry.semesters_offered if entry else (),
                     requirement=entry.prerequisite(term) or All(()) if entry else None,
                 )

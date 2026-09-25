@@ -74,11 +74,24 @@ class Course:
 
 @dataclass(frozen=True)
 class CompletedCourse:
-    """Пройденный студентом курс с оценкой."""
+    """Пройденный студентом курс с оценкой.
+
+    Оценки может не быть: курс идёт прямо сейчас или стоит незачёт "I".
+    None здесь означает "результата ещё нет" — это не то же самое, что ноль,
+    и считать такой курс пройденным нельзя.
+    """
 
     code: str
-    grade: float  # GPA-шкала 0.0–4.0
+    grade: float | None  # GPA-шкала 0.0–4.0
     semester: int
+    credits: int = 0
+    title: str = ""
+    term: str = ""
+
+    @property
+    def is_earned(self) -> bool:
+        """Курс зачтён: оценка есть и она не F."""
+        return self.grade is not None and self.grade > 0
 
 
 @dataclass
@@ -95,6 +108,11 @@ class Student:
     def completed_codes(self) -> set[str]:
         return {c.code for c in self.completed}
 
+    @property
+    def earned_codes(self) -> set[str]:
+        """Курсы, которые действительно зачтены."""
+        return {c.code for c in self.completed if c.is_earned}
+
     def grade_of(self, code: str) -> float | None:
         """Оценка за пройденный курс, если он пройден."""
         for course in self.completed:
@@ -104,7 +122,8 @@ class Student:
 
     @property
     def earned_credits(self) -> int:
-        raise NotImplementedError("нужен каталог для подсчёта кредитов")
+        """Набранные кредиты. Незачтённое и провалённое не считается."""
+        return sum(c.credits for c in self.completed if c.is_earned)
 
 
 @dataclass(frozen=True)
