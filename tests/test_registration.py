@@ -190,3 +190,20 @@ def test_parse_row_builds_offering():
     assert offering.prerequisite.code == "ECON 101"
     assert len(offering.priorities) == 2  # пустые хвостовые тиры отброшены
     assert offering.priority_for(2, "GSB", "Economics") == 1
+
+
+def test_priority_of_old_smg_covers_departments_that_moved_to_engineering():
+    # Горное дело и геонауки ушли из SMG в SoE; документы прошлых семестров
+    # знают их как SMG
+    offering = CourseOffering(
+        term="Spring 2025",
+        school="SMG",
+        department="Geosciences",
+        code="GEOL 301",
+        title="Structural Geology",
+        priorities=[[Audience(year=4, school="SMG", program="Geology")]],
+    )
+    assert offering.priority_for(4, "SoE", "Geology") == 1
+    assert offering.priority_for(4, "SMG", "Geology") == 1
+    # На студента другой школы это не распространяется
+    assert offering.priority_for(4, "SCAI", "Geology") is None
