@@ -205,13 +205,22 @@ def parse_text(text: str) -> Transcript:
     return transcript
 
 
-def parse_pdf(path: Path) -> Transcript:
-    """Разобрать транскрипт из PDF."""
+def parse_stream(source) -> Transcript:
+    """Разобрать транскрипт из открытого файла или буфера в памяти.
+
+    Загруженный через браузер файл на диск класть незачем: это персональные
+    данные, и чем меньше их следов, тем лучше.
+    """
     import pdfplumber
 
-    with pdfplumber.open(path) as pdf:
+    with pdfplumber.open(source) as pdf:
         text = "\n".join(page.extract_text() or "" for page in pdf.pages)
     return parse_text(text)
+
+
+def parse_pdf(path: Path) -> Transcript:
+    """Разобрать транскрипт из PDF."""
+    return parse_stream(path)
 
 
 def main() -> None:

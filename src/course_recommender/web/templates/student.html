@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Транскрипт разобран{% endblock %}
+
+{% block body %}
+<div class="page">
+
+  <div class="page__head">
+    <div class="stack">
+      <h1>Транскрипт разобран</h1>
+      <p class="muted" style="margin: 0; font-size: 14px">Проверьте, что файл тот: дальше система считает по этим курсам.</p>
+    </div>
+    <form method="post" action="/forget">
+      <button class="button" type="submit">Загрузить другой</button>
+    </form>
+  </div>
+
+  <section class="card" style="display: flex; flex-direction: column; gap: 18px">
+    <dl class="figures" style="grid-template-columns: repeat(4, minmax(0, 1fr))">
+      <div>
+        <dt>набрано</dt>
+        <dd>{{ summary.earned }} ECTS</dd>
+      </div>
+      <div>
+        <dt>курсов в транскрипте</dt>
+        <dd>{{ summary.courses }}</dd>
+      </div>
+      <div>
+        <dt>GPA</dt>
+        <dd>{% if summary.gpa is not none %}{{ summary.gpa }}{% else %}—{% endif %}</dd>
+      </div>
+      <div>
+        <dt>следующий семестр</dt>
+        <dd>{{ summary.next_semester }}</dd>
+      </div>
+    </dl>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; font-size: 14px; color: var(--ink-2)">
+      <span>{{ summary.major or '—' }}</span>
+      <span>{{ summary.school or '—' }}</span>
+      <span>поступление: {{ summary.admission or '—' }}</span>
+      {% if summary.student_id %}<span class="mono">{{ summary.student_id }}</span>{% endif %}
+    </div>
+  </section>
+
+  <section class="card" style="display: flex; flex-direction: column; gap: 20px">
+    <h2 class="label">Пройденные курсы по семестрам</h2>
+    {% for term in summary.terms %}
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span class="mono" style="font-size: 13px; color: var(--ink-3)">{{ term.term }}</span>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px">
+        {% for course in term.courses %}
+        <div style="display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 10px 12px; border: 1px solid var(--line-soft); border-radius: var(--radius-xs)">
+          <span style="min-width: 0">
+            <span class="mono" style="font-size: 13px; font-weight: 600">{{ course.code }}</span>
+            <span style="font-size: 13px; color: var(--ink-2)"> {{ course.title }}</span>
+          </span>
+          <span style="flex-shrink: 0; display: flex; align-items: baseline; gap: 8px">
+            {% if course.grade %}
+            <span class="mono" style="font-size: 13px; font-weight: 600">{{ course.grade }}</span>
+            {% else %}
+            <span class="missing missing--inline">нет оценки</span>
+            {% endif %}
+            <span class="mono" style="font-size: 12px; color: var(--ink-3)">{{ course.credits }}</span>
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <p class="notice">Курс без оценки идёт сейчас или стоит незачётом — в набранные кредиты он не входит.</p>
+</div>
+{% endblock %}

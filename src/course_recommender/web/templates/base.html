@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Course Recommender{% endblock %}</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', path='app.css') }}">
+</head>
+<body>
+
+<header class="header">
+  <div class="header__left">
+    <a class="brand" href="/">
+      <span class="brand__name">Course Recommender</span>
+      <span class="brand__where">NU{% if term %} · {{ term }}{% endif %}</span>
+    </a>
+    {% if student %}
+    <nav class="nav" aria-label="Разделы">
+      <a href="/audit" {% if active == 'audit' %}aria-current="page"{% endif %}>Аудит</a>
+      <a href="/courses" {% if active == 'courses' %}aria-current="page"{% endif %}>Рекомендации</a>
+      <a href="/plan" {% if active == 'plan' %}aria-current="page"{% endif %}>План</a>
+    </nav>
+    {% endif %}
+  </div>
+
+  <div class="header__right">
+    {% if student %}
+    <div class="student">
+      <span class="student__name">{{ student.name or 'Студент' }}</span>
+      <span class="student__facts">{{ student.facts }}</span>
+    </div>
+    {% endif %}
+    <a href="/" style="font-size: 13px">Транскрипт</a>
+  </div>
+</header>
+
+{% block body %}{% endblock %}
+
+</body>
+</html>

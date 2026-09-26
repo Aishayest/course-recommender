@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Загрузка транскрипта{% endblock %}
+
+{% block body %}
+<div class="page--center">
+  <section class="card card--narrow" style="display: flex; flex-direction: column; gap: 22px">
+
+    {% if error %}
+    <div style="display: flex; align-items: center; gap: 12px">
+      <span class="avatar" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <path d="M14 2v6h6"></path><path d="M12 12v3"></path><path d="M12 18h.01"></path>
+        </svg>
+      </span>
+      <span class="mono" style="font-size: 13px; color: var(--ink-3)">{{ error.filename }}</span>
+    </div>
+    <h1 style="font-size: 34px; line-height: 1.15">{{ error.title }}</h1>
+    <p style="margin: 0; font-size: 16px; color: var(--ink-2)">{{ error.text }}</p>
+
+    {% if error.figures %}
+    <dl class="figures">
+      {% for figure in error.figures %}
+      <div>
+        <dt>{{ figure.label }}</dt>
+        <dd {% if figure.problem %}class="is-problem"{% endif %}>{{ figure.value }}</dd>
+      </div>
+      {% endfor %}
+    </dl>
+    {% endif %}
+
+    <div class="stack" style="gap: 8px">
+      <span style="font-weight: 600">Как скачать полный транскрипт</span>
+      <span style="font-size: 14px; color: var(--ink-2)">В личном кабинете Registrar откройте неофициальный транскрипт и сохраните его как PDF — все страницы, вместе с итоговой строкой.</span>
+    </div>
+
+    {% else %}
+    <h1 style="font-size: 34px; line-height: 1.15">Загрузите транскрипт</h1>
+    <p style="margin: 0; font-size: 16px; color: var(--ink-2)">Система покажет, что осталось до диплома, подберёт курсы на следующий семестр и соберёт из них расписание без пересечений.</p>
+    {% endif %}
+
+    <form method="post" action="/transcript" enctype="multipart/form-data">
+      <div class="dropzone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path>
+        </svg>
+        <span class="dropzone__hint">Выберите PDF транскрипта</span>
+        <input class="visually-hidden" id="pdf" name="pdf" type="file" accept="application/pdf" required
+               onchange="this.form.querySelector('button').textContent = this.files[0] ? this.files[0].name : 'Разобрать'">
+        <label class="button button--primary" for="pdf">{% if error %}Выбрать файл заново{% else %}Выбрать файл{% endif %}</label>
+        <button class="button" type="submit">Разобрать</button>
+      </div>
+    </form>
+
+    <p class="muted" style="margin: 0; font-size: 12px">Нужен только транскрипт: год поступления, специальность и предстоящий семестр мы возьмём из него. Файл разбирается на этой машине и никуда не отправляется.</p>
+  </section>
+</div>
+{% endblock %}
