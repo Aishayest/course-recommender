@@ -1,5 +1,6 @@
 from dataclasses import replace
 from datetime import UTC, date, datetime, time
+from pathlib import Path
 
 from course_recommender.data.grades import SectionGrades
 from course_recommender.data.grades import from_json as grades_from_json
@@ -121,3 +122,28 @@ def test_sources_finds_files_by_registrar_naming(tmp_path):
     assert len(sources(tmp_path, "grades")) == 1
     assert sources(tmp_path, "requirements") == []
     assert set(PATTERNS) == {"requirements", "schedule", "grades"}
+
+
+def test_grades_can_be_prepared_without_instructor_names(monkeypatch):
+    # Для публичной выкладки: университет публикует распределение оценок
+    # без имён, и восстанавливать связь на открытом адресе — отдельное решение
+    from course_recommender.data import grades as grades_data
+    from course_recommender.data import prepare
+    from course_recommender.data import schedule as schedule_data
+
+    calls = []
+    monkeypatch.setattr(schedule_data, "parse_pdf", lambda path: snapshot())
+    monkeypatch.setattr(schedule_data, "save", lambda snapshots, path: None)
+    monkeypatch.setattr(
+        grades_data, "read_reports", lambda reports, schedules: calls.append(schedules) or []
+    )
+    monkeypatch.setattr(grades_data, "save", lambda rows, path: None)
+    monkeypatch.setattr(prepare, "availability_model_path", lambda: Path("не нужен"))
+
+    sources = {"reports": ["отчёт.pdf"], "schedules": ["расписание.pdf"]}
+    prepare.build(**sources, report=lambda *_: None)
+    prepare.build(**sources, with_instructors=False, report=lambda *_: None)
+
+    # Имена берутся из расписания: не дать его — значит не связывать
+    assert calls[0] == ["расписание.pdf"]
+    assert calls[1] == ()

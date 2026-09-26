@@ -85,6 +85,7 @@ def build(
     reports=(),
     fetch_descriptions: bool = False,
     vectors_backend: str | None = None,
+    with_instructors: bool = True,
     report=print,
 ) -> Prepared:
     """Разобрать источники и сохранить кеши.
@@ -111,11 +112,14 @@ def build(
         report(f"расписания: {len(prepared.schedules)} снимков, {sections} секций")
 
     if reports:
-        rows = grades_data.read_reports(reports, schedules)
+        rows = grades_data.read_reports(reports, schedules if with_instructors else ())
         grades_data.save(rows, grades_data.default_path())
         prepared.grades = grades_data.by_course(rows)
         named = sum(1 for row in rows if row.instructors)
-        report(f"оценки: {len(rows)} секций, {len(prepared.grades)} курсов, с преподавателем {named}")
+        report(
+            f"оценки: {len(rows)} секций, {len(prepared.grades)} курсов, "
+            + (f"с преподавателем {named}" if with_instructors else "без имён преподавателей")
+        )
 
     if fetch_descriptions:
         prepared.descriptions = descriptions_data.fetch_all()
@@ -205,6 +209,11 @@ def main() -> None:
     parser.add_argument(
         "--vectors", nargs="?", const="tfidf", help="посчитать векторы: tfidf или имя модели"
     )
+    parser.add_argument(
+        "--no-instructors",
+        action="store_true",
+        help="не связывать оценки с именами преподавателей: для публичной выкладки",
+    )
     args = parser.parse_args()
 
     if not any(
@@ -219,6 +228,7 @@ def main() -> None:
         reports=args.grades,
         fetch_descriptions=args.descriptions,
         vectors_backend=args.vectors,
+        with_instructors=not args.no_instructors,
     )
 
 

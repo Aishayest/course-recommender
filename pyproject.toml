@@ -5,10 +5,7 @@ description = "Рекомендательная система выбора ун
 requires-python = ">=3.12"
 dependencies = [
     "numpy>=2.0",
-    "pandas>=2.2",
     "scikit-learn>=1.5",
-    "lightgbm>=4.5",
-    "pydantic>=2.9",
     "certifi>=2024.8",
     "pdfplumber>=0.11.10",
 ]
