@@ -454,3 +454,83 @@ h3 { font-size: 26px; line-height: 1.2; }
   font-size: 14px;
 }
 .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* --- недельная сетка --- */
+
+.week { display: grid; grid-template-columns: 56px repeat(5, minmax(0, 1fr)); }
+.week__day { padding: 0 0 8px 8px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.week__hours { position: relative; }
+.week__hour {
+  position: absolute;
+  right: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.week__column {
+  position: relative;
+  border-left: 1px solid var(--track);
+  background: repeating-linear-gradient(to bottom, var(--line-soft) 0 1px, transparent 1px 56px);
+}
+
+.class {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  padding: 7px 10px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  background: var(--blue);
+  border: 1px solid var(--blue);
+  color: #fff;
+}
+.class--other {
+  background: transparent;
+  border: 1.5px dashed #c27a3a;
+  color: #8a4a12;
+}
+.class__code { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+.class__time { font-size: 12px; }
+.class__note { font-size: 11px; opacity: 0.9; }
+
+.offline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px dashed #9db5d6;
+  border-radius: var(--radius-sm);
+  background: var(--blue-bg);
+  font-size: 13px;
+}
+
+/* --- сводка плана --- */
+
+.segments { display: grid; gap: 3px; height: 8px; }
+.segments span { background: var(--blue); border-radius: 2px; }
+
+.plan__items { display: flex; flex-direction: column; }
+.plan__item {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.plan__item:last-child { border-bottom: 0; }
+.plan__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+
+.checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.check-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13px;
+}

@@ -150,3 +150,14 @@ def test_page_keeps_the_weights_it_was_given():
     assert controls["need"] == 0.3
     assert controls["access"] == 0.7
     assert controls["ease"] == 0.0
+
+
+def test_no_courses_key_shadows_a_dict_method():
+    from course_recommender.recommend import Recommendation
+
+    shown = evidence(grades=grades(), instructors=("Лектор",), priority_tier=1, mean_fill=0.8)
+    page = view.courses_page(
+        [Recommendation(course=shown.course, score=0.9, evidence=shown)],
+        WEIGHTS, "Fall 2026", [],
+    )
+    assert view.shadows_dict_methods(page) == set()

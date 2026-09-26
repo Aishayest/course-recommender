@@ -17,7 +17,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import FastAPI, File, Request, UploadFile
+from fastapi import FastAPI, File, Query, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -193,6 +193,40 @@ def courses_page(
         "courses.html",
         page=view.courses_page(results, weights, current_term(), result.open_slots),
         active="courses",
+    )
+
+
+@app.get("/plan", response_class=HTMLResponse)
+def plan_page(request: Request, section: Annotated[list[str] | None, Query()] = None) -> HTMLResponse:
+    """Собранный семестр: курсы, секции и время.
+
+    Выбранные студентом секции приходят параметрами вида "CSCI 341:2L" —
+    их пробуют первыми, но если секция не сходится по времени с остальным,
+    берётся другая.
+    """
+    session = sessions.get(request.cookies.get(COOKIE))
+    if session is None:
+        return RedirectResponse(url="/", status_code=303)
+
+    prefer = {}
+    for item in section or []:
+        code, _, label = item.partition(":")
+        if code and label:
+            prefer[code.strip()] = label.strip()
+
+    found = service.plan_for(session.transcript, data, current_term(), prefer=prefer)
+    if found is None:
+        return page(
+            request,
+            "unknown_program.html",
+            major=session.transcript.major,
+            year=session.transcript.admission_year,
+            active="plan",
+        )
+
+    _, semester = found
+    return page(
+        request, "plan.html", plan=view.plan_page(semester, current_term()), active="plan"
     )
 
 

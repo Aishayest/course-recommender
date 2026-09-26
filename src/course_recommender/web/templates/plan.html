@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}План на семестр{% endblock %}
+
+{% block body %}
+<div class="page">
+
+  <div class="page__head">
+    <div class="stack" style="gap: 10px">
+      <h1>План{% if plan.term %} на {{ plan.term }}{% endif %}</h1>
+      <div class="checks">
+        {% for guarantee in plan.guarantees %}
+        <span class="check-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+          {{ guarantee }}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <section class="card" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px" aria-label="Неделя">
+      {% if plan.week.offline %}
+      <div class="offline">
+        <span class="label">Без времени</span>
+        <span class="mono" style="font-weight: 600">{{ plan.week.offline|join(', ') }}</span>
+        <span>онлайн или расписание не указано</span>
+      </div>
+      {% endif %}
+
+      <div class="week">
+        <span></span>
+        {% for day in plan.week.days %}
+        <span class="week__day">{{ day.name }}</span>
+        {% endfor %}
+
+        <div class="week__hours" style="height: {{ plan.week.height }}px">
+          {% for hour in plan.week.hours %}
+          <span class="week__hour" style="top: {{ hour.top }}px">{{ hour.label }}</span>
+          {% endfor %}
+        </div>
+
+        {% for day in plan.week.days %}
+        <div class="week__column" style="height: {{ plan.week.height }}px">
+          {% for block in day.blocks %}
+          <div class="class {% if not block.chosen %}class--other{% endif %}"
+               style="top: {{ block.top }}px; height: {{ block.height }}px">
+            <span class="class__code">{{ block.code }} · {{ block.label }}</span>
+            <span class="class__time">{{ block.time }}</span>
+            <span class="class__note">{{ block.note }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="legend">
+        <span><span class="swatch" style="background: var(--blue)"></span>выбранная секция</span>
+        <span><span class="swatch" style="border: 1.5px dashed #c27a3a"></span>другая секция того же курса</span>
+      </div>
+    </section>
+
+    <aside class="sidebar" style="width: 460px">
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <span style="font-size: 14px; font-weight: 600">Семестр собран</span>
+          <span class="mono muted" style="font-size: 13px">курсов {{ plan.count }}</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 8px">
+          <span class="stat stat--l">{{ plan.credits }}</span>
+          <span class="mono muted" style="font-size: 16px">/ {{ plan.target }} ECTS</span>
+        </div>
+        {% if plan.count %}
+        <div class="segments" style="grid-template-columns: repeat({{ plan.count }}, minmax(0, 1fr))">
+          {% for item in plan.courses %}<span></span>{% endfor %}
+        </div>
+        {% endif %}
+        {% if plan.missing %}
+        <p class="missing" style="margin: 0">Не хватает {{ plan.missing }} ECTS — закрыть нечем.</p>
+        {% endif %}
+      </section>
+
+      <form method="get" action="/plan">
+        <section class="card" style="padding: 0">
+          <div class="plan__items">
+            {% for item in plan.courses %}
+            <div class="plan__item">
+              <div class="plan__top">
+                <span class="mono" style="font-size: 13px; font-weight: 600">{{ item.code }}{% if item.label %} · {{ item.label }}{% endif %}</span>
+                <span class="mono muted" style="font-size: 12px">{{ item.credits }} ECTS</span>
+              </div>
+              <span style="font-size: 15px; font-weight: 500">{{ item.title or item.code }}</span>
+              <span style="font-size: 13px; color: var(--ink-2)">
+                {{ item.time }}{% if item.teachers %} · ведёт {{ item.teachers }}{% endif %}
+              </span>
+              <span class="muted" style="font-size: 12px">закрывает: {{ item.closes }}</span>
+
+              {% if item.unscheduled %}
+              <span class="missing missing--inline" style="align-self: flex-start">расписание неизвестно, время не проверено</span>
+              {% endif %}
+
+              {% if item.alternatives %}
+              <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 6px">
+                <label for="sec-{{ item.code|replace(' ', '') }}" style="font-size: 13px; color: var(--ink-2)">Секция</label>
+                <select id="sec-{{ item.code|replace(' ', '') }}" name="section" style="min-height: 36px">
+                  <option value="{{ item.code }}:{{ item.label }}">{{ item.label }} · {{ item.time }}</option>
+                  {% for alternative in item.alternatives %}
+                  <option value="{{ item.code }}:{{ alternative.label }}">{{ alternative.label }} · {{ alternative.time }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              {% endif %}
+
+              {% if item.practice %}
+              <span class="badge badge--warn" style="align-self: flex-start; margin-top: 4px">
+                Практику выбрать отдельно — вариантов всего {{ item.practice }}
+              </span>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+        <button class="button button--primary" type="submit" style="margin-top: 12px; width: 100%">Пересобрать с этими секциями</button>
+      </form>
+
+      {% if plan.left_out %}
+      <section class="card card--quiet" style="display: flex; flex-direction: column; gap: 10px">
+        <span class="label">Не вошло</span>
+        {% for item in plan.left_out %}
+        <div style="display: flex; gap: 12px; font-size: 13px">
+          <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">{{ item.code }}</span>
+          <span style="color: var(--ink-2)">{{ item.reason }}</span>
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      {% if plan.registration %}
+      <section class="card" style="display: flex; flex-direction: column; gap: 8px">
+        <span class="label">Список для регистрации</span>
+        <code class="mono" style="font-size: 13px; line-height: 1.8">{{ plan.registration|join(', ') }}</code>
+      </section>
+      {% endif %}
+
+      <p class="muted" style="margin: 0; font-size: 12px">
+        Планируются только лекции. Лабораторные и рецитации выберите сами при регистрации:
+        их номера не совпадают с лекционными — у PHYS 161 три лекции и тридцать лабораторных.
+      </p>
+
+    </aside>
+  </div>
+</div>
+{% endblock %}

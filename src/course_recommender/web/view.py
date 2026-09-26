@@ -13,6 +13,7 @@ from ..data.transcripts import TERM, Transcript
 SECTIONS = (
     ("audit", "Аудит", "/audit"),
     ("courses", "Рекомендации", "/courses"),
+    ("plan", "План", "/plan"),
 )
 
 # Состояния позиции программы. Порядок — от выполненного к неизвестному,
@@ -433,3 +434,169 @@ def courses_page(results, weights: dict, term: str | None, slots) -> dict:
         "slots": sorted({status.slot.name for status in slots}),
         "courses": [course_card(i, result, weights) for i, result in enumerate(results, start=1)],
     }
+
+
+# Недельная сетка: с какого часа рисуем и сколько пикселей стоит час.
+GRID_START = 9
+GRID_HOURS = 10
+HOUR = 56
+WEEKDAYS = (("M", "Пн"), ("T", "Вт"), ("W", "Ср"), ("R", "Чт"), ("F", "Пт"))
+
+
+def _minutes(moment) -> int:
+    return moment.hour * 60 + moment.minute
+
+
+def _placement(start, end) -> dict:
+    """Где на сетке стоит пара и какой она высоты."""
+    top = (_minutes(start) - GRID_START * 60) / 60 * HOUR
+    height = max(28.0, (_minutes(end) - _minutes(start)) / 60 * HOUR)
+    return {"top": round(max(0.0, top)), "height": round(height)}
+
+
+def _time_label(meeting) -> str:
+    if meeting.online or not meeting.start:
+        return "онлайн"
+    return f"{meeting.start:%H:%M}–{meeting.end:%H:%M}"
+
+
+def _blocks(choice, chosen: bool) -> list[dict]:
+    """Пары одной секции, разложенные по дням недели."""
+    section = choice.section if chosen else None
+    source = section or choice.section
+    if source is None:
+        return []
+
+    found = []
+    for meeting in source.meetings:
+        if meeting.online or not (meeting.days and meeting.start and meeting.end):
+            continue
+        for day in meeting.days:
+            found.append(
+                {
+                    "day": day,
+                    "code": choice.course.code,
+                    "label": getattr(source, "section", ""),
+                    "time": _time_label(meeting),
+                    "note": choice.evidence.fills_slot or "курс плана",
+                    "chosen": chosen,
+                    **_placement(meeting.start, meeting.end),
+                }
+            )
+    return found
+
+
+def week_grid(semester) -> dict:
+    """Неделя: колонки по дням, в каждой — пары выбранных секций.
+
+    Альтернативные секции того же курса рисуются пунктиром: видно, куда
+    можно переставить курс, не разбирая расписание заново.
+    """
+    blocks: list[dict] = []
+    for choice in semester.choices:
+        blocks.extend(_blocks(choice, chosen=True))
+        for alternative in choice.alternatives:
+            for meeting in alternative.meetings:
+                if meeting.online or not (meeting.days and meeting.start and meeting.end):
+                    continue
+                for day in meeting.days:
+                    blocks.append(
+                        {
+                            "day": day,
+                            "code": choice.course.code,
+                            "label": alternative.section,
+                            "time": _time_label(meeting),
+                            "note": "другая секция",
+                            "chosen": False,
+                            **_placement(meeting.start, meeting.end),
+                        }
+                    )
+
+    return {
+        "hours": [
+            {"label": f"{GRID_START + i}:00", "top": max(0, i * HOUR - 7)}
+            for i in range(GRID_HOURS)
+        ],
+        "height": GRID_HOURS * HOUR,
+        "days": [
+            {"name": title, "blocks": [b for b in blocks if b["day"] == key]}
+            for key, title in WEEKDAYS
+        ],
+        "offline": [
+            choice.course.code
+            for choice in semester.choices
+            if choice.section is not None and not _blocks(choice, chosen=True)
+        ],
+    }
+
+
+def plan_page(semester, term: str | None) -> dict:
+    """Всё, что показывает страница плана.
+
+    Ключ называется courses, а не items: в шаблоне `plan.items` разрешилось
+    бы в метод словаря, а не в значение.
+    """
+    items = []
+    for choice in semester.choices:
+        section = choice.section
+        meetings = getattr(section, "meetings", ()) if section else ()
+        items.append(
+            {
+                "code": choice.course.code,
+                "title": choice.course.title,
+                "credits": choice.credits,
+                "label": choice.label,
+                "time": "; ".join(_time_label(m) for m in meetings) or "время не указано",
+                "teachers": ", ".join(choice.instructors),
+                "closes": choice.evidence.fills_slot or "курс плана на этот семестр",
+                "alternatives": [
+                    {
+                        "label": alternative.section,
+                        "time": "; ".join(_time_label(m) for m in alternative.meetings),
+                    }
+                    for alternative in choice.alternatives
+                ],
+                "practice": choice.practice if choice.practice_is_tight else 0,
+                "unscheduled": section is None,
+            }
+        )
+
+    return {
+        "term": term,
+        "credits": semester.credits,
+        "target": semester.target_credits,
+        "missing": semester.missing_credits,
+        "count": len(semester.choices),
+        "guarantees": [
+            "секции не пересекаются по времени",
+            "укладывается в целевую нагрузку",
+            "курсов не больше, чем открытых позиций",
+        ],
+        "week": week_grid(semester),
+        "courses": items,
+        "left_out": [
+            {"code": evidence.course.code, "reason": reason}
+            for evidence, reason in semester.left_out[:8]
+        ],
+        "registration": [
+            f"{item['code']}{' ' + item['label'] if item['label'] else ''}" for item in items
+        ],
+    }
+
+
+def shadows_dict_methods(payload: dict) -> set[str]:
+    """Ключи, которые шаблон разрешит в методы словаря, а не в значения.
+
+    Jinja сначала пробует атрибут: `page.items` вернёт метод dict.items, и
+    цикл по нему упадёт. Ловится только на отрисовке, поэтому проверяется
+    отдельно и рекурсивно.
+    """
+    found = {key for key in payload if hasattr({}, str(key))}
+    for value in payload.values():
+        if isinstance(value, dict):
+            found |= shadows_dict_methods(value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    found |= shadows_dict_methods(item)
+    return found

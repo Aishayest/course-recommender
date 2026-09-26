@@ -120,3 +120,12 @@ def test_tiles_count_what_needs_doing():
 def test_legend_covers_all_states_used_on_the_page():
     page = view.audit_page(result(), TRANSCRIPT)
     assert {item["state"] for item in page["legend"]} == set(view.STATES)
+
+
+def test_no_audit_key_shadows_a_dict_method():
+    # `page.items` в шаблоне вернёт метод словаря, а не значение
+    audit = result(
+        missing=[course("CSCI 408", 7)],
+        slots=[SlotStatus(slot=slot("Technical Elective", codes=["CSCI 434"]))],
+    )
+    assert view.shadows_dict_methods(view.audit_page(audit, TRANSCRIPT)) == set()

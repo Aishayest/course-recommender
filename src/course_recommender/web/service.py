@@ -119,6 +119,36 @@ def recommendations_for(
     return program, result, results
 
 
+def plan_for(
+    transcript: Transcript,
+    data: Prepared,
+    term: str | None = None,
+    weights: dict | None = None,
+    prefer: dict[str, str] | None = None,
+):
+    """Собрать семестр: курсы, секции и время, без пересечений."""
+    from collections import Counter
+
+    from ..plan import assemble, target_credits
+
+    found = recommendations_for(transcript, data, term, weights, limit=24)
+    if found is None:
+        return None
+
+    program, result, results = found
+    open_slots = [status.slot for status in result.open_slots]
+    capacity = dict(Counter(slot.name for slot in open_slots)) or None
+    semester = assemble(
+        [item.evidence for item in results],
+        data.sections(term),
+        target_credits(program, transcript.next_semester),
+        term or "",
+        capacity,
+        prefer,
+    )
+    return program, semester
+
+
 def forget_built() -> None:
     """Сбросить собранное — нужно после обновления данных."""
     _built.clear()

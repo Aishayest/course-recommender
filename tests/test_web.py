@@ -185,3 +185,7 @@ def test_term_of_counts_from_the_admission_semester():
 
 def test_courses_need_a_transcript(client):
     assert client.get("/courses").url.path == "/"
+
+
+def test_plan_needs_a_transcript(client):
+    assert client.get("/plan").url.path == "/"

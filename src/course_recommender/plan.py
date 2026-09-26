@@ -110,18 +110,26 @@ def fits(section, chosen: list[Choice]) -> bool:
     )
 
 
-def rank_sections(course_sections: list, grades: CourseGrades | None) -> list:
+def rank_sections(
+    course_sections: list, grades: CourseGrades | None, preferred: str | None = None
+) -> list:
     """Порядок предпочтения секций.
 
-    Сначала те, чей преподаватель раньше выводил группу лучше. Про кого
-    ничего не известно, идут следом: незнание не повод ни продвигать
-    секцию, ни задвигать её.
+    Выбор студента идёт первым: он мог предпочесть время или преподавателя
+    по причинам, которых в данных нет. Дальше — те, чей преподаватель раньше
+    выводил группу лучше. Про кого ничего не известно, идут следом: незнание
+    не повод ни продвигать секцию, ни задвигать её.
     """
     records = {r.name: r.average for r in grades.instructors()} if grades else {}
 
     def key(section):
         known = [records[name] for name in section.faculty if name in records]
-        return (0 if known else 1, -(max(known) if known else 0.0), section.number or 0)
+        return (
+            0 if preferred and section.section == preferred else 1,
+            0 if known else 1,
+            -(max(known) if known else 0.0),
+            section.number or 0,
+        )
 
     return sorted(course_sections, key=key)
 
@@ -147,6 +155,7 @@ def _search(
     credits: int,
     best: dict,
     capacity: dict[str, int],
+    prefer: dict[str, str],
 ) -> None:
     """Перебор с отсечением: максимум пользы в пределах целевых кредитов."""
     score = sum(c.evidence.need + c.evidence.seat_chance for c in chosen)
@@ -159,7 +168,9 @@ def _search(
     evidence, course_sections = pool[index]
     cost = evidence.course.credits
     if credits + cost <= target and _has_room(evidence, chosen, capacity):
-        options = rank_sections(lectures(course_sections), evidence.grades)
+        options = rank_sections(
+            lectures(course_sections), evidence.grades, prefer.get(evidence.course.code)
+        )
         available = [s for s in options if fits(s, chosen)]
         if available:
             chosen.append(
@@ -170,15 +181,15 @@ def _search(
                     practice=practice_count(course_sections),
                 )
             )
-            _search(pool, target, index + 1, chosen, credits + cost, best, capacity)
+            _search(pool, target, index + 1, chosen, credits + cost, best, capacity, prefer)
             chosen.pop()
         elif not course_sections:
             # Расписания нет — курс ставим, но время не проверено.
             chosen.append(Choice(evidence=evidence))
-            _search(pool, target, index + 1, chosen, credits + cost, best, capacity)
+            _search(pool, target, index + 1, chosen, credits + cost, best, capacity, prefer)
             chosen.pop()
 
-    _search(pool, target, index + 1, chosen, credits, best, capacity)
+    _search(pool, target, index + 1, chosen, credits, best, capacity, prefer)
 
 
 def assemble(
@@ -187,12 +198,16 @@ def assemble(
     target_credits: int = DEFAULT_CREDITS,
     term: str = "",
     capacity: dict[str, int] | None = None,
+    prefer: dict[str, str] | None = None,
 ) -> Semester:
     """Собрать семестр из отранжированных кандидатов.
 
     Кандидаты уже прошли через ограничения: пререквизиты выполнены, курс
     читается в этом семестре. Здесь решается только, что из них берётся
     вместе — по кредитам, по времени и по числу ещё не закрытых позиций.
+
+    prefer — секции, выбранные студентом: их пробуют первыми. Если выбранная
+    не сходится по времени с остальным, берётся другая, и в отчёте это видно.
     """
     sections = sections or {}
     ordered = sorted(pool, key=lambda e: -(e.need + e.seat_chance))
@@ -200,7 +215,7 @@ def assemble(
     capacity = capacity if capacity is not None else _capacity_of(ordered)
 
     best: dict = {"score": -1.0, "credits": 0, "choices": []}
-    _search(prepared, target_credits, 0, [], 0, best, capacity)
+    _search(prepared, target_credits, 0, [], 0, best, capacity, prefer or {})
 
     chosen = best["choices"]
     taken = {choice.course.code for choice in chosen}
