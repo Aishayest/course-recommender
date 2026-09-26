@@ -12,10 +12,12 @@
       <div class="control">
         <div class="control__top">
           <label for="w-{{ control.key }}">{{ control.label }}</label>
-          <span class="mono" style="font-size: 13px">{{ '%.1f'|format(control.value) }}</span>
+          <output class="mono" for="w-{{ control.key }}" id="out-{{ control.key }}"
+                  style="font-size: 13px">{{ '%.1f'|format(control.value) }}</output>
         </div>
         <input id="w-{{ control.key }}" name="{{ control.key }}" type="range"
-               min="0" max="1" step="0.1" value="{{ control.value }}">
+               min="0" max="1" step="0.1" value="{{ control.value }}"
+               oninput="document.getElementById('out-{{ control.key }}').value = (+this.value).toFixed(1)">
         <span class="control__hint">{{ control.hint }}</span>
       </div>
       {% endfor %}

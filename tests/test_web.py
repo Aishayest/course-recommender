@@ -200,3 +200,16 @@ def test_course_statistics_open_without_a_transcript(client):
 
 def test_unknown_course_says_there_are_no_reports(client):
     assert "отчётов об оценках" in client.get("/course/ZZZ 999").text
+
+
+def test_slider_value_updates_without_submitting(client):
+    # Цифра рядом с ползунком должна меняться при движении, а не после «Пересчитать»
+    import re
+
+    upload(client)
+    html = client.get("/courses").text
+    shown = set(re.findall(r'<output[^>]*id="(out-\w+)"', html))
+    live = set(re.findall(r'oninput="[^"]*(out-\w+)', html))
+
+    assert shown
+    assert shown == live
