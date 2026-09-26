@@ -258,7 +258,71 @@ def attach_instructors(rows: list[SectionGrades], snapshots) -> list[SectionGrad
     ]
 
 
-def load_reports(reports, schedules=()) -> dict[str, CourseGrades]:
+def to_json(rows: list[SectionGrades]) -> list[dict]:
+    """Строки отчётов в JSON-совместимую структуру."""
+    return [
+        {
+            "term": row.term,
+            "school": row.school,
+            "department": row.department,
+            "code": row.code,
+            "title": row.title,
+            "section": row.section,
+            "graded": row.graded,
+            "average": row.average,
+            "deviation": row.deviation,
+            "median": row.median,
+            "shares": row.shares,
+            "letters": row.letters,
+            "instructors": list(row.instructors),
+        }
+        for row in rows
+    ]
+
+
+def from_json(payload: list[dict]) -> list[SectionGrades]:
+    """Строки обратно из JSON."""
+    return [
+        SectionGrades(
+            term=item["term"],
+            school=item.get("school", ""),
+            department=item.get("department", ""),
+            code=item["code"],
+            title=item.get("title", ""),
+            section=item["section"],
+            graded=item["graded"],
+            average=item["average"],
+            deviation=item.get("deviation", 0.0),
+            median=item.get("median", 0.0),
+            shares=dict(item.get("shares") or {}),
+            letters=item.get("letters", 0),
+            instructors=tuple(item.get("instructors") or ()),
+        )
+        for item in payload
+    ]
+
+
+def save(rows: list[SectionGrades], path: Path) -> None:
+    import json
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(to_json(rows), ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def load(path: Path) -> dict[str, CourseGrades]:
+    """Прочитать статистику оценок с диска, сразу сведённую по курсам."""
+    import json
+
+    return by_course(from_json(json.loads(Path(path).read_text(encoding="utf-8"))))
+
+
+def default_path() -> Path:
+    from ..config import DATA_PROCESSED
+
+    return DATA_PROCESSED / "grades.json"
+
+
+def read_reports(reports, schedules=()) -> list[SectionGrades]:
     """Разобрать отчёты и, если дано расписание, проставить преподавателей.
 
     Один и тот же отчёт мог быть скачан дважды, поэтому строки
@@ -278,7 +342,12 @@ def load_reports(reports, schedules=()) -> dict[str, CourseGrades]:
     if schedules:
         snapshots = [parse_schedule(Path(path)).filter_level("UG") for path in schedules]
         rows = attach_instructors(rows, snapshots)
-    return by_course(rows)
+    return rows
+
+
+def load_reports(reports, schedules=()) -> dict[str, CourseGrades]:
+    """Разобрать отчёты и свести по курсам."""
+    return by_course(read_reports(reports, schedules))
 
 
 def by_course(rows: list[SectionGrades]) -> dict[str, CourseGrades]:

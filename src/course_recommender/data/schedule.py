@@ -433,16 +433,130 @@ def parse_pdf(path: Path) -> Snapshot:
     return Snapshot(term=term, taken_at=taken_at, sections=merge_sections(sections))
 
 
+def section_to_json(section: Section) -> dict:
+    """Секция в JSON-совместимую структуру."""
+    return {
+        "code": section.code,
+        "section": section.section,
+        "title": section.title,
+        "school": section.school,
+        "level": section.level,
+        "credits_us": section.credits_us,
+        "credits_ects": section.credits_ects,
+        "start_date": section.start_date.isoformat() if section.start_date else None,
+        "end_date": section.end_date.isoformat() if section.end_date else None,
+        "enrolled": section.enrolled,
+        "capacity": section.capacity,
+        "faculty": list(section.faculty),
+        "room": section.room,
+        "room_capacity": section.room_capacity,
+        "meetings": [
+            {
+                "days": list(meeting.days),
+                "start": meeting.start.isoformat() if meeting.start else None,
+                "end": meeting.end.isoformat() if meeting.end else None,
+                "online": meeting.online,
+            }
+            for meeting in section.meetings
+        ],
+    }
+
+
+def section_from_json(payload: dict, term: str, taken_at: datetime | None) -> Section:
+    return Section(
+        term=term,
+        code=payload["code"],
+        section=payload["section"],
+        title=payload.get("title", ""),
+        school=payload.get("school", ""),
+        level=payload.get("level", ""),
+        credits_us=payload.get("credits_us"),
+        credits_ects=payload.get("credits_ects"),
+        start_date=date.fromisoformat(payload["start_date"]) if payload.get("start_date") else None,
+        end_date=date.fromisoformat(payload["end_date"]) if payload.get("end_date") else None,
+        meetings=[
+            Meeting(
+                days=tuple(m.get("days") or ()),
+                start=time.fromisoformat(m["start"]) if m.get("start") else None,
+                end=time.fromisoformat(m["end"]) if m.get("end") else None,
+                online=bool(m.get("online")),
+            )
+            for m in payload.get("meetings") or []
+        ],
+        enrolled=payload.get("enrolled"),
+        capacity=payload.get("capacity"),
+        faculty=tuple(payload.get("faculty") or ()),
+        room=payload.get("room"),
+        room_capacity=payload.get("room_capacity"),
+        taken_at=taken_at,
+    )
+
+
+def to_json(snapshots: list[Snapshot]) -> list[dict]:
+    """Снимки в JSON-совместимую структуру."""
+    return [
+        {
+            "term": snapshot.term,
+            "taken_at": snapshot.taken_at.isoformat() if snapshot.taken_at else None,
+            "sections": [section_to_json(section) for section in snapshot.sections],
+        }
+        for snapshot in snapshots
+    ]
+
+
+def from_json(payload: list[dict]) -> list[Snapshot]:
+    """Снимки обратно из JSON."""
+    snapshots = []
+    for item in payload:
+        taken_at = datetime.fromisoformat(item["taken_at"]) if item.get("taken_at") else None
+        snapshots.append(
+            Snapshot(
+                term=item["term"],
+                taken_at=taken_at,
+                sections=[
+                    section_from_json(section, item["term"], taken_at)
+                    for section in item.get("sections") or []
+                ],
+            )
+        )
+    return snapshots
+
+
+def save(snapshots: list[Snapshot], path: Path) -> None:
+    import json
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(to_json(snapshots), ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+
+
+def load(path: Path) -> list[Snapshot]:
+    """Прочитать снимки расписаний с диска.
+
+    Разбор двух десятков PDF занимает минуты, и делать его на каждый запуск
+    незачем: приложение читает готовый кеш.
+    """
+    import json
+
+    return from_json(json.loads(Path(path).read_text(encoding="utf-8")))
+
+
+def default_path() -> Path:
+    from ..config import DATA_PROCESSED
+
+    return DATA_PROCESSED / "schedules.json"
+
+
 def main() -> None:
     import argparse
-    import json
 
     parser = argparse.ArgumentParser(description="Разобрать расписание семестра")
     parser.add_argument("pdf", type=Path, nargs="+")
     parser.add_argument("-o", "--output", type=Path)
     args = parser.parse_args()
 
-    payload = []
+    snapshots = []
     for path in args.pdf:
         snapshot = parse_pdf(path)
         full = sum(1 for s in snapshot.sections if s.is_full)
@@ -453,40 +567,11 @@ def main() -> None:
             f"заполнено {full:4d} ({full / max(len(snapshot.sections), 1):.0%})  "
             f"сверх капа {over:3d}"
         )
-        payload.append(
-            {
-                "term": snapshot.term,
-                "taken_at": snapshot.taken_at.isoformat() if snapshot.taken_at else None,
-                "sections": [
-                    {
-                        "code": s.code,
-                        "section": s.section,
-                        "title": s.title,
-                        "school": s.school,
-                        "enrolled": s.enrolled,
-                        "capacity": s.capacity,
-                        "credits_ects": s.credits_ects,
-                        "meetings": [
-                            {
-                                "days": list(m.days),
-                                "start": m.start.isoformat() if m.start else None,
-                                "end": m.end.isoformat() if m.end else None,
-                                "online": m.online,
-                            }
-                            for m in s.meetings
-                        ],
-                        "faculty": list(s.faculty),
-                        "room": s.room,
-                    }
-                    for s in snapshot.sections
-                ],
-            }
-        )
+        snapshots.append(snapshot)
 
-    if args.output:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"-> {args.output}")
+    output = args.output or default_path()
+    save(snapshots, output)
+    print(f"-> {output}")
 
 
 if __name__ == "__main__":
