@@ -24,7 +24,7 @@ from fastapi.templating import Jinja2Templates
 
 from ..data import prepare
 from ..data.transcripts import parse_stream
-from . import view
+from . import service, view
 from .state import COOKIE, Sessions
 
 HERE = Path(__file__).parent
@@ -120,6 +120,32 @@ def student_page(request: Request) -> HTMLResponse:
         "student.html",
         summary=view.transcript_summary(session.transcript),
         active=None,
+    )
+
+
+@app.get("/audit", response_class=HTMLResponse)
+def audit_page(request: Request) -> HTMLResponse:
+    """Что студенту осталось до диплома."""
+    session = sessions.get(request.cookies.get(COOKIE))
+    if session is None:
+        return RedirectResponse(url="/", status_code=303)
+
+    found = service.audit_of(session.transcript, data, current_term())
+    if found is None:
+        return page(
+            request,
+            "unknown_program.html",
+            major=session.transcript.major,
+            year=session.transcript.admission_year,
+            active="audit",
+        )
+
+    _, result = found
+    return page(
+        request,
+        "audit.html",
+        audit=view.audit_page(result, session.transcript),
+        active="audit",
     )
 
 

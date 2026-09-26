@@ -17,9 +17,9 @@
     </a>
     {% if student %}
     <nav class="nav" aria-label="Разделы">
-      <a href="/audit" {% if active == 'audit' %}aria-current="page"{% endif %}>Аудит</a>
-      <a href="/courses" {% if active == 'courses' %}aria-current="page"{% endif %}>Рекомендации</a>
-      <a href="/plan" {% if active == 'plan' %}aria-current="page"{% endif %}>План</a>
+      {% for key, title, href in sections %}
+      <a href="{{ href }}" {% if active == key %}aria-current="page"{% endif %}>{{ title }}</a>
+      {% endfor %}
     </nav>
     {% endif %}
   </div>

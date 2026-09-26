@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Что осталось до диплома{% endblock %}
+
+{% block body %}
+<div class="page">
+
+  <div class="page__head">
+    <div class="stack">
+      <h1>Что осталось до диплома</h1>
+      <p class="muted" style="margin: 0; font-size: 14px">
+        {{ audit.degree }} in {{ audit.program }} · план по handbook года поступления ({{ audit.admission }})
+      </p>
+    </div>
+  </div>
+
+  <section class="card" style="display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: baseline; gap: 14px">
+      <span class="stat stat--xl">{{ audit.credits.earned }}</span>
+      <span class="mono muted" style="font-size: 18px">из {{ audit.credits.total }} ECTS</span>
+      {% if audit.credits.remaining is not none %}
+      <span style="font-size: 16px; font-weight: 500; margin-left: 12px">
+        осталось <span class="mono" style="font-weight: 600">{{ audit.credits.remaining }}</span>
+      </span>
+      {% endif %}
+    </div>
+
+    <div class="bar--stack">
+      <span class="bar__earned" style="width: {{ audit.credits.earned_share }}%"></span>
+      <span class="bar__progress" style="width: {{ audit.credits.progress_share }}%"></span>
+    </div>
+
+    <div class="legend">
+      <span><span class="swatch" style="background: var(--blue)"></span>набрано {{ audit.credits.earned }} · из транскрипта</span>
+      {% if audit.credits.in_progress %}
+      <span><span class="swatch bar__progress"></span>идёт сейчас {{ audit.credits.in_progress }} · без оценки, в набранные не входит</span>
+      {% endif %}
+      <span><span class="swatch" style="background: var(--track); border: 1px solid var(--line)"></span>не набрано</span>
+    </div>
+  </section>
+
+  <div class="tiles">
+    {% for tile in audit.tiles %}
+    <div class="tile tile--{{ tile.state }}">
+      <span class="stat">{{ tile.n }}</span>
+      <span style="font-size: 14px; font-weight: 500">{{ tile.label }}</span>
+      <span class="tile__sub">{{ tile.sub }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <section class="card" style="display: flex; flex-direction: column; gap: 18px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px">
+      <h2>Карта программы</h2>
+      <div class="legend">
+        {% for item in audit.legend %}
+        <span><span class="swatch tile--{{ item.state }}"></span>{{ item.label }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="map">
+      {% for column in audit.map %}
+      <div class="map__column">
+        <div class="map__head">
+          <span class="map__name">{{ column.name }}</span>
+          <span class="map__term">{{ column.term }}</span>
+        </div>
+        {% for item in column.cells %}
+        <div class="tile tile--{{ item.state }}">
+          <span class="tile__name">{{ item.name }}</span>
+          <span class="tile__sub">{{ item.sub }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="columns">
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="label">Свободные позиции плана</h2>
+      {% if audit.slots %}
+      <div class="rows">
+        {% for slot in audit.slots %}
+        <div class="row">
+          <div class="row__top">
+            <span style="font-size: 14px; font-weight: 500">{{ slot.name }}</span>
+            <span class="chip chip--{{ slot.state }}">{{ slot.status }}</span>
+          </div>
+          <span class="row__detail">{{ slot.detail }} · {{ slot.semester }} семестр плана</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="muted" style="margin: 0; font-size: 14px">Все позиции закрыты.</p>
+      {% endif %}
+      <p class="muted" style="margin: 0; font-size: 12px">
+        «Не проверена» — это не «не выполнено». Мы не знаем, чем закрывается позиция: уточните у эдвайзера.
+      </p>
+    </section>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="label">Требует внимания</h2>
+      {% if audit.attention %}
+      <div class="rows">
+        {% for item in audit.attention %}
+        <div class="row">
+          <div class="row__top">
+            <span class="mono" style="font-size: 14px; font-weight: 600">{{ item.code }}</span>
+            <span class="chip chip--{{ item.state }}">
+              {% if item.state == 'retake' %}нужна пересдача{% elif item.state == 'current' %}идёт сейчас{% else %}не пройден{% endif %}
+            </span>
+          </div>
+          <span class="row__detail">{{ item.detail }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="muted" style="margin: 0; font-size: 14px">Ничего не требует внимания.</p>
+      {% endif %}
+    </section>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="label">Сверх программы</h2>
+      {% if audit.extra %}
+      <div class="rows">
+        {% for course in audit.extra %}
+        <div class="row">
+          <div class="row__top">
+            <span class="mono" style="font-size: 14px; font-weight: 600">{{ course.code }}</span>
+            <span class="mono muted" style="font-size: 12px">{{ course.credits }} ECTS</span>
+          </div>
+          <span class="row__detail">{{ course.title or 'пройден, но не закрывает ни одну позицию плана' }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="muted" style="margin: 0; font-size: 14px">Все пройденные курсы засчитаны в программу.</p>
+      {% endif %}
+      <p class="muted" style="margin: 0; font-size: 12px">
+        Такие курсы учитываются в GPA, но не приближают к диплому по этой программе.
+      </p>
+    </section>
+
+  </div>
+</div>
+{% endblock %}

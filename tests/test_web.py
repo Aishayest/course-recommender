@@ -162,3 +162,20 @@ def test_student_chip_leaves_out_what_is_missing():
     assert chip["name"] == "Кто-то"
     # Ни специальности, ни года поступления в файле нет — и в шапке их нет
     assert "None" not in chip["facts"]
+
+
+# --- аудит ---
+
+def test_audit_needs_a_transcript(client):
+    assert client.get("/audit").url.path == "/"
+
+
+def test_term_of_counts_from_the_admission_semester():
+    assert view.term_of("Fall 2023", 1) == "Fall 2023"
+    assert view.term_of("Fall 2023", 2) == "Spring 2024"
+    assert view.term_of("Fall 2023", 7) == "Fall 2026"
+    assert view.term_of("Fall 2023", 8) == "Spring 2027"
+    # Поступившим весной первый семестр — их весна
+    assert view.term_of("Spring 2024", 1) == "Spring 2024"
+    assert view.term_of("Spring 2024", 2) == "Fall 2024"
+    assert view.term_of("", 1) == ""

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Специальность не найдена{% endblock %}
+
+{% block body %}
+<div class="page--center">
+  <section class="card card--narrow" style="display: flex; flex-direction: column; gap: 18px">
+    <h1 style="font-size: 30px">Специальность не найдена в handbook</h1>
+    <p style="margin: 0; font-size: 16px; color: var(--ink-2)">
+      В транскрипте указано «{{ major or '—' }}», год поступления {{ year or '—' }}. Учебного плана для
+      такой пары в разобранных выпусках handbook нет, поэтому считать, что осталось, не по чему.
+      Возможно, выпуск за этот год просто не выгружен.
+    </p>
+    <p class="missing" style="margin: 0">
+      Аудит по этой программе не построен. Ноль или чужой план вместо него не подставлены.
+    </p>
+    <form method="post" action="/forget">
+      <button class="button" type="submit">Загрузить другой транскрипт</button>
+    </form>
+  </section>
+</div>
+{% endblock %}
