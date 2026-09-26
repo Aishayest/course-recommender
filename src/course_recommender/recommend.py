@@ -284,6 +284,7 @@ def recommend(
     availability=None,
     grades: dict[str, CourseGrades] | None = None,
     weights: dict | None = None,
+    slots=None,
     limit: int = 5,
     known_tests: dict[str, float] | None = None,
 ) -> list[Recommendation]:
@@ -304,14 +305,14 @@ def recommend(
     available = eligible_courses(
         program.catalog, student, semester, respect_plan=True, known_tests=known_tests
     )
-    # Свободные позиции этого семестра: что бы студент ни выбрал, закрыть их
-    # чем-то нужно, и курс, который их закрывает, нужнее произвольного.
-    open_slots = {
-        code: slot.name
-        for slot in program.slots
-        if slot.semester == semester
-        for code in slot.eligible_codes
-    }
+    # Незакрытые позиции: что бы студент ни выбрал, закрыть их чем-то нужно,
+    # и курс, который их закрывает, нужнее произвольного. Список приходит из
+    # аудита — это то, что осталось у конкретного студента. Без него остаётся
+    # план: позиции того семестра, куда handbook их поставил.
+    positions = slots if slots is not None else [
+        slot for slot in program.slots if slot.semester == semester
+    ]
+    open_slots = {code: slot.name for slot in positions for code in slot.eligible_codes}
 
     pool = []
     for course in available:
@@ -361,8 +362,10 @@ def recommend(
 
 def main() -> None:
     import argparse
+    from collections import Counter
     from pathlib import Path
 
+    from .audit import audit
     from .data.assemble import attach_catalog, attach_electives, load_programs
     from .data.catalog import Catalog, from_pdfs
     from .data.catalog import load as load_catalog
@@ -374,6 +377,7 @@ def main() -> None:
     from .models.availability import can_train, observations
     from .models.availability import load as load_availability
     from .models.availability import train as train_availability
+    from .plan import assemble, describe, target_credits
 
     parser = argparse.ArgumentParser(description="Что брать в следующем семестре")
     parser.add_argument("--transcript", type=Path, help="PDF транскрипта — настоящее пройденное")
@@ -409,6 +413,11 @@ def main() -> None:
         "--prefer-easy", type=float, default=0.0, metavar="ВЕС",
         help="учитывать средний балл при ранжировании: 0 — не учитывать (по умолчанию)",
     )
+    parser.add_argument(
+        "--plan", action="store_true",
+        help="собрать семестр целиком: курсы, секции и время, без пересечений",
+    )
+    parser.add_argument("--credits", type=int, help="целевая нагрузка семестра в ECTS")
     parser.add_argument("--limit", type=int, default=5)
     args = parser.parse_args()
 
@@ -494,6 +503,13 @@ def main() -> None:
         print(f"средний балл учитывается при ранжировании с весом {args.prefer_easy}")
     print()
 
+    # Для сборки семестра нужен запас кандидатов: из пяти курсов набор
+    # без пересечений может и не получиться.
+    limit = max(args.limit, 20) if args.plan else args.limit
+    # Что осталось закрыть — по транскрипту, а не по допущению "шёл по плану".
+    open_positions = None
+    if transcript is not None:
+        open_positions = [status.slot for status in audit(program, student).open_slots]
     results = recommend(
         program,
         student,
@@ -506,10 +522,25 @@ def main() -> None:
         availability=availability,
         grades=grades,
         weights=weights,
-        limit=args.limit,
+        slots=open_positions,
+        limit=limit,
     )
     if not results:
         print("подходящих курсов не нашлось")
+        return
+
+    if args.plan:
+        target = args.credits or target_credits(program, semester)
+        capacity = dict(Counter(slot.name for slot in open_positions)) if open_positions else None
+        built = assemble(
+            [result.evidence for result in results], sections, target, term or "", capacity
+        )
+        for line in describe(built):
+            print(line)
+        if built.left_out:
+            print("\nне вошло:")
+            for evidence, reason in built.left_out[:6]:
+                print(f"  {evidence.course.code:10s} {reason}")
         return
 
     for result in results:
