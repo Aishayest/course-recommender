@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from .conditions import course_codes, evaluate
 from .config import UTILITY_WEIGHTS
@@ -31,9 +31,11 @@ TIER_PLACE = {1: 0.85, 2: 0.60, 3: 0.35, 4: 0.15}
 NO_TIER_PLACE = 0.05
 # Курс без истории: ни да, ни нет.
 UNKNOWN_FILL_CHANCE = 0.5
-# Балл, который приписывается курсу без известной статистики оценок. Середина
-# шкалы: незнание не должно ни поощрять курс, ни наказывать его.
+# Значение, которое приписывается курсу без известной статистики оценок или
+# без описания. Середина шкалы: незнание не должно ни поощрять курс, ни
+# наказывать его.
 UNKNOWN_EASE = 0.5
+UNKNOWN_FIT = 0.5
 GRADE_SCALE = 4.0
 # Полной уверенности система не выдаёт: секцию могут отменить, а места
 # сократить, и в снимках расписания этого не видно. Потолок нарочно высокий:
@@ -70,6 +72,11 @@ class Evidence:
     grades: CourseGrades | None = None
     # Кто ведёт в этом семестре — из расписания.
     instructors: tuple[str, ...] = ()
+    # Близость курса к тому, что студенту уже заходило, долей от лучшего
+    # среди доступных. None — описания нет, сравнивать не с чем.
+    fit_score: float | None = None
+    # Пройденный курс, на который этот больше всего похож.
+    fit_closest: str = ""
     conflicts: tuple[str, ...] = ()
 
     @property
@@ -121,6 +128,11 @@ class Evidence:
         return UNKNOWN_EASE if average is None else min(1.0, average / GRADE_SCALE)
 
     @property
+    def fit(self) -> float:
+        """Насколько курс близок студенту по содержанию."""
+        return UNKNOWN_FIT if self.fit_score is None else self.fit_score
+
+    @property
     def need(self) -> float:
         """Насколько курс нужен именно сейчас."""
         if self.on_plan:
@@ -152,6 +164,8 @@ class Recommendation:
             parts.append(f"закрывает позицию плана «{self.evidence.fills_slot}»")
         elif self.evidence.covers is not None:
             parts.append(f"закрывает {self.evidence.covers.value}")
+        if self.evidence.fit_closest:
+            parts.append(f"похож на {self.evidence.fit_closest}")
         tier = self.evidence.priority_tier
         parts.append(f"приоритет: тир {tier}" if tier else "приоритета нет")
         if self.evidence.needs_permission:
@@ -166,7 +180,13 @@ class Recommendation:
         return "; ".join(parts)
 
 
-def utility(need: float, access: float, ease: float = 0.0, weights: dict | None = None) -> float:
+def utility(
+    need: float,
+    access: float,
+    ease: float = 0.0,
+    fit: float = 0.0,
+    weights: dict | None = None,
+) -> float:
     """Взвешенная полезность курса.
 
     Сумма весов нормируется, чтобы балл оставался в тех же пределах, когда
@@ -177,6 +197,7 @@ def utility(need: float, access: float, ease: float = 0.0, weights: dict | None 
     total = (
         weights["need"] * need
         + weights["access"] * access
+        + weights.get("fit", 0.0) * fit
         + weights.get("ease", 0.0) * ease
     )
     return total / sum(weights.values())
@@ -195,6 +216,7 @@ def build_evidence(
     grades: CourseGrades | None = None,
     instructors: tuple[str, ...] = (),
     needs_permission: bool = False,
+    fit=None,
 ) -> Evidence:
     """Собрать всё известное про курс."""
     satisfied = (
@@ -221,6 +243,8 @@ def build_evidence(
         ever_full=bool(course_history and course_history.ever_full),
         grades=grades,
         instructors=instructors,
+        fit_score=getattr(fit, "score", None),
+        fit_closest=getattr(fit, "closest", ""),
     )
 
 
@@ -285,6 +309,7 @@ def recommend(
     grades: dict[str, CourseGrades] | None = None,
     weights: dict | None = None,
     slots=None,
+    fit: dict | None = None,
     limit: int = 5,
     known_tests: dict[str, float] | None = None,
 ) -> list[Recommendation]:
@@ -300,6 +325,7 @@ def recommend(
     fill_history = fill_history or {}
     sections = sections or {}
     grades = grades or {}
+    fit = fit or {}
 
     gaps = remaining_requirements(program.requirements, program.courses, student)
     available = eligible_courses(
@@ -335,6 +361,7 @@ def recommend(
                 availability=availability,
                 grades=grades.get(course.code),
                 instructors=teaching(course.code, sections),
+                fit=fit.get(course.code),
                 needs_permission=bool(
                     offering is not None and getattr(offering, "instructor_permission", False)
                 ),
@@ -342,7 +369,9 @@ def recommend(
         )
 
     def score(evidence: Evidence) -> float:
-        return utility(evidence.need, evidence.seat_chance, evidence.ease, weights)
+        return utility(
+            evidence.need, evidence.seat_chance, evidence.ease, evidence.fit, weights
+        )
 
     ranked = sorted(pool, key=score, reverse=True)[:limit]
     codes = [e.course.code for e in ranked]
@@ -369,6 +398,8 @@ def main() -> None:
     from .data.assemble import attach_catalog, attach_electives, load_programs
     from .data.catalog import Catalog, from_pdfs
     from .data.catalog import load as load_catalog
+    from .data.descriptions import default_path as descriptions_path
+    from .data.descriptions import load as load_descriptions
     from .data.grades import load_reports
     from .data.schedule import history
     from .data.schedule import parse_pdf as parse_schedule
@@ -377,6 +408,7 @@ def main() -> None:
     from .models.availability import can_train, observations
     from .models.availability import load as load_availability
     from .models.availability import train as train_availability
+    from .models.embeddings import TFIDF, affinities, cached, rescale
     from .plan import assemble, describe, target_credits
 
     parser = argparse.ArgumentParser(description="Что брать в следующем семестре")
@@ -408,6 +440,14 @@ def main() -> None:
     parser.add_argument(
         "--grades", type=Path, nargs="*", default=[],
         help="PDF UG_Grade_Report_* — чем курс заканчивался у тех, кто его брал",
+    )
+    parser.add_argument(
+        "--descriptions", type=Path, nargs="?", const=True, default=None,
+        help="описания курсов для оценки близости; без пути берётся выгрузка по умолчанию",
+    )
+    parser.add_argument(
+        "--relevance", default=TFIDF,
+        help="как мерить близость: tfidf или имя модели эмбеддингов",
     )
     parser.add_argument(
         "--prefer-easy", type=float, default=0.0, metavar="ВЕС",
@@ -463,6 +503,8 @@ def main() -> None:
     grades = load_reports(args.grades, args.schedule) if args.grades else {}
     weights = {**UTILITY_WEIGHTS, "ease": args.prefer_easy}
 
+    fit = {}
+
     # Модель учится на семестрах строго до целевого: иначе она знает ответ.
     availability = None
     if args.availability:
@@ -495,10 +537,26 @@ def main() -> None:
             ],
         )
 
+    if args.descriptions:
+        path = descriptions_path() if args.descriptions is True else args.descriptions
+        catalog = load_descriptions(path)
+        # Пространство строится по всему бакалавриату: TF-IDF считает вес слова
+        # на фоне остальных курсов, и на горстке текстов эти веса врут.
+        vectors = cached(catalog.texts(catalog.undergraduate), args.relevance)
+        found = affinities(student, vectors)
+        scores = rescale({code: value.score for code, value in found.items()})
+        fit = {
+            code: replace(value, score=scores[code])
+            for code, value in found.items()
+            if code in scores
+        }
+
     print(f"{program.degree} in {program.name}, семестр {semester}")
     print(f"пройдено курсов: {len(student.completed)}, кредитов: {student.earned_credits}")
     if availability is not None:
         print(f"модель заполняемости: {availability.describe()}")
+    if fit:
+        print(f"близость по содержанию: {args.relevance}, курсов в пространстве {len(fit)}")
     if args.prefer_easy:
         print(f"средний балл учитывается при ранжировании с весом {args.prefer_easy}")
     print()
@@ -523,6 +581,7 @@ def main() -> None:
         grades=grades,
         weights=weights,
         slots=open_positions,
+        fit=fit,
         limit=limit,
     )
     if not results:

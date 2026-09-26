@@ -87,7 +87,7 @@ def test_need_prefers_course_standing_in_plan():
 
 
 def test_utility_combines_need_and_access():
-    assert utility(1.0, 1.0) == 1.0
+    assert utility(1.0, 1.0, 1.0, 1.0) == 1.0
     assert utility(1.0, 0.0) > utility(0.0, 1.0)  # нужность весит больше
 
 
@@ -231,10 +231,26 @@ def test_utility_ignores_grades_by_default():
     )
 
 
+def test_relevance_moves_the_score_and_is_named_in_the_explanation():
+    weights = {"need": 0.6, "access": 0.4, "fit": 0.2}
+    close = utility(1.0, 1.0, fit=1.0, weights=weights)
+    far = utility(1.0, 1.0, fit=0.0, weights=weights)
+    assert close > far
+
+    # Курс без описания не наказывается: ему ставится середина шкалы
+    assert evidence().fit == 0.5
+    assert evidence(fit_score=0.8).fit == 0.8
+
+    result = Recommendation(
+        course=course(), score=0.5, evidence=evidence(fit_closest="CSCI 390")
+    )
+    assert "похож на CSCI 390" in result.why
+
+
 def test_utility_can_be_told_to_prefer_easy_courses():
     weights = {"need": 0.6, "access": 0.4, "ease": 0.5}
-    easy = utility(1.0, 1.0, 1.0, weights)
-    hard = utility(1.0, 1.0, 0.0, weights)
+    easy = utility(1.0, 1.0, ease=1.0, weights=weights)
+    hard = utility(1.0, 1.0, ease=0.0, weights=weights)
     assert easy > hard
     # Сумма весов нормируется, иначе балл с флагом и без него несравним
     assert easy == 1.0
