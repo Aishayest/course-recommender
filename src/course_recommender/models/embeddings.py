@@ -59,25 +59,40 @@ class CourseVectors:
     def index(self) -> dict[str, int]:
         return {code: position for position, code in enumerate(self.codes)}
 
+    @property
+    def is_sparse(self) -> bool:
+        """Разрежена ли матрица. У TF-IDF ненулевых значений около 0.1%."""
+        return hasattr(self.matrix, "tocsr")
+
+    def row(self, position: int) -> np.ndarray:
+        """Одна строка матрицы плотным вектором."""
+        vector = self.matrix[position]
+        return np.asarray(vector.todense()).ravel() if self.is_sparse else vector
+
     def vector_of(self, code: str) -> np.ndarray | None:
         position = self.index.get(code)
-        return None if position is None else self.matrix[position]
+        return None if position is None else self.row(position)
 
     def similarity(self, profile: np.ndarray | None) -> dict[str, float]:
         """Близость каждого курса к профилю, от 0 до 1.
 
         Косинус приведён из [-1, 1] в [0, 1]: отрицательная близость значит
         "про другое", а не "вредно", и отрицательных весов в формуле полезности
-        быть не должно.
+        быть не должно. Края подрезаются: у косинуса, посчитанного в плавающей
+        арифметике, ровный -1 выходит как -1.0000000000000002.
         """
         if profile is None or self.matrix is None or not len(self):
             return {}
-        raw = self.matrix @ profile
-        return {code: float((value + 1.0) / 2.0) for code, value in zip(self.codes, raw)}
+        raw = np.clip((np.asarray(self.matrix @ profile).ravel() + 1.0) / 2.0, 0.0, 1.0)
+        return {code: float(value) for code, value in zip(self.codes, raw)}
 
 
-def _normalize(matrix: np.ndarray) -> np.ndarray:
+def _normalize(matrix):
     """Привести строки к единичной длине, чтобы скалярное произведение было косинусом."""
+    if hasattr(matrix, "tocsr"):
+        from sklearn.preprocessing import normalize
+
+        return normalize(matrix, norm="l2", axis=1)
     lengths = np.linalg.norm(matrix, axis=1, keepdims=True)
     lengths[lengths == 0] = 1.0
     return matrix / lengths
@@ -111,7 +126,9 @@ def build_tfidf(texts: dict[str, str]) -> CourseVectors:
     vectorizer = TfidfVectorizer(
         stop_words="english", ngram_range=(1, 2), sublinear_tf=True, min_df=1
     )
-    matrix = vectorizer.fit_transform([texts[code] for code in codes]).toarray()
+    # Матрица остаётся разреженной: у курса ненулевых значений десятки из
+    # десятков тысяч, и плотное хранение стоило бы полгигабайта на ровном месте.
+    matrix = vectorizer.fit_transform([texts[code] for code in codes])
     return CourseVectors(
         codes=codes,
         matrix=_normalize(matrix),
@@ -162,21 +179,40 @@ def cache_path(backend: str) -> Path:
 
 
 def save(vectors: CourseVectors, path: Path) -> None:
+    """Сохранить векторы. Разреженная матрица пишется как есть, не разворачиваясь."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(
-        path,
-        codes=np.array(vectors.codes),
-        matrix=vectors.matrix,
-        backend=np.array(vectors.backend),
-        features=np.array(vectors.features),
-    )
+    payload = {
+        "codes": np.array(vectors.codes),
+        "backend": np.array(vectors.backend),
+        "features": np.array(vectors.features),
+    }
+    if vectors.is_sparse:
+        matrix = vectors.matrix.tocoo()
+        payload |= {
+            "sparse_data": matrix.data,
+            "sparse_row": matrix.row,
+            "sparse_col": matrix.col,
+            "sparse_shape": np.array(matrix.shape),
+        }
+    else:
+        payload["matrix"] = vectors.matrix
+    np.savez_compressed(path, **payload)
 
 
 def load(path: Path) -> CourseVectors:
     stored = np.load(path, allow_pickle=False)
+    if "sparse_data" in stored:
+        from scipy.sparse import coo_matrix
+
+        matrix = coo_matrix(
+            (stored["sparse_data"], (stored["sparse_row"], stored["sparse_col"])),
+            shape=tuple(stored["sparse_shape"]),
+        ).tocsr()
+    else:
+        matrix = stored["matrix"]
     return CourseVectors(
         codes=tuple(stored["codes"].tolist()),
-        matrix=stored["matrix"],
+        matrix=matrix,
         backend=str(stored["backend"]),
         features=tuple(stored["features"].tolist()),
     )
@@ -230,7 +266,7 @@ def student_profile(student: Student, vectors: CourseVectors) -> np.ndarray | No
         weight = grade_weight(completed.grade)
         if position is None or not weight:
             continue
-        total += vectors.matrix[position] * weight
+        total += vectors.row(position) * weight
         weighted += weight
 
     if not weighted:
@@ -283,22 +319,30 @@ def affinities(
     if not taken:
         return {}
 
-    found: dict[str, Affinity] = {}
-    for position, code in enumerate(vectors.codes):
-        vector = vectors.matrix[position]
-        # Сначала ищем самый похожий пройденный курс — по смыслу, без оглядки
-        # на оценку. Иначе в объяснении окажется не похожий курс, а тот, где
-        # оценка выше: у языковой модели близости куда ровнее, чем оценки, и
-        # произведение вытаскивало бы наверх один и тот же отличный курс.
-        best_similarity, best_code, best_weight = 0.0, "", 0.0
-        for source, source_position, weight in taken:
-            similarity = float(vector @ vectors.matrix[source_position])
-            if similarity > best_similarity:
-                best_similarity, best_code, best_weight = similarity, source, weight
-        found[code] = Affinity(
-            code=code, score=best_similarity * best_weight, closest=best_code
+    # Матричное умножение вместо двойного цикла: курсов две тысячи,
+    # пройденных три десятка, и перебор парами считался бы секундами.
+    positions = [position for _, position, _ in taken]
+    weights = np.array([weight for _, _, weight in taken])
+    names = [code for code, _, _ in taken]
+
+    similarity = vectors.matrix @ vectors.matrix[positions].T
+    if vectors.is_sparse:
+        similarity = np.asarray(similarity.todense())
+
+    # Сначала самый похожий по смыслу, и только потом его оценка: иначе
+    # в объяснении окажется не похожий курс, а тот, где оценка выше.
+    best = similarity.argmax(axis=1)
+    closest = similarity[np.arange(similarity.shape[0]), best]
+    scores = np.where(closest > 0, closest * weights[best], 0.0)
+
+    return {
+        code: Affinity(
+            code=code,
+            score=float(scores[position]),
+            closest=names[best[position]] if closest[position] > 0 else "",
         )
-    return found
+        for position, code in enumerate(vectors.codes)
+    }
 
 
 def relevance(
