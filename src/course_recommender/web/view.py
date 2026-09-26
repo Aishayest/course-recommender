@@ -10,7 +10,10 @@ from ..audit import Audit
 from ..data.transcripts import TERM, Transcript
 
 # Разделы интерфейса в порядке, в котором студент через них проходит.
-SECTIONS = (("audit", "Аудит", "/audit"),)
+SECTIONS = (
+    ("audit", "Аудит", "/audit"),
+    ("courses", "Рекомендации", "/courses"),
+)
 
 # Состояния позиции программы. Порядок — от выполненного к неизвестному,
 # в нём же они показываются в легенде.
@@ -276,4 +279,157 @@ def audit_page(result: Audit, transcript: Transcript) -> dict:
             for course in result.extra
         ],
         "complete": result.is_complete,
+    }
+
+
+# Из чего складывается итоговый балл. Порядок — как в формуле.
+COMPONENTS = (
+    ("need", "Нужность", "стоит в плане или закрывает позицию"),
+    ("access", "Шанс попасть", "по тиру приоритета и заполняемости"),
+    ("fit", "Близость по содержанию", "к пройденным курсам, с весом по оценке"),
+    ("ease", "Оценки на курсе", "средний балл тех, кто его брал"),
+)
+
+
+def _components(evidence, weights: dict) -> list[dict]:
+    """Слагаемые балла: сколько каждое весит и что известно.
+
+    Слагаемое с нулевым весом показывается отдельно: оно посчитано, но в
+    балл не вошло, и это решение, а не отсутствие данных.
+    """
+    values = {
+        "need": (evidence.need, True),
+        "access": (evidence.seat_chance, evidence.fill_chance is not None or evidence.mean_fill is not None),
+        "fit": (evidence.fit, evidence.fit_score is not None),
+        "ease": (evidence.ease, evidence.grades is not None and evidence.grades.average is not None),
+    }
+    shown = []
+    for key, label, hint in COMPONENTS:
+        value, known = values[key]
+        weight = weights.get(key, 0.0)
+        shown.append(
+            {
+                "key": key,
+                "label": label,
+                "hint": hint,
+                "weight": weight,
+                "counted": weight > 0,
+                "known": known,
+                "value": f"{value:.2f}",
+                "percent": round(value * 100),
+            }
+        )
+    return shown
+
+
+def _warnings(evidence) -> list[dict]:
+    """Что стоит знать до регистрации."""
+    found = []
+    if evidence.needs_permission:
+        found.append({"kind": "warn", "text": "нужно согласие преподавателя"})
+    if evidence.missing:
+        found.append({"kind": "warn", "text": f"не хватает: {', '.join(evidence.missing)}"})
+    if evidence.conflicts:
+        found.append(
+            {"kind": "warn", "text": f"пересекается по времени с {', '.join(evidence.conflicts)}"}
+        )
+    return found
+
+
+def _access(evidence) -> dict:
+    """Свидетельства о том, попадёт ли студент на курс."""
+    tier = evidence.priority_tier
+    return {
+        "tier": f"тир {tier}" if tier else "приоритета нет",
+        "tier_source": "из документа регистрации",
+        "fill_known": evidence.mean_fill is not None,
+        "fill": round((evidence.mean_fill or 0) * 100),
+        "fill_source": (
+            f"в среднем за {evidence.terms_observed} семестра"
+            if evidence.terms_observed > 1
+            else "по одному семестру"
+        )
+        if evidence.mean_fill is not None
+        else "истории заполняемости нет",
+        "chance": round(evidence.seat_chance * 100),
+        "fill_chance_known": evidence.fill_chance is not None,
+        "fill_chance": round((evidence.fill_chance or 0) * 100),
+    }
+
+
+def _grades(evidence) -> dict:
+    """Чем курс заканчивался у тех, кто его брал."""
+    stats = evidence.grades
+    if stats is None or stats.average is None:
+        return {"known": False, "source": "отчётов об оценках по этому курсу нет"}
+
+    shares = stats.shares
+    bad = shares.get("D", 0.0) + shares.get("F", 0.0) + shares.get("W", 0.0)
+    spread = stats.spread()
+    return {
+        "known": True,
+        "average": f"{stats.average:.2f}",
+        "a": round(shares.get("A", 0.0)),
+        "b": round(shares.get("B", 0.0)),
+        "c": round(shares.get("C", 0.0)),
+        "bad": round(bad),
+        "spread": f"{spread:.2f}" if spread and spread >= 0.3 else None,
+        "source": f"{', '.join(stats.terms)} · n={stats.graded}",
+    }
+
+
+def _teacher(evidence) -> dict:
+    """Кто ведёт в этом семестре и чем это кончалось раньше."""
+    if not evidence.instructors:
+        return {"known": False, "note": "кто ведёт — в расписании не указано"}
+
+    records = []
+    for name in evidence.instructors:
+        record = evidence.grades.record_of(name) if evidence.grades else None
+        records.append(
+            {
+                "name": name,
+                "known": record is not None,
+                "average": f"{record.average:.2f}" if record else None,
+                "n": record.graded if record else None,
+            }
+        )
+    return {"known": True, "people": records}
+
+
+def course_card(rank: int, result, weights: dict) -> dict:
+    """Одна карточка рекомендации."""
+    evidence = result.evidence
+    course = result.course
+    return {
+        "rank": rank,
+        "code": course.code,
+        "title": course.title,
+        "credits": course.credits,
+        "score": f"{result.score:.2f}",
+        "why": result.why,
+        "closes": evidence.fills_slot,
+        "on_plan": evidence.on_plan,
+        "fit_closest": evidence.fit_closest,
+        "warnings": _warnings(evidence),
+        "components": _components(evidence, weights),
+        "access": _access(evidence),
+        "grades": _grades(evidence),
+        "teacher": _teacher(evidence),
+        "fallback": result.fallback.code if result.fallback else None,
+    }
+
+
+def courses_page(results, weights: dict, term: str | None, slots) -> dict:
+    """Всё, что показывает страница рекомендаций."""
+    return {
+        "term": term,
+        "count": len(results),
+        "weights": {key: weights.get(key, 0.0) for key, _, _ in COMPONENTS},
+        "controls": [
+            {"key": key, "label": label, "hint": hint, "value": weights.get(key, 0.0)}
+            for key, label, hint in COMPONENTS
+        ],
+        "slots": sorted({status.slot.name for status in slots}),
+        "courses": [course_card(i, result, weights) for i, result in enumerate(results, start=1)],
     }

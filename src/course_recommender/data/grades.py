@@ -105,6 +105,17 @@ class CourseGrades:
         return sum(s.risky * s.graded for s in self.sections) / self.graded
 
     @property
+    def shares(self) -> dict[str, float]:
+        """Доли оценок по курсу целиком, взвешенные по числу выставленных."""
+        if not self.graded:
+            return {}
+        totals: dict[str, float] = {}
+        for section in self.sections:
+            for letter, share in section.shares.items():
+                totals[letter] = totals.get(letter, 0.0) + share * section.graded
+        return {letter: value / self.graded for letter, value in totals.items()}
+
+    @property
     def terms(self) -> tuple[str, ...]:
         return tuple(dict.fromkeys(section.term for section in self.sections))
 

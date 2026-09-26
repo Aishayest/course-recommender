@@ -22,12 +22,16 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from ..config import UTILITY_WEIGHTS
 from ..data import prepare
 from ..data.transcripts import parse_stream
 from . import service, view
 from .state import COOKIE, Sessions
 
 HERE = Path(__file__).parent
+# Чем мерить близость курсов. TF-IDF не требует зависимостей и считается
+# мгновенно; эмбеддинги точнее, но их надо подготовить отдельно.
+RELEVANCE = "tfidf"
 templates = Jinja2Templates(directory=str(HERE / "templates"))
 sessions = Sessions()
 # Что удалось подготовить. Заполняется при старте.
@@ -38,7 +42,7 @@ data = prepare.Prepared()
 async def lifespan(app: FastAPI):
     """Прочитать подготовленные данные при старте."""
     global data
-    data = prepare.load()
+    data = prepare.load(RELEVANCE)
     yield
 
 
@@ -146,6 +150,49 @@ def audit_page(request: Request) -> HTMLResponse:
         "audit.html",
         audit=view.audit_page(result, session.transcript),
         active="audit",
+    )
+
+
+@app.get("/courses", response_class=HTMLResponse)
+def courses_page(
+    request: Request,
+    need: float | None = None,
+    access: float | None = None,
+    fit: float | None = None,
+    ease: float | None = None,
+) -> HTMLResponse:
+    """Что брать в следующем семестре.
+
+    Веса слагаемых можно менять: они приходят параметрами запроса, чтобы
+    ссылку на конкретный расклад можно было сохранить или показать.
+    """
+    session = sessions.get(request.cookies.get(COOKIE))
+    if session is None:
+        return RedirectResponse(url="/", status_code=303)
+
+    weights = dict(UTILITY_WEIGHTS)
+    for key, value in (("need", need), ("access", access), ("fit", fit), ("ease", ease)):
+        if value is not None:
+            weights[key] = max(0.0, min(1.0, value))
+    if not sum(weights.values()):
+        weights = dict(UTILITY_WEIGHTS)
+
+    found = service.recommendations_for(session.transcript, data, current_term(), weights)
+    if found is None:
+        return page(
+            request,
+            "unknown_program.html",
+            major=session.transcript.major,
+            year=session.transcript.admission_year,
+            active="courses",
+        )
+
+    _, result, results = found
+    return page(
+        request,
+        "courses.html",
+        page=view.courses_page(results, weights, current_term(), result.open_slots),
+        active="courses",
     )
 
 

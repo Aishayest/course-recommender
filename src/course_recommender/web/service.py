@@ -8,9 +8,11 @@
 from __future__ import annotations
 
 from ..audit import Audit, audit
+from ..config import UTILITY_WEIGHTS
 from ..data.assemble import Program, attach_catalog, attach_electives, load_programs
 from ..data.prepare import Prepared
 from ..data.transcripts import Transcript
+from ..recommend import Recommendation, recommend
 
 # Собранные программы по паре "год поступления + семестр".
 _built: dict[tuple[int, str | None], dict[str, Program]] = {}
@@ -55,6 +57,66 @@ def audit_of(
     if program is None:
         return None
     return program, audit(program, transcript.student())
+
+
+def relevance_of(transcript: Transcript, data: Prepared) -> dict:
+    """Близость курсов к тому, что студенту уже заходило.
+
+    Пусто, если векторов не подготовлено: тогда слой релевантности просто
+    не участвует, а не подставляет нули.
+    """
+    if data.vectors is None or not len(data.vectors):
+        return {}
+
+    from dataclasses import replace as replace_field
+
+    from ..models.embeddings import affinities, rescale
+
+    found = affinities(transcript.student(), data.vectors)
+    scores = rescale({code: value.score for code, value in found.items()})
+    return {
+        code: replace_field(value, score=scores[code])
+        for code, value in found.items()
+        if code in scores
+    }
+
+
+def recommendations_for(
+    transcript: Transcript,
+    data: Prepared,
+    term: str | None = None,
+    weights: dict | None = None,
+    limit: int = 20,
+) -> tuple[Program, Audit, list[Recommendation]] | None:
+    """Что студенту стоит взять в следующем семестре.
+
+    Список открытых позиций берётся из аудита, а не из плана: студент,
+    который идёт не по расписанию handbook, иначе получил бы курсы под
+    позиции, давно закрытые.
+    """
+    found = audit_of(transcript, data, term)
+    if found is None:
+        return None
+
+    program, result = found
+    student = transcript.student()
+    results = recommend(
+        program,
+        student,
+        transcript.next_semester,
+        offerings=data.catalog.entries,
+        fill_history=data.fill_history,
+        sections=data.sections(term),
+        school=transcript.school_code,
+        term=term,
+        availability=data.availability,
+        grades=data.grades,
+        weights=weights or UTILITY_WEIGHTS,
+        slots=[status.slot for status in result.open_slots],
+        fit=relevance_of(transcript, data),
+        limit=limit,
+    )
+    return program, result, results
 
 
 def forget_built() -> None:

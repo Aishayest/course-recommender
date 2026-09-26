@@ -375,3 +375,82 @@ h3 { font-size: 26px; line-height: 1.2; }
 .bar--stack span { display: block; height: 100%; }
 .bar__earned { background: var(--blue); }
 .bar__progress { background: repeating-linear-gradient(135deg, #7f9cc6 0 4px, #d6e1f0 4px 8px); }
+
+/* --- страница рекомендаций --- */
+
+.layout { display: flex; gap: 32px; align-items: flex-start; }
+.sidebar { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+.sidebar .card { padding: 20px; }
+.main { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+
+.control { display: flex; flex-direction: column; gap: 6px; }
+.control__top { display: flex; justify-content: space-between; align-items: baseline; }
+.control label { font-size: 14px; font-weight: 500; }
+.control input[type="range"] { width: 100%; accent-color: var(--blue); }
+.control__hint { font-size: 12px; color: var(--ink-3); }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field select {
+  min-height: 40px;
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.check { display: flex; gap: 10px; align-items: center; min-height: 32px; font-size: 14px; }
+.check input { width: 18px; height: 18px; accent-color: var(--blue); margin: 0; }
+
+/* --- карточка курса --- */
+
+.course { display: flex; flex-direction: column; gap: 18px; }
+.course__head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; }
+.course__meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.course__rank { color: var(--ink); font-weight: 600; }
+.course__why { margin: 2px 0 0; font-size: 16px; font-weight: 500; color: var(--blue); }
+.course__score { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.course__score .stat { font-size: 36px; }
+
+.components { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.component { display: flex; flex-direction: column; gap: 6px; }
+.component__top { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-3); }
+.component--muted .bar__fill { background: var(--ink-3); }
+.bar--hatch { background: repeating-linear-gradient(135deg, #d8d4c9 0 4px, #f1efe9 4px 8px); }
+
+.evidence {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line-soft);
+  padding-top: 18px;
+}
+.evidence > div { display: flex; flex-direction: column; gap: 12px; padding: 0 24px; }
+.evidence > div:first-child { padding-left: 0; border-right: 1px solid var(--line-soft); }
+.evidence > div:nth-child(2) { border-right: 1px solid var(--line-soft); }
+.evidence > div:last-child { padding-right: 0; }
+
+.spectrum { display: flex; height: 10px; border-radius: 3px; overflow: hidden; }
+.spectrum span { display: block; height: 100%; }
+.spectrum__a { background: var(--blue); }
+.spectrum__b { background: #5b82b8; }
+.spectrum__c { background: #afc3de; }
+.spectrum__bad { background: #c2410c; }
+
+.course__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 16px;
+  font-size: 14px;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }

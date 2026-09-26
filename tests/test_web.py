@@ -179,3 +179,9 @@ def test_term_of_counts_from_the_admission_semester():
     assert view.term_of("Spring 2024", 1) == "Spring 2024"
     assert view.term_of("Spring 2024", 2) == "Fall 2024"
     assert view.term_of("", 1) == ""
+
+
+# --- рекомендации ---
+
+def test_courses_need_a_transcript(client):
+    assert client.get("/courses").url.path == "/"
