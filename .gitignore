@@ -1,9 +1,18 @@
-# данные студентов — никогда в репозиторий
+# Разобранные источники университета попадают в репозиторий: без них
+# приложение не собрать на хостинге, а персональных данных в них нет —
+# это handbook, каталог курсов, расписания и агрегированная статистика.
 data/raw/*
 data/interim/*
 data/processed/*
 !data/**/.gitkeep
 !data/**/README.md
+!data/raw/handbook_*.json
+!data/processed/*.json
+!data/processed/*.npz
+
+# Транскрипты — персональные данные, и в репозиторий они не попадают никогда.
+*transcript*.pdf
+*transcript*.json
 
 # python
 __pycache__/
