@@ -76,7 +76,7 @@ def test_access_reports_source_of_every_number():
         evidence(priority_tier=2, mean_fill=0.78, terms_observed=3, fill_chance=0.36)
     )["access"]
 
-    assert access["tier"] == "тир 2"
+    assert access["tier"] == "2-й"
     assert access["fill"] == 78
     assert "3 семестра" in access["fill_source"]
     assert access["fill_chance_known"]

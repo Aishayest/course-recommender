@@ -31,7 +31,7 @@
       </div>
       <div class="stack" style="gap: 6px">
         <span class="pill pill--estimate" style="align-self: flex-start">≈ 95%</span>
-        <span style="font-size: 13px; color: var(--ink-2)">Оценка модели для курса и тира. Не персональный прогноз.</span>
+        <span style="font-size: 13px; color: var(--ink-2)">Оценка модели для курса и приоритета. Не персональный прогноз.</span>
       </div>
       <div class="stack" style="gap: 6px">
         <span class="missing missing--inline" style="align-self: flex-start">нет данных</span>
@@ -51,7 +51,7 @@
     </div>
 
     <p class="notice">
-      Шанс и заполняемость — оценки уровня курса и тира, не вероятность лично для вас.
+      Шанс и заполняемость — оценки уровня курса и приоритета, не вероятность лично для вас.
       Оценки — статистика курса, а не прогноз вашей оценки.
     </p>
 
@@ -132,7 +132,7 @@
             <span class="pill pill--estimate" style="align-self: flex-start">≈ {{ course.access.chance }}% шанс получить место</span>
             {% if course.access.fill_chance_known %}
             <span class="pill pill--estimate" style="align-self: flex-start">≈ {{ course.access.fill_chance }}% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и тира</span>
+            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
             {% endif %}
           </div>
         </div>

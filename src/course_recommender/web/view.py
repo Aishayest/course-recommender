@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from ..audit import Audit
 from ..data.transcripts import TERM, Transcript
+from ..recommend import ORDINAL
 
 # Разделы интерфейса в порядке, в котором студент через них проходит.
 SECTIONS = (
@@ -286,7 +287,7 @@ def audit_page(result: Audit, transcript: Transcript) -> dict:
 # Из чего складывается итоговый балл. Порядок — как в формуле.
 COMPONENTS = (
     ("need", "Нужность", "стоит в плане или закрывает позицию"),
-    ("access", "Шанс попасть", "по тиру приоритета и заполняемости"),
+    ("access", "Шанс попасть", "по приоритету регистрации и заполняемости"),
     ("fit", "Близость по содержанию", "к пройденным курсам, с весом по оценке"),
     ("ease", "Оценки на курсе", "средний балл тех, кто его брал"),
 )
@@ -341,8 +342,8 @@ def _access(evidence) -> dict:
     """Свидетельства о том, попадёт ли студент на курс."""
     tier = evidence.priority_tier
     return {
-        "tier": f"тир {tier}" if tier else "приоритета нет",
-        "tier_source": "из документа регистрации",
+        "tier": ORDINAL.get(tier, tier) if tier else "нет",
+        "tier_source": "из документа регистрации: колонка приоритета",
         "fill_known": evidence.mean_fill is not None,
         "fill": round((evidence.mean_fill or 0) * 100),
         "fill_source": (
