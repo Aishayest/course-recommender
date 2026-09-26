@@ -1,0 +1,568 @@
+/* Дизайн-система.
+
+   Три визуальных регистра, и это главное правило интерфейса: сплошная
+   плашка — факт из данных, пунктирная синяя — оценка модели, штриховка
+   с курсивом — данных нет. Ноль и среднее вместо неизвестного не
+   подставляются нигде, и видно это должно быть без чтения подписи. */
+
+:root {
+  --paper: #f4f2ec;
+  --surface: #ffffff;
+  --raised: #fbfaf7;
+
+  --line: #dedbd2;
+  --line-soft: #ece9e1;
+  --line-softer: #f1efe9;
+  --track: #e7e4dc;
+
+  --ink: #1b1e24;
+  --ink-2: #3f4550;
+  --ink-3: #5c6370;
+
+  --blue: #1f4e8c;
+  --blue-hover: #163a6a;
+  --blue-ink: #12305a;
+  --blue-bg: #f3f6fb;
+  --blue-line: #c9d6ea;
+
+  --red: #a12c2c;
+  --red-ink: #7f1d1d;
+  --red-bg: #fbeaea;
+  --red-line: #e3a5a5;
+
+  --amber-ink: #8a3b06;
+  --amber-bg: #fdf1e4;
+  --amber-line: #ebc199;
+
+  --radius: 10px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+
+  --ui: "Onest", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  /* Штриховка «данных нет» — один узор на весь интерфейс. */
+  --hatch: repeating-linear-gradient(135deg, #e9e6de 0 6px, #f6f5f1 6px 12px);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+a { color: var(--blue); }
+a:hover { color: var(--blue-hover); }
+
+h1, h2, h3 { letter-spacing: -0.02em; font-weight: 600; margin: 0; }
+h1 { font-size: 36px; }
+h2 { font-size: 24px; }
+h3 { font-size: 26px; line-height: 1.2; }
+
+.mono { font-family: var(--mono); }
+.muted { color: var(--ink-3); }
+.dim { color: var(--ink-2); }
+
+/* Мелкий заголовок раздела: капс, разрядка, приглушённый. */
+.label {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+/* --- шапка --- */
+
+.header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 0 40px;
+  background: var(--raised);
+  border-bottom: 1px solid var(--line);
+}
+
+.header__left { display: flex; align-items: center; gap: 40px; }
+.brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: inherit; }
+.brand__name { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+.brand__where { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+
+.nav { display: flex; gap: 4px; }
+.nav a {
+  padding: 21px 14px;
+  font-size: 14px;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.nav a[aria-current="page"] {
+  padding-bottom: 19px;
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: 2px solid var(--blue);
+}
+
+.header__right { display: flex; align-items: center; gap: 24px; }
+.student { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.student__name { font-size: 14px; font-weight: 600; }
+.student__facts { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+
+/* --- раскладка --- */
+
+.page { padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; }
+.page--center { min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; padding: 40px; }
+.page__head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; }
+.stack { display: flex; flex-direction: column; gap: 6px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+}
+.card--quiet { background: var(--raised); }
+.card--narrow { width: 680px; max-width: 100%; padding: 40px 44px; }
+
+/* --- кнопки и поля --- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.button:hover { background: var(--raised); }
+.button--primary { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+.button--primary:hover { background: var(--blue-hover); color: #fff; }
+.button--dark { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600; }
+.button--dark:hover { background: #000; color: #fff; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- три регистра: факт, оценка, нет данных --- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+/* Факт из данных: сплошная граница. */
+.pill--fact { border: 1px solid var(--line); background: var(--surface); }
+/* Оценка модели: пунктир, синий. Не персональный прогноз. */
+.pill--estimate {
+  border: 1px dashed var(--blue);
+  background: var(--blue-bg);
+  color: var(--blue);
+  font-weight: 500;
+}
+
+/* Данных нет. Ноль или среднее не подставлены. */
+.missing {
+  padding: 8px 10px;
+  border: 1px solid #c9c4b8;
+  border-radius: var(--radius-xs);
+  background: var(--hatch);
+  color: var(--ink-2);
+  font-size: 13px;
+  font-style: italic;
+}
+.missing--inline { display: inline-block; padding: 3px 10px; border-radius: 999px; }
+
+/* --- числа и полосы --- */
+
+.stat { font-family: var(--mono); font-weight: 600; line-height: 1; }
+.stat--xl { font-size: 40px; }
+.stat--l { font-size: 34px; }
+.stat--m { font-size: 28px; }
+
+.bar { height: 6px; background: var(--track); border-radius: 3px; overflow: hidden; }
+.bar__fill { height: 100%; background: var(--blue); border-radius: 3px; }
+.bar--tall { height: 14px; border-radius: 4px; }
+
+/* --- заметки и предупреждения --- */
+
+.notice {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--raised);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.notice--blue { background: var(--blue-bg); border-color: var(--blue-line); color: var(--blue-ink); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  font-weight: 500;
+}
+.badge--warn { background: var(--amber-bg); color: var(--amber-ink); border: 1px solid var(--amber-line); }
+.badge--error { background: var(--red-bg); color: var(--red-ink); border: 1px solid var(--red-line); }
+
+/* --- загрузка транскрипта --- */
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px;
+  border: 1.5px dashed #9db5d6;
+  border-radius: var(--radius);
+  background: var(--blue-bg);
+  text-align: center;
+}
+.dropzone__hint { font-size: 14px; color: var(--blue-ink); }
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+}
+.figures > div {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 1px solid var(--line-soft);
+}
+.figures > div:last-child { border-right: 0; }
+.figures dt { font-size: 12px; color: var(--ink-3); margin: 0; }
+.figures dd { margin: 0; font-family: var(--mono); font-size: 22px; font-weight: 600; }
+.figures dd.is-problem { color: var(--red); }
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--red-bg);
+  color: var(--red);
+  flex-shrink: 0;
+}
+
+/* --- состояния позиции программы ---
+
+   Семь состояний, и каждое должно читаться без легенды: закрытая позиция
+   залита, непройденная обведена жирно, «не проверена» заштрихована — это
+   не «не выполнено», а «мы не знаем». */
+
+.tile {
+  min-height: 64px;
+  padding: 8px 10px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.tile__name { font-family: var(--mono); font-size: 12px; font-weight: 600; line-height: 1.3; }
+.tile__sub { font-size: 11px; line-height: 1.3; }
+
+.tile--closed { background: var(--blue); border-color: var(--blue); color: #fff; }
+.tile--missing { border: 1.5px solid var(--ink); }
+.tile--retake { background: var(--red-bg); border: 1.5px solid var(--red); color: var(--red-ink); }
+.tile--current { border: 1.5px dashed var(--blue); color: var(--blue-ink); }
+.tile--open { background: #eaf0f8; border: 1px solid #7f9cc6; color: var(--blue-ink); }
+.tile--any { border: 1.5px dashed #8a909b; color: var(--ink-2); }
+.tile--unverified {
+  background: repeating-linear-gradient(135deg, #e4e0d6 0 6px, #f6f5f1 6px 12px);
+  border: 1px solid #b9b4a8;
+  color: #2f3440;
+}
+
+/* Значок того же состояния — в строках и заголовках. */
+.chip {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.chip--closed { background: var(--blue); border-color: var(--blue); color: #fff; }
+.chip--missing { border: 1.5px solid var(--ink); }
+.chip--retake { background: var(--red-bg); border: 1px solid var(--red-line); color: var(--red-ink); }
+.chip--current { border: 1.5px dashed var(--blue); color: var(--blue-ink); }
+.chip--open { background: #eaf0f8; border: 1px solid #7f9cc6; color: var(--blue-ink); }
+.chip--any { border: 1.5px dashed #8a909b; color: var(--ink-2); }
+.chip--unverified {
+  background: repeating-linear-gradient(135deg, #e4e0d6 0 6px, #f6f5f1 6px 12px);
+  border: 1px solid #b9b4a8;
+  color: #2f3440;
+}
+
+.swatch { width: 16px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+/* --- карта программы --- */
+
+.map { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 12px; }
+.map__column { display: flex; flex-direction: column; gap: 8px; }
+.map__head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.map__name { font-size: 13px; font-weight: 600; }
+.map__term { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* --- плитки состояния и колонки --- */
+
+.tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+.tiles .tile { min-height: 0; padding: 16px 18px; gap: 4px; }
+.tiles .tile .stat { font-size: 28px; }
+
+.columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
+
+.rows { display: flex; flex-direction: column; gap: 12px; }
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line-softer);
+}
+.row:last-child { border-bottom: 0; padding-bottom: 0; }
+.row__top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.row__detail { font-size: 12px; color: var(--ink-2); }
+
+/* --- полоса кредитов --- */
+
+.bar--stack { display: flex; height: 14px; border-radius: 4px; overflow: hidden; background: var(--track); }
+.bar--stack span { display: block; height: 100%; }
+.bar__earned { background: var(--blue); }
+.bar__progress { background: repeating-linear-gradient(135deg, #7f9cc6 0 4px, #d6e1f0 4px 8px); }
+
+/* --- страница рекомендаций --- */
+
+.layout { display: flex; gap: 32px; align-items: flex-start; }
+.sidebar { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+.sidebar .card { padding: 20px; }
+.main { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+
+.control { display: flex; flex-direction: column; gap: 6px; }
+.control__top { display: flex; justify-content: space-between; align-items: baseline; }
+.control label { font-size: 14px; font-weight: 500; }
+.control input[type="range"] { width: 100%; accent-color: var(--blue); }
+.control__hint { font-size: 12px; color: var(--ink-3); }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field select {
+  min-height: 40px;
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.check { display: flex; gap: 10px; align-items: center; min-height: 32px; font-size: 14px; }
+.check input { width: 18px; height: 18px; accent-color: var(--blue); margin: 0; }
+
+/* --- карточка курса --- */
+
+.course { display: flex; flex-direction: column; gap: 18px; }
+.course__head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; }
+.course__meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.course__rank { color: var(--ink); font-weight: 600; }
+.course__why { margin: 2px 0 0; font-size: 16px; font-weight: 500; color: var(--blue); }
+.course__score { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.course__score .stat { font-size: 36px; }
+
+.components { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.component { display: flex; flex-direction: column; gap: 6px; }
+.component__top { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-3); }
+.component--muted .bar__fill { background: var(--ink-3); }
+.bar--hatch { background: repeating-linear-gradient(135deg, #d8d4c9 0 4px, #f1efe9 4px 8px); }
+
+.evidence {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line-soft);
+  padding-top: 18px;
+}
+.evidence > div { display: flex; flex-direction: column; gap: 12px; padding: 0 24px; }
+.evidence > div:first-child { padding-left: 0; border-right: 1px solid var(--line-soft); }
+.evidence > div:nth-child(2) { border-right: 1px solid var(--line-soft); }
+.evidence > div:last-child { padding-right: 0; }
+
+.spectrum { display: flex; height: 10px; border-radius: 3px; overflow: hidden; }
+.spectrum span { display: block; height: 100%; }
+.spectrum__a { background: var(--blue); }
+.spectrum__b { background: #5b82b8; }
+.spectrum__c { background: #afc3de; }
+.spectrum__bad { background: #c2410c; }
+
+.course__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 16px;
+  font-size: 14px;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* --- недельная сетка --- */
+
+.week { display: grid; grid-template-columns: 56px repeat(5, minmax(0, 1fr)); }
+.week__day { padding: 0 0 8px 8px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.week__hours { position: relative; }
+.week__hour {
+  position: absolute;
+  right: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.week__column {
+  position: relative;
+  border-left: 1px solid var(--track);
+  background: repeating-linear-gradient(to bottom, var(--line-soft) 0 1px, transparent 1px 56px);
+}
+
+.class {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  padding: 7px 10px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  background: var(--blue);
+  border: 1px solid var(--blue);
+  color: #fff;
+}
+.class--other {
+  background: transparent;
+  border: 1.5px dashed #c27a3a;
+  color: #8a4a12;
+}
+.class__code { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+.class__time { font-size: 12px; }
+.class__note { font-size: 11px; opacity: 0.9; }
+
+.offline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px dashed #9db5d6;
+  border-radius: var(--radius-sm);
+  background: var(--blue-bg);
+  font-size: 13px;
+}
+
+/* --- сводка плана --- */
+
+.segments { display: grid; gap: 3px; height: 8px; }
+.segments span { background: var(--blue); border-radius: 2px; }
+
+.plan__items { display: flex; flex-direction: column; }
+.plan__item {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.plan__item:last-child { border-bottom: 0; }
+.plan__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+
+.checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.check-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13px;
+}
+
+/* --- статистика курса по секциям --- */
+
+.sections { display: flex; flex-direction: column; gap: 6px; }
+.sections__head,
+.sections__row {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr) 52px 60px;
+  gap: 12px;
+  align-items: center;
+}
+.sections__head {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.sections__row { padding: 12px 0; border-bottom: 1px solid var(--line-softer); }
+.sections__row--thin { opacity: 0.6; }
+
+.scale { flex-grow: 1; height: 8px; background: #efece5; border-radius: 3px; position: relative; }
+.scale__fill { height: 100%; background: var(--blue); border-radius: 3px; }
+.scale__marker {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 14px;
+  background: var(--ink);
+}

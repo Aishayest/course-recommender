@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSCI 231 — статистика</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
+            font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
+            flex-wrap: wrap; align-items: baseline">
+  <strong>Статический снимок</strong>
+  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Загрузка
+  транскрипта, ползунки и выбор секции здесь не работают — это черновик интерфейса.</span>
+</div>
+
+<header class="header">
+  <div class="header__left">
+    <a class="brand" href="upload.html">
+      <span class="brand__name">Course Recommender</span>
+      <span class="brand__where">NU · Fall 2026</span>
+    </a>
+    
+    <nav class="nav" aria-label="Разделы">
+      
+      <a href="index.html" >Аудит</a>
+      
+      <a href="courses.html" >Рекомендации</a>
+      
+      <a href="plan.html" >План</a>
+      
+    </nav>
+    
+  </div>
+
+  <div class="header__right">
+    
+    <div class="student">
+      <span class="student__name">Aisha Demo</span>
+      <span class="student__facts">Computer Science · SCAI · с Fall 2023 · GPA 3.08</span>
+    </div>
+    
+    <a href="upload.html" style="font-size: 13px">Транскрипт</a>
+  </div>
+</header>
+
+
+<div class="page" style="max-width: 900px">
+
+  <div class="page__head">
+    <div class="stack">
+      <span class="mono muted" style="font-size: 13px">
+        CSCI 231 · 6 ECTS
+      </span>
+      <h1 style="font-size: 30px">Computer Systems and Organization</h1>
+    </div>
+    <a class="button" href="courses.html">Назад</a>
+  </div>
+
+  
+
+  
+  <section class="card" style="display: flex; flex-direction: column; gap: 16px">
+    <div class="stack" style="gap: 4px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span class="stat stat--l">2.23</span>
+        <span style="font-size: 14px; color: var(--ink-2)">средний балл по курсу</span>
+      </div>
+      <span class="muted" style="font-size: 12px">
+        Fall 2025 · секций 3 · n=218 · из отчётов об оценках
+      </span>
+    </div>
+
+    <div class="sections">
+      <div class="sections__head">
+        <span>Секция</span><span>Средний балл · шкала 0–4</span>
+        <span style="text-align: right">n</span><span style="text-align: right">ушли</span>
+      </div>
+      
+      <div class="sections__row ">
+        <span class="mono" style="font-size: 14px; font-weight: 600">1</span>
+        <div class="stack" style="gap: 5px; min-width: 0">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="scale">
+              <div class="scale__fill" style="width: 60%"></div>
+              <span class="scale__marker" style="left: 56%"></span>
+            </div>
+            <span class="mono" style="font-size: 14px; font-weight: 600; width: 36px">2.39</span>
+          </div>
+          <span style="font-size: 13px; color: var(--ink-2)">
+            Shinnazar Seytnazarov · Fall 2025
+          </span>
+        </div>
+        <span class="mono" style="font-size: 13px; text-align: right">89</span>
+        <span class="mono" style="font-size: 13px; text-align: right">9.2%</span>
+      </div>
+      
+      <div class="sections__row ">
+        <span class="mono" style="font-size: 14px; font-weight: 600">2</span>
+        <div class="stack" style="gap: 5px; min-width: 0">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="scale">
+              <div class="scale__fill" style="width: 55%"></div>
+              <span class="scale__marker" style="left: 56%"></span>
+            </div>
+            <span class="mono" style="font-size: 14px; font-weight: 600; width: 36px">2.19</span>
+          </div>
+          <span style="font-size: 13px; color: var(--ink-2)">
+            Hashim Ali · Fall 2025
+          </span>
+        </div>
+        <span class="mono" style="font-size: 13px; text-align: right">83</span>
+        <span class="mono" style="font-size: 13px; text-align: right">13.5%</span>
+      </div>
+      
+      <div class="sections__row ">
+        <span class="mono" style="font-size: 14px; font-weight: 600">3</span>
+        <div class="stack" style="gap: 5px; min-width: 0">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="scale">
+              <div class="scale__fill" style="width: 50%"></div>
+              <span class="scale__marker" style="left: 56%"></span>
+            </div>
+            <span class="mono" style="font-size: 14px; font-weight: 600; width: 36px">1.99</span>
+          </div>
+          <span style="font-size: 13px; color: var(--ink-2)">
+            Hari Mohan Rai · Fall 2025
+          </span>
+        </div>
+        <span class="mono" style="font-size: 13px; text-align: right">46</span>
+        <span class="mono" style="font-size: 13px; text-align: right">6.1%</span>
+      </div>
+      
+      <span class="muted" style="font-size: 12px; margin-top: 4px">
+        Вертикальная метка — средний по курсу (2.23).
+      </span>
+    </div>
+  </section>
+
+  
+  <section class="notice notice--blue" style="display: flex; flex-direction: column; gap: 6px">
+    <span style="font-size: 14px; font-weight: 600">Разброс между секциями — 0.40 балла</span>
+    <span style="font-size: 13px; line-height: 1.5">
+      
+      Выбор секции здесь заметен. Для сравнения: по всем курсам медиана разброса 0.25,
+      у 22% курсов он больше 0.5.
+      
+    </span>
+  </section>
+  
+
+  <div class="columns" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="label">По семестрам</h2>
+      <div class="rows">
+        
+        <div class="row">
+          <div class="row__top">
+            <span class="mono" style="font-size: 13px">Fall 2025</span>
+            <span class="mono" style="font-size: 14px; font-weight: 600">2.23</span>
+          </div>
+          <span class="row__detail">секций 3 · n=218</span>
+        </div>
+        
+      </div>
+      <p class="muted" style="margin: 0; font-size: 12px">
+        Это статистика курса, а не прогноз вашей оценки.
+      </p>
+    </section>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="label">По преподавателям</h2>
+      <div class="rows">
+        
+        <div class="row">
+          <div class="row__top">
+            <span style="font-size: 14px">Shinnazar Seytnazarov</span>
+            <span class="mono" style="font-size: 14px; font-weight: 600">2.39</span>
+          </div>
+          <span class="row__detail">n=89</span>
+        </div>
+        
+        <div class="row">
+          <div class="row__top">
+            <span style="font-size: 14px">Hashim Ali</span>
+            <span class="mono" style="font-size: 14px; font-weight: 600">2.19</span>
+          </div>
+          <span class="row__detail">n=83</span>
+        </div>
+        
+        <div class="row">
+          <div class="row__top">
+            <span style="font-size: 14px">Hari Mohan Rai</span>
+            <span class="mono" style="font-size: 14px; font-weight: 600">1.99</span>
+          </div>
+          <span class="row__detail">n=46</span>
+        </div>
+        
+      </div>
+      <p class="muted" style="margin: 0; font-size: 12px">
+        Имена взяты из расписания того же семестра: в отчёте об оценках их нет, есть только номер секции.
+      </p>
+    </section>
+
+  </div>
+  
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>План на семестр</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
+            font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
+            flex-wrap: wrap; align-items: baseline">
+  <strong>Статический снимок</strong>
+  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Загрузка
+  транскрипта, ползунки и выбор секции здесь не работают — это черновик интерфейса.</span>
+</div>
+
+<header class="header">
+  <div class="header__left">
+    <a class="brand" href="upload.html">
+      <span class="brand__name">Course Recommender</span>
+      <span class="brand__where">NU · Fall 2026</span>
+    </a>
+    
+    <nav class="nav" aria-label="Разделы">
+      
+      <a href="index.html" >Аудит</a>
+      
+      <a href="courses.html" >Рекомендации</a>
+      
+      <a href="plan.html" aria-current="page">План</a>
+      
+    </nav>
+    
+  </div>
+
+  <div class="header__right">
+    
+    <div class="student">
+      <span class="student__name">Aisha Demo</span>
+      <span class="student__facts">Computer Science · SCAI · с Fall 2023 · GPA 3.08</span>
+    </div>
+    
+    <a href="upload.html" style="font-size: 13px">Транскрипт</a>
+  </div>
+</header>
+
+
+<div class="page">
+
+  <div class="page__head">
+    <div class="stack" style="gap: 10px">
+      <h1>План на Fall 2026</h1>
+      <div class="checks">
+        
+        <span class="check-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+          секции не пересекаются по времени
+        </span>
+        
+        <span class="check-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+          укладывается в целевую нагрузку
+        </span>
+        
+        <span class="check-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+          курсов не больше, чем открытых позиций
+        </span>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <section class="card" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px" aria-label="Неделя">
+      
+      <div class="offline">
+        <span class="label">Без времени</span>
+        <span class="mono" style="font-weight: 600">CSCI 408</span>
+        <span>онлайн или расписание не указано</span>
+      </div>
+      
+
+      <div class="week">
+        <span></span>
+        
+        <span class="week__day">Пн</span>
+        
+        <span class="week__day">Вт</span>
+        
+        <span class="week__day">Ср</span>
+        
+        <span class="week__day">Чт</span>
+        
+        <span class="week__day">Пт</span>
+        
+
+        <div class="week__hours" style="height: 560px">
+          
+          <span class="week__hour" style="top: 0px">9:00</span>
+          
+          <span class="week__hour" style="top: 49px">10:00</span>
+          
+          <span class="week__hour" style="top: 105px">11:00</span>
+          
+          <span class="week__hour" style="top: 161px">12:00</span>
+          
+          <span class="week__hour" style="top: 217px">13:00</span>
+          
+          <span class="week__hour" style="top: 273px">14:00</span>
+          
+          <span class="week__hour" style="top: 329px">15:00</span>
+          
+          <span class="week__hour" style="top: 385px">16:00</span>
+          
+          <span class="week__hour" style="top: 441px">17:00</span>
+          
+          <span class="week__hour" style="top: 497px">18:00</span>
+          
+        </div>
+
+        
+        <div class="week__column" style="height: 560px">
+          
+          <div class="class "
+               style="top: 448px; height: 47px">
+            <span class="class__code">CSCI 437 · 1L</span>
+            <span class="class__time">17:00–17:50</span>
+            <span class="class__note">Technical Elective</span>
+          </div>
+          
+          <div class="class "
+               style="top: 168px; height: 47px">
+            <span class="class__code">PLS 140 · 1L</span>
+            <span class="class__time">12:00–12:50</span>
+            <span class="class__note">Social Science Elective</span>
+          </div>
+          
+          <div class="class "
+               style="top: 392px; height: 47px">
+            <span class="class__code">CSCI 436 · 1L</span>
+            <span class="class__time">16:00–16:50</span>
+            <span class="class__note">Technical Elective</span>
+          </div>
+          
+        </div>
+        
+        <div class="week__column" style="height: 560px">
+          
+          <div class="class "
+               style="top: 420px; height: 70px">
+            <span class="class__code">MATH 417 · 1L</span>
+            <span class="class__time">16:30–17:45</span>
+            <span class="class__note">Technical Elective</span>
+          </div>
+          
+        </div>
+        
+        <div class="week__column" style="height: 560px">
+          
+          <div class="class "
+               style="top: 448px; height: 47px">
+            <span class="class__code">CSCI 437 · 1L</span>
+            <span class="class__time">17:00–17:50</span>
+            <span class="class__note">Technical Elective</span>
+          </div>
+          
+          <div class="class "
+               style="top: 168px; height: 47px">
+            <span class="class__code">PLS 140 · 1L</span>
+            <span class="class__time">12:00–12:50</span>
+            <span class="class__note">Social Science Elective</span>
+          </div>
+          
+          <div class="class "
+               style="top: 392px; height: 47px">
+            <span class="class__code">CSCI 436 · 1L</span>
+            <span class="class__time">16:00–16:50</span>
+            <span class="class__note">Technical Elective</span>
+          </div>
+          
+        </div>
+        
+        <div class="week__column" style="height: 560px">
+          
+          <div class="class "
+               style="top: 420px; height: 70px">
+            <span class="class__code">MATH 417 · 1L</span>
+            <span class="class__time">16:30–17:45</span>
+            <span class="class__note">Technical Elective</span>
+          </div>
+          
+        </div>
+        
+        <div class="week__column" style="height: 560px">
+          
+          <div class="class "
+               style="top: 448px; height: 47px">
+            <span class="class__code">CSCI 437 · 1L</span>
+            <span class="class__time">17:00–17:50</span>
+            <span class="class__note">Technical Elective</span>
+          </div>
+          
+          <div class="class "
+               style="top: 168px; height: 47px">
+            <span class="class__code">PLS 140 · 1L</span>
+            <span class="class__time">12:00–12:50</span>
+            <span class="class__note">Social Science Elective</span>
+          </div>
+          
+          <div class="class "
+               style="top: 392px; height: 47px">
+            <span class="class__code">CSCI 436 · 1L</span>
+            <span class="class__time">16:00–16:50</span>
+            <span class="class__note">Technical Elective</span>
+          </div>
+          
+        </div>
+        
+      </div>
+
+      <div class="legend">
+        <span><span class="swatch" style="background: var(--blue)"></span>выбранная секция</span>
+        <span><span class="swatch" style="border: 1.5px dashed #c27a3a"></span>другая секция того же курса</span>
+      </div>
+    </section>
+
+    <aside class="sidebar" style="width: 460px">
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <span style="font-size: 14px; font-weight: 600">Семестр собран</span>
+          <span class="mono muted" style="font-size: 13px">курсов 5</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 8px">
+          <span class="stat stat--l">30</span>
+          <span class="mono muted" style="font-size: 16px">/ 30 ECTS</span>
+        </div>
+        
+        <div class="segments" style="grid-template-columns: repeat(5, minmax(0, 1fr))">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        
+        
+      </section>
+
+      <form method="get" action="#">
+        <section class="card" style="padding: 0">
+          <div class="plan__items">
+            
+            <div class="plan__item">
+              <div class="plan__top">
+                <span class="mono" style="font-size: 13px; font-weight: 600">CSCI 408 · 1L</span>
+                <span class="mono muted" style="font-size: 12px">6 ECTS</span>
+              </div>
+              <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Senior Project I</a>
+              <span style="font-size: 13px; color: var(--ink-2)">
+                онлайн · ведёт Adnan Yazici, Anh Tu Nguyen
+              </span>
+              <span class="muted" style="font-size: 12px">закрывает: курс плана на этот семестр</span>
+
+              
+
+              
+
+              
+            </div>
+            
+            <div class="plan__item">
+              <div class="plan__top">
+                <span class="mono" style="font-size: 13px; font-weight: 600">CSCI 437 · 1L</span>
+                <span class="mono muted" style="font-size: 12px">6 ECTS</span>
+              </div>
+              <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Internet of Things: Technologies and Applications</a>
+              <span style="font-size: 13px; color: var(--ink-2)">
+                17:00–17:50 · ведёт Dimitrios Zormpas
+              </span>
+              <span class="muted" style="font-size: 12px">закрывает: Technical Elective</span>
+
+              
+
+              
+
+              
+            </div>
+            
+            <div class="plan__item">
+              <div class="plan__top">
+                <span class="mono" style="font-size: 13px; font-weight: 600">PLS 140 · 1L</span>
+                <span class="mono muted" style="font-size: 12px">6 ECTS</span>
+              </div>
+              <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Introduction to Comparative Politics</a>
+              <span style="font-size: 13px; color: var(--ink-2)">
+                12:00–12:50 · ведёт Berikbol Dukeyev
+              </span>
+              <span class="muted" style="font-size: 12px">закрывает: Social Science Elective</span>
+
+              
+
+              
+
+              
+            </div>
+            
+            <div class="plan__item">
+              <div class="plan__top">
+                <span class="mono" style="font-size: 13px; font-weight: 600">MATH 417 · 1L</span>
+                <span class="mono muted" style="font-size: 12px">6 ECTS</span>
+              </div>
+              <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Cryptography</a>
+              <span style="font-size: 13px; color: var(--ink-2)">
+                16:30–17:45 · ведёт Manat Mustafa
+              </span>
+              <span class="muted" style="font-size: 12px">закрывает: Technical Elective</span>
+
+              
+
+              
+
+              
+            </div>
+            
+            <div class="plan__item">
+              <div class="plan__top">
+                <span class="mono" style="font-size: 13px; font-weight: 600">CSCI 436 · 1L</span>
+                <span class="mono muted" style="font-size: 12px">6 ECTS</span>
+              </div>
+              <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Introduction to Cloud Computing</a>
+              <span style="font-size: 13px; color: var(--ink-2)">
+                16:00–16:50 · ведёт Syed Muhammad Umair Arif
+              </span>
+              <span class="muted" style="font-size: 12px">закрывает: Technical Elective</span>
+
+              
+
+              
+
+              
+            </div>
+            
+          </div>
+        </section>
+        <button class="button button--primary" type="submit" style="margin-top: 12px; width: 100%">Пересобрать с этими секциями</button>
+      </form>
+
+      
+      <section class="card card--quiet" style="display: flex; flex-direction: column; gap: 10px">
+        <span class="label">Не вошло</span>
+        
+        <div style="display: flex; gap: 12px; font-size: 13px">
+          <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">PLS 150</span>
+          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+        </div>
+        
+        <div style="display: flex; gap: 12px; font-size: 13px">
+          <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">CSCI 435</span>
+          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+        </div>
+        
+        <div style="display: flex; gap: 12px; font-size: 13px">
+          <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">CSCI 423</span>
+          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+        </div>
+        
+        <div style="display: flex; gap: 12px; font-size: 13px">
+          <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">PLS 120</span>
+          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+        </div>
+        
+        <div style="display: flex; gap: 12px; font-size: 13px">
+          <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">CSCI 438</span>
+          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+        </div>
+        
+        <div style="display: flex; gap: 12px; font-size: 13px">
+          <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">CSCI 434</span>
+          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+        </div>
+        
+        <div style="display: flex; gap: 12px; font-size: 13px">
+          <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">ROBT 205</span>
+          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+        </div>
+        
+        <div style="display: flex; gap: 12px; font-size: 13px">
+          <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">ROBT 414</span>
+          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+        </div>
+        
+      </section>
+      
+
+      
+      <section class="card" style="display: flex; flex-direction: column; gap: 8px">
+        <span class="label">Список для регистрации</span>
+        <code class="mono" style="font-size: 13px; line-height: 1.8">CSCI 408 1L, CSCI 437 1L, PLS 140 1L, MATH 417 1L, CSCI 436 1L</code>
+      </section>
+      
+
+      <p class="muted" style="margin: 0; font-size: 12px">
+        Планируются только лекции. Лабораторные и рецитации выберите сами при регистрации:
+        их номера не совпадают с лекционными — у PHYS 161 три лекции и тридцать лабораторных.
+      </p>
+
+    </aside>
+  </div>
+</div>
+
+
+</body>
+</html>

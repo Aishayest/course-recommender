@@ -213,3 +213,38 @@ def test_slider_value_updates_without_submitting(client):
 
     assert shown
     assert shown == live
+
+
+# --- статический снимок ---
+
+def test_snapshot_links_point_to_neighbouring_files():
+    import re
+
+    from course_recommender.web.snapshot import localize
+
+    html = localize(
+        '<body><a href="/audit">A</a><a href="/course/CSCI 231?back=/courses">B</a>'
+        '<link href="http://testserver/static/app.css"><form action="/transcript">'
+        "<title>Что-то</title></body>",
+        "index.html",
+    )
+    assert 'href="index.html"' in html
+    assert 'href="course.html"' in html
+    assert 'href="app.css"' in html
+    assert 'action="#"' in html
+    # На статике ничего не должно вести на чужой хост
+    assert not [u for u in re.findall(r'href="([^"]+)"', html) if u.startswith(("http", "/"))]
+    assert "Статический снимок" in html
+
+
+def test_snapshot_student_is_made_up():
+    from course_recommender.data.transcripts import parse_text
+    from course_recommender.web.snapshot import demo_transcript
+
+    transcript = parse_text(demo_transcript())
+    assert transcript.name == "Aisha Demo"
+    assert transcript.major == "Computer Science"
+    assert transcript.admission_year == 2023
+    # Курсы настоящие, и их достаточно, чтобы страницы не были пустыми
+    assert len(transcript.courses) > 25
+    assert not transcript.is_partial

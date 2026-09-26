@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Загрузка транскрипта</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
+            font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
+            flex-wrap: wrap; align-items: baseline">
+  <strong>Статический снимок</strong>
+  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Загрузка
+  транскрипта, ползунки и выбор секции здесь не работают — это черновик интерфейса.</span>
+</div>
+
+<header class="header">
+  <div class="header__left">
+    <a class="brand" href="upload.html">
+      <span class="brand__name">Course Recommender</span>
+      <span class="brand__where">NU · Fall 2026</span>
+    </a>
+    
+    <nav class="nav" aria-label="Разделы">
+      
+      <a href="index.html" >Аудит</a>
+      
+      <a href="courses.html" >Рекомендации</a>
+      
+      <a href="plan.html" >План</a>
+      
+    </nav>
+    
+  </div>
+
+  <div class="header__right">
+    
+    <div class="student">
+      <span class="student__name">Aisha Demo</span>
+      <span class="student__facts">Computer Science · SCAI · с Fall 2023 · GPA 3.08</span>
+    </div>
+    
+    <a href="upload.html" style="font-size: 13px">Транскрипт</a>
+  </div>
+</header>
+
+
+<div class="page--center">
+  <section class="card card--narrow" style="display: flex; flex-direction: column; gap: 22px">
+
+    
+    <h1 style="font-size: 34px; line-height: 1.15">Загрузите транскрипт</h1>
+    <p style="margin: 0; font-size: 16px; color: var(--ink-2)">Система покажет, что осталось до диплома, подберёт курсы на следующий семестр и соберёт из них расписание без пересечений.</p>
+    
+
+    <form method="post" action="#" enctype="multipart/form-data">
+      <div class="dropzone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path>
+        </svg>
+        <span class="dropzone__hint">Выберите PDF транскрипта</span>
+        <input class="visually-hidden" id="pdf" name="pdf" type="file" accept="application/pdf" required
+               onchange="this.form.querySelector('button').textContent = this.files[0] ? this.files[0].name : 'Разобрать'">
+        <label class="button button--primary" for="pdf">Выбрать файл</label>
+        <button class="button" type="submit">Разобрать</button>
+      </div>
+    </form>
+
+    <p class="muted" style="margin: 0; font-size: 12px">Нужен только транскрипт: год поступления, специальность и предстоящий семестр мы возьмём из него. Файл разбирается на этой машине и никуда не отправляется.</p>
+  </section>
+</div>
+
+
+</body>
+</html>

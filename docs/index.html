@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Course Recommender NU</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
+            font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
+            flex-wrap: wrap; align-items: baseline">
+  <strong>Статический снимок</strong>
+  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Загрузка
+  транскрипта, ползунки и выбор секции здесь не работают — это черновик интерфейса.</span>
+</div>
+
+<header class="header">
+  <div class="header__left">
+    <a class="brand" href="upload.html">
+      <span class="brand__name">Course Recommender</span>
+      <span class="brand__where">NU · Fall 2026</span>
+    </a>
+    
+    <nav class="nav" aria-label="Разделы">
+      
+      <a href="index.html" aria-current="page">Аудит</a>
+      
+      <a href="courses.html" >Рекомендации</a>
+      
+      <a href="plan.html" >План</a>
+      
+    </nav>
+    
+  </div>
+
+  <div class="header__right">
+    
+    <div class="student">
+      <span class="student__name">Aisha Demo</span>
+      <span class="student__facts">Computer Science · SCAI · с Fall 2023 · GPA 3.08</span>
+    </div>
+    
+    <a href="upload.html" style="font-size: 13px">Транскрипт</a>
+  </div>
+</header>
+
+
+<div class="page">
+
+  <div class="page__head">
+    <div class="stack">
+      <h1>Что осталось до диплома</h1>
+      <p class="muted" style="margin: 0; font-size: 14px">
+        BSc in COMPUTER SCIENCE (CS) · план по handbook года поступления (Fall 2023)
+      </p>
+    </div>
+  </div>
+
+  <section class="card" style="display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: baseline; gap: 14px">
+      <span class="stat stat--xl">198</span>
+      <span class="mono muted" style="font-size: 18px">из 240 ECTS</span>
+      
+      <span style="font-size: 16px; font-weight: 500; margin-left: 12px">
+        осталось <span class="mono" style="font-weight: 600">42</span>
+      </span>
+      
+    </div>
+
+    <div class="bar--stack">
+      <span class="bar__earned" style="width: 82.5%"></span>
+      <span class="bar__progress" style="width: 2.5%"></span>
+    </div>
+
+    <div class="legend">
+      <span><span class="swatch" style="background: var(--blue)"></span>набрано 198 · из транскрипта</span>
+      
+      <span><span class="swatch bar__progress"></span>идёт сейчас 6 · без оценки, в набранные не входит</span>
+      
+      <span><span class="swatch" style="background: var(--track); border: 1px solid var(--line)"></span>не набрано</span>
+    </div>
+  </section>
+
+  <div class="tiles">
+    
+    <div class="tile tile--missing">
+      <span class="stat">2</span>
+      <span style="font-size: 14px; font-weight: 500">обязательных не пройдено</span>
+      <span class="tile__sub">CSCI 408, CSCI 409</span>
+    </div>
+    
+    <div class="tile tile--retake">
+      <span class="stat">0</span>
+      <span style="font-size: 14px; font-weight: 500">нужна пересдача</span>
+      <span class="tile__sub">пройден ниже проходной</span>
+    </div>
+    
+    <div class="tile tile--current">
+      <span class="stat">1</span>
+      <span style="font-size: 14px; font-weight: 500">идёт сейчас</span>
+      <span class="tile__sub">без оценки, в кредиты не входит</span>
+    </div>
+    
+    <div class="tile tile--open">
+      <span class="stat">5</span>
+      <span style="font-size: 14px; font-weight: 500">открытые позиции</span>
+      <span class="tile__sub">можно закрыть курсами</span>
+    </div>
+    
+    <div class="tile tile--unverified">
+      <span class="stat">0</span>
+      <span style="font-size: 14px; font-weight: 500">не проверено</span>
+      <span class="tile__sub">handbook не уточняет</span>
+    </div>
+    
+  </div>
+
+  <section class="card" style="display: flex; flex-direction: column; gap: 18px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px">
+      <h2>Карта программы</h2>
+      <div class="legend">
+        
+        <span><span class="swatch tile--closed"></span>закрыта</span>
+        
+        <span><span class="swatch tile--missing"></span>не пройден</span>
+        
+        <span><span class="swatch tile--retake"></span>ниже проходной</span>
+        
+        <span><span class="swatch tile--current"></span>идёт сейчас</span>
+        
+        <span><span class="swatch tile--open"></span>открыта, есть варианты</span>
+        
+        <span><span class="swatch tile--any"></span>открыта, любой курс</span>
+        
+        <span><span class="swatch tile--unverified"></span>не проверена</span>
+        
+      </div>
+    </div>
+
+    <div class="map">
+      
+      <div class="map__column">
+        <div class="map__head">
+          <span class="map__name">Семестр 1</span>
+          <span class="map__term">Fall 2023</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 151</span>
+          <span class="tile__sub">Programming for Scientists and Engineers</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">HST 100</span>
+          <span class="tile__sub">History of Kazakhstan</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">MATH 161</span>
+          <span class="tile__sub">Calculus I</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">PHYS 161</span>
+          <span class="tile__sub">Physics for Scientists and Engineers I wit</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">WCS 150</span>
+          <span class="tile__sub">Rhetoric and Composition</span>
+        </div>
+        
+      </div>
+      
+      <div class="map__column">
+        <div class="map__head">
+          <span class="map__name">Семестр 2</span>
+          <span class="map__term">Spring 2024</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 152</span>
+          <span class="tile__sub">Performance and Data Structures</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">MATH 162</span>
+          <span class="tile__sub">Calculus II</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">PHYS 162</span>
+          <span class="tile__sub">Physics for Scientists and Engineers II wi</span>
+        </div>
+        
+      </div>
+      
+      <div class="map__column">
+        <div class="map__head">
+          <span class="map__name">Семестр 3</span>
+          <span class="map__term">Fall 2024</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 231</span>
+          <span class="tile__sub">Computer Systems &amp; Organization</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 235</span>
+          <span class="tile__sub">Programming Languages</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">MATH 251</span>
+          <span class="tile__sub">Discrete Mathematics</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">MATH 273</span>
+          <span class="tile__sub">Linear Algebra with Applications</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">WCS 200</span>
+          <span class="tile__sub">/ 210/ 220/ 230/ 240/ 250/ 260/ 270)</span>
+        </div>
+        
+      </div>
+      
+      <div class="map__column">
+        <div class="map__head">
+          <span class="map__name">Семестр 4</span>
+          <span class="map__term">Spring 2025</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 270</span>
+          <span class="tile__sub">Algorithms</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 272</span>
+          <span class="tile__sub">Formal Languages</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">MATH 321</span>
+          <span class="tile__sub">Probability</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">ROBT 206</span>
+          <span class="tile__sub">Microcontrollers with Lab</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">Kazakh Language</span>
+          <span class="tile__sub">закрыт KAZ 313</span>
+        </div>
+        
+      </div>
+      
+      <div class="map__column">
+        <div class="map__head">
+          <span class="map__name">Семестр 5</span>
+          <span class="map__term">Fall 2025</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 341</span>
+          <span class="tile__sub">Database Systems</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 361</span>
+          <span class="tile__sub">Software Engineering</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 390</span>
+          <span class="tile__sub">Artificial Intelligence</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">Natural Science Elective</span>
+          <span class="tile__sub">закрыт BIOL 101</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">Kazakh Language</span>
+          <span class="tile__sub">закрыт KAZ 356</span>
+        </div>
+        
+      </div>
+      
+      <div class="map__column">
+        <div class="map__head">
+          <span class="map__name">Семестр 6</span>
+          <span class="map__term">Spring 2026</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">BUS 101</span>
+          <span class="tile__sub">Core Course in Business</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 307</span>
+          <span class="tile__sub">Research Methods</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 332</span>
+          <span class="tile__sub">Operating Systems</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">CSCI 333</span>
+          <span class="tile__sub">Computer Networks</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">Natural Science Elective</span>
+          <span class="tile__sub">закрыт CHEM 100</span>
+        </div>
+        
+      </div>
+      
+      <div class="map__column">
+        <div class="map__head">
+          <span class="map__name">Семестр 7</span>
+          <span class="map__term">Fall 2026</span>
+        </div>
+        
+        <div class="tile tile--missing">
+          <span class="tile__name">CSCI 408</span>
+          <span class="tile__sub">Senior Project I</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">Technical Elective</span>
+          <span class="tile__sub">закрыт CSCI 262</span>
+        </div>
+        
+        <div class="tile tile--open">
+          <span class="tile__name">Technical Elective</span>
+          <span class="tile__sub">37 вариантов</span>
+        </div>
+        
+        <div class="tile tile--any">
+          <span class="tile__name">Open Elective</span>
+          <span class="tile__sub">закрывается любым курсом</span>
+        </div>
+        
+        <div class="tile tile--open">
+          <span class="tile__name">Social Science Elective</span>
+          <span class="tile__sub">183 вариантов</span>
+        </div>
+        
+      </div>
+      
+      <div class="map__column">
+        <div class="map__head">
+          <span class="map__name">Семестр 8</span>
+          <span class="map__term">Spring 2027</span>
+        </div>
+        
+        <div class="tile tile--missing">
+          <span class="tile__name">CSCI 409</span>
+          <span class="tile__sub">Senior Project II</span>
+        </div>
+        
+        <div class="tile tile--closed">
+          <span class="tile__name">PHIL 210</span>
+          <span class="tile__sub">)</span>
+        </div>
+        
+        <div class="tile tile--open">
+          <span class="tile__name">Technical Elective</span>
+          <span class="tile__sub">37 вариантов</span>
+        </div>
+        
+        <div class="tile tile--open">
+          <span class="tile__name">Technical Elective</span>
+          <span class="tile__sub">37 вариантов</span>
+        </div>
+        
+      </div>
+      
+    </div>
+  </section>
+
+  <div class="columns">
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="label">Свободные позиции плана</h2>
+      
+      <div class="rows">
+        
+        <div class="row">
+          <div class="row__top">
+            <span style="font-size: 14px; font-weight: 500">Technical Elective</span>
+            <span class="chip chip--open">открыта, есть варианты</span>
+          </div>
+          <span class="row__detail">37 вариантов · 8 семестр плана</span>
+        </div>
+        
+        <div class="row">
+          <div class="row__top">
+            <span style="font-size: 14px; font-weight: 500">Technical Elective</span>
+            <span class="chip chip--open">открыта, есть варианты</span>
+          </div>
+          <span class="row__detail">37 вариантов · 7 семестр плана</span>
+        </div>
+        
+        <div class="row">
+          <div class="row__top">
+            <span style="font-size: 14px; font-weight: 500">Technical Elective</span>
+            <span class="chip chip--open">открыта, есть варианты</span>
+          </div>
+          <span class="row__detail">37 вариантов · 8 семестр плана</span>
+        </div>
+        
+        <div class="row">
+          <div class="row__top">
+            <span style="font-size: 14px; font-weight: 500">Open Elective</span>
+            <span class="chip chip--any">открыта, любой курс</span>
+          </div>
+          <span class="row__detail">закрывается любым курсом · 7 семестр плана</span>
+        </div>
+        
+        <div class="row">
+          <div class="row__top">
+            <span style="font-size: 14px; font-weight: 500">Social Science Elective</span>
+            <span class="chip chip--open">открыта, есть варианты</span>
+          </div>
+          <span class="row__detail">183 вариантов · 7 семестр плана</span>
+        </div>
+        
+      </div>
+      
+      <p class="muted" style="margin: 0; font-size: 12px">
+        «Не проверена» — это не «не выполнено». Мы не знаем, чем закрывается позиция: уточните у эдвайзера.
+      </p>
+    </section>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="label">Требует внимания</h2>
+      
+      <div class="rows">
+        
+        <div class="row">
+          <div class="row__top">
+            <span class="mono" style="font-size: 14px; font-weight: 600">CSCI 408</span>
+            <span class="chip chip--missing">
+              не пройден
+            </span>
+          </div>
+          <span class="row__detail">обязательный · 7 семестр плана · 6 ECTS</span>
+        </div>
+        
+        <div class="row">
+          <div class="row__top">
+            <span class="mono" style="font-size: 14px; font-weight: 600">CSCI 409</span>
+            <span class="chip chip--missing">
+              не пройден
+            </span>
+          </div>
+          <span class="row__detail">обязательный · 8 семестр плана · 6 ECTS</span>
+        </div>
+        
+        <div class="row">
+          <div class="row__top">
+            <span class="mono" style="font-size: 14px; font-weight: 600">CSCI 299</span>
+            <span class="chip chip--current">
+              идёт сейчас
+            </span>
+          </div>
+          <span class="row__detail">без оценки · в кредиты пока не входит</span>
+        </div>
+        
+      </div>
+      
+    </section>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="label">Сверх программы</h2>
+      
+      <p class="muted" style="margin: 0; font-size: 14px">Все пройденные курсы засчитаны в программу.</p>
+      
+      <p class="muted" style="margin: 0; font-size: 12px">
+        Такие курсы учитываются в GPA, но не приближают к диплому по этой программе.
+      </p>
+    </section>
+
+  </div>
+</div>
+
+
+</body>
+</html>
