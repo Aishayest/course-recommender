@@ -189,3 +189,14 @@ def test_courses_need_a_transcript(client):
 
 def test_plan_needs_a_transcript(client):
     assert client.get("/plan").url.path == "/"
+
+
+def test_course_statistics_open_without_a_transcript(client):
+    # Панель курса не показывает ничего личного
+    response = client.get("/course/CSCI 231")
+    assert response.status_code == 200
+    assert "CSCI 231" in response.text
+
+
+def test_unknown_course_says_there_are_no_reports(client):
+    assert "отчётов об оценках" in client.get("/course/ZZZ 999").text

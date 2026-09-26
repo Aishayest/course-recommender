@@ -534,3 +534,35 @@ h3 { font-size: 26px; line-height: 1.2; }
   background: var(--surface);
   font-size: 13px;
 }
+
+/* --- статистика курса по секциям --- */
+
+.sections { display: flex; flex-direction: column; gap: 6px; }
+.sections__head,
+.sections__row {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr) 52px 60px;
+  gap: 12px;
+  align-items: center;
+}
+.sections__head {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.sections__row { padding: 12px 0; border-bottom: 1px solid var(--line-softer); }
+.sections__row--thin { opacity: 0.6; }
+
+.scale { flex-grow: 1; height: 8px; background: #efece5; border-radius: 3px; position: relative; }
+.scale__fill { height: 100%; background: var(--blue); border-radius: 3px; }
+.scale__marker {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 14px;
+  background: var(--ink);
+}

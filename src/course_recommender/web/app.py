@@ -230,6 +230,23 @@ def plan_page(request: Request, section: Annotated[list[str] | None, Query()] = 
     )
 
 
+@app.get("/course/{code:path}", response_class=HTMLResponse)
+def course_page(request: Request, code: str, back: str = "/courses") -> HTMLResponse:
+    """Чем курс заканчивался у тех, кто его брал."""
+    return page(
+        request,
+        "course.html",
+        course=view.course_page(
+            code,
+            data.grades.get(code),
+            data.catalog.get(code),
+            data.descriptions.get(code),
+        ),
+        back=back if back.startswith("/") else "/courses",
+        active=None,
+    )
+
+
 @app.post("/forget")
 def forget(request: Request) -> RedirectResponse:
     """Убрать транскрипт из памяти."""

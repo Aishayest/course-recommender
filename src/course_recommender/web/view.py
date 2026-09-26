@@ -600,3 +600,87 @@ def shadows_dict_methods(payload: dict) -> set[str]:
                 if isinstance(item, dict):
                     found |= shadows_dict_methods(item)
     return found
+
+
+# Секция, где оценок меньше этого, показывается бледнее: по десятку
+# человек средний балл говорит мало.
+THIN_SECTION = 15
+# Разброс между секциями по университету — для сравнения.
+MEDIAN_SPREAD = 0.25
+
+
+def _section_row(section, scale: float) -> dict:
+    """Строка таблицы секций."""
+    return {
+        "section": section.section,
+        "term": section.term,
+        "average": f"{section.average:.2f}",
+        "percent": round(section.average / scale * 100),
+        "median": f"{section.median:.2f}",
+        "n": section.graded,
+        "withdrew": f"{section.withdrew:.1f}%",
+        "teacher": ", ".join(section.instructors) or "",
+        "thin": section.graded < THIN_SECTION,
+    }
+
+
+def course_page(code: str, grades, entry=None, description=None) -> dict:
+    """Статистика курса по секциям.
+
+    Разброс считается внутри семестра: между семестрами меняется состав
+    студентов, а внутри одного секции идут по одной программе, и разница —
+    это про то, кто ведёт.
+    """
+    title = (description.title if description else "") or (entry.title if entry else "") or code
+    page = {
+        "code": code,
+        "title": title,
+        "credits": (entry.credits_ects if entry else None) or (
+            description.credits_ects if description else None
+        ),
+        "description": description.description if description else "",
+        "known": grades is not None and grades.average is not None,
+    }
+    if not page["known"]:
+        page["note"] = "отчётов об оценках по этому курсу нет"
+        return page
+
+    scale = 4.0
+    rows = [
+        _section_row(section, scale)
+        for section in sorted(grades.sections, key=lambda s: (s.term, s.section))
+    ]
+    spread = grades.spread()
+
+    by_term = []
+    for term in grades.terms:
+        sections = [s for s in grades.sections if s.term == term and s.graded]
+        graded = sum(s.graded for s in sections)
+        if graded:
+            by_term.append(
+                {
+                    "term": term,
+                    "average": f"{sum(s.average * s.graded for s in sections) / graded:.2f}",
+                    "n": graded,
+                    "sections": len(sections),
+                }
+            )
+
+    page |= {
+        "average": f"{grades.average:.2f}",
+        "marker": round(grades.average / scale * 100),
+        "graded": grades.graded,
+        "sections_count": len(grades.sections),
+        "terms": ", ".join(grades.terms),
+        "rows": rows,
+        "risky": f"{grades.risky:.0f}" if grades.risky is not None else None,
+        "spread": f"{spread:.2f}" if spread else None,
+        "spread_matters": bool(spread and spread > MEDIAN_SPREAD),
+        "median_spread": f"{MEDIAN_SPREAD:.2f}",
+        "by_term": by_term,
+        "teachers": [
+            {"name": record.name, "average": f"{record.average:.2f}", "n": record.graded}
+            for record in grades.instructors()
+        ],
+    }
+    return page

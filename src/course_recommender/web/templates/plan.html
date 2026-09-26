@@ -91,7 +91,7 @@
                 <span class="mono" style="font-size: 13px; font-weight: 600">{{ item.code }}{% if item.label %} · {{ item.label }}{% endif %}</span>
                 <span class="mono muted" style="font-size: 12px">{{ item.credits }} ECTS</span>
               </div>
-              <span style="font-size: 15px; font-weight: 500">{{ item.title or item.code }}</span>
+              <a href="/course/{{ item.code }}?back=/plan" style="font-size: 15px; font-weight: 500; color: inherit">{{ item.title or item.code }}</a>
               <span style="font-size: 13px; color: var(--ink-2)">
                 {{ item.time }}{% if item.teachers %} · ведёт {{ item.teachers }}{% endif %}
               </span>

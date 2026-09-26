@@ -82,7 +82,7 @@
             <span class="course__rank">#{{ course.rank }}</span>
             <span>{{ course.code }}</span><span>·</span><span>{{ course.credits }} ECTS</span>
           </div>
-          <h3>{{ course.title or course.code }}</h3>
+          <h3><a href="/course/{{ course.code }}?back=/courses" style="color: inherit; text-decoration: none">{{ course.title or course.code }}</a></h3>
           <p class="course__why">{{ course.why }}</p>
         </div>
         <div class="course__score">
