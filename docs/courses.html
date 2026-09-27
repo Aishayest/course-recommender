@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Рекомендации<script src="rank.js"></script>
+<title>Recommendations<script src="rank.js"></script>
 </title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="app.css">
@@ -12,9 +12,10 @@
 <div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
             font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
             flex-wrap: wrap; align-items: baseline">
-  <strong>Статический снимок</strong>
-  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Ползунки весов
-  работают, загрузка транскрипта и выбор секции — нет: считать здесь нечем.</span>
+  <strong>Static snapshot</strong>
+  <span style="opacity: .75">The course data is real, the student is invented. The weight
+  sliders work; uploading a transcript and picking a section do not — there is nothing here
+  to compute with.</span>
 </div>
 
 <header class="header">
@@ -24,13 +25,13 @@
       <span class="brand__where">NU · Fall 2026</span>
     </a>
     
-    <nav class="nav" aria-label="Разделы">
+    <nav class="nav" aria-label="Sections">
       
-      <a href="index.html" >Аудит</a>
+      <a href="index.html" >Audit</a>
       
-      <a href="courses.html" aria-current="page">Рекомендации</a>
+      <a href="courses.html" aria-current="page">Recommendations</a>
       
-      <a href="plan.html" >План</a>
+      <a href="plan.html" >Plan</a>
       
     </nav>
     
@@ -40,10 +41,10 @@
     
     <div class="student">
       <span class="student__name">Aisha Demo</span>
-      <span class="student__facts">Computer Science · SCAI · с Fall 2023 · GPA 3.08</span>
+      <span class="student__facts">Computer Science · SCAI · since Fall 2023 · GPA 3.08</span>
     </div>
     
-    <a href="upload.html" style="font-size: 13px">Транскрипт</a>
+    <a href="upload.html" style="font-size: 13px">Transcript</a>
   </div>
 </header>
 
@@ -53,74 +54,74 @@
 
   <aside class="sidebar">
     <form class="card" id="weights" method="get" action="#" style="display: flex; flex-direction: column; gap: 18px">
-      <h2 class="label">Как считается балл</h2>
+      <h2 class="label">How the score is computed</h2>
       
       <div class="control">
         <div class="control__top">
-          <label for="w-need">Нужность</label>
+          <label for="w-need">Need</label>
           <output class="mono" for="w-need" id="out-need"
                   style="font-size: 13px">0.6</output>
         </div>
         <input id="w-need" name="need" type="range"
                min="0" max="1" step="0.1" value="0.6"
                oninput="document.getElementById('out-need').value = (+this.value).toFixed(1)">
-        <span class="control__hint">стоит в плане или закрывает позицию</span>
+        <span class="control__hint">on the plan, or closes an open position</span>
       </div>
       
       <div class="control">
         <div class="control__top">
-          <label for="w-access">Шанс попасть</label>
+          <label for="w-access">Seat chance</label>
           <output class="mono" for="w-access" id="out-access"
                   style="font-size: 13px">0.4</output>
         </div>
         <input id="w-access" name="access" type="range"
                min="0" max="1" step="0.1" value="0.4"
                oninput="document.getElementById('out-access').value = (+this.value).toFixed(1)">
-        <span class="control__hint">по приоритету регистрации и заполняемости</span>
+        <span class="control__hint">from registration priority and fill history</span>
       </div>
       
       <div class="control">
         <div class="control__top">
-          <label for="w-fit">Близость по содержанию</label>
+          <label for="w-fit">Content fit</label>
           <output class="mono" for="w-fit" id="out-fit"
                   style="font-size: 13px">0.2</output>
         </div>
         <input id="w-fit" name="fit" type="range"
                min="0" max="1" step="0.1" value="0.2"
                oninput="document.getElementById('out-fit').value = (+this.value).toFixed(1)">
-        <span class="control__hint">к пройденным курсам, с весом по оценке</span>
+        <span class="control__hint">to completed courses, weighted by grade</span>
       </div>
       
       <div class="control">
         <div class="control__top">
-          <label for="w-ease">Оценки на курсе</label>
+          <label for="w-ease">Grade history</label>
           <output class="mono" for="w-ease" id="out-ease"
                   style="font-size: 13px">0.0</output>
         </div>
         <input id="w-ease" name="ease" type="range"
                min="0" max="1" step="0.1" value="0.0"
                oninput="document.getElementById('out-ease').value = (+this.value).toFixed(1)">
-        <span class="control__hint">средний балл тех, кто его брал</span>
+        <span class="control__hint">mean grade of those who took it</span>
       </div>
       
-      <button class="button button--primary" type="submit">Пересобрать список</button>
-      <span class="control__hint" data-live-note hidden>Балл и порядок меняются сразу; кнопка нужна, чтобы подобрать другие курсы.</span>
-      <a href="courses.html" style="font-size: 13px">Вернуть веса по умолчанию</a>
+      <button class="button button--primary" type="submit">Rebuild the list</button>
+      <span class="control__hint" data-live-note hidden>Score and order update instantly; the button is for picking a different set of courses.</span>
+      <a href="courses.html" style="font-size: 13px">Reset weights to default</a>
     </form>
 
     <section class="card" style="display: flex; flex-direction: column; gap: 14px">
-      <h2 class="label">Как читать цифры</h2>
+      <h2 class="label">How to read the numbers</h2>
       <div class="stack" style="gap: 6px">
         <span class="pill pill--fact" style="align-self: flex-start">2.88 <span class="muted" style="font-weight: 400">n=45</span></span>
-        <span style="font-size: 13px; color: var(--ink-2)">Факт из данных. Рядом всегда источник.</span>
+        <span style="font-size: 13px; color: var(--ink-2)">A fact from the data. The source is always next to it.</span>
       </div>
       <div class="stack" style="gap: 6px">
         <span class="pill pill--estimate" style="align-self: flex-start">≈ 95%</span>
-        <span style="font-size: 13px; color: var(--ink-2)">Оценка модели для курса и приоритета. Не персональный прогноз.</span>
+        <span style="font-size: 13px; color: var(--ink-2)">A model estimate for the course and priority round. Not a personal forecast.</span>
       </div>
       <div class="stack" style="gap: 6px">
-        <span class="missing missing--inline" style="align-self: flex-start">нет данных</span>
-        <span style="font-size: 13px; color: var(--ink-2)">Данных нет. Ноль или среднее не подставлены.</span>
+        <span class="missing missing--inline" style="align-self: flex-start">no data</span>
+        <span style="font-size: 13px; color: var(--ink-2)">There is no data. Neither a zero nor an average was substituted.</span>
       </div>
     </section>
   </aside>
@@ -128,16 +129,16 @@
   <main class="main">
     <div class="page__head">
       <div class="stack">
-        <h1>Рекомендации на Fall 2026</h1>
+        <h1>Recommendations for Fall 2026</h1>
         <p class="muted" style="margin: 0; font-size: 14px">
-          Отсортировано по итоговому баллу · курсов 20
+          Sorted by total score · 20 courses
         </p>
       </div>
     </div>
 
     <p class="notice">
-      Шанс и заполняемость — оценки уровня курса и приоритета, не вероятность лично для вас.
-      Оценки — статистика курса, а не прогноз вашей оценки.
+      Seat chance and fill rate are estimates for the course and priority round, not a probability for you personally.
+      Grades are course statistics, not a forecast of your own grade.
     </p>
 
     
@@ -156,11 +157,11 @@
             <span>CSCI 408</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Senior Project I</a></h3>
-          <p class="course__why">стоит в плане на этот семестр; похож на CSCI 262; приоритет: 1-й; в среднем заполнен на 94%</p>
+          <p class="course__why">on the plan for this semester; similar to CSCI 262; 1st priority registration; 94% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.84</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -168,45 +169,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 100%"></div></div>
-          <span class="mono" style="font-size: 13px">1.00<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">1.00<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 97%"></div></div>
-          <span class="mono" style="font-size: 13px">0.97<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.97<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 12%"></div></div>
-          <span class="mono" style="font-size: 13px">0.12<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.12<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 95%"></div></div>
-          <span class="mono" style="font-size: 13px">0.95<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.95<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -215,35 +216,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">94%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">94%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 94%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 2 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 2 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 97% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 97% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 23% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 23% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">3.79</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -257,27 +258,27 @@
               <span>C 0%</span><span style="color: #9a3412">D/F/W 0%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">0%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">0%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025 · n=235</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Adnan Yazici</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Anh Tu Nguyen</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
@@ -290,7 +291,7 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">CSCI 262</span></span>
+          <span class="muted">similar to <span class="mono">CSCI 262</span></span>
           
         </div>
         
@@ -311,11 +312,11 @@
             <span>CSCI 437</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Internet of Things: Technologies and Applications</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 333; приоритет: 1-й; в среднем заполнен на 70%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to CSCI 333; 1st priority registration; 70% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.78</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -323,45 +324,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 98%"></div></div>
-          <span class="mono" style="font-size: 13px">0.98<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.98<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 4%"></div></div>
-          <span class="mono" style="font-size: 13px">0.04<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.04<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 72%"></div></div>
-          <span class="mono" style="font-size: 13px">0.72<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.72<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -370,35 +371,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">70%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">70%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 70%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 3 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 3 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 98% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 98% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 15% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 15% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">2.88</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -412,21 +413,21 @@
               <span>C 10%</span><span style="color: #9a3412">D/F/W 19%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">19%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">19%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025, Spring 2026 · n=45</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Dimitrios Zormpas</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">2.88</span></span>
-            <span class="muted" style="font-size: 12px">n=45 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">2.88</span></span>
+            <span class="muted" style="font-size: 12px">n=45 · from the grade reports</span>
             
           </div>
           
@@ -439,7 +440,7 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">CSCI 333</span></span>
+          <span class="muted">similar to <span class="mono">CSCI 333</span></span>
           
         </div>
         
@@ -459,7 +460,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          не хватает: MATH 301, MATH 355
+          missing: MATH 301, MATH 355
         </span>
         
       </div>
@@ -472,11 +473,11 @@
             <span>MATH 417</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Cryptography</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 333; приоритет: 3-й; в среднем заполнен на 38%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to CSCI 333; 3rd priority registration; 38% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.78</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -484,45 +485,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 94%"></div></div>
-          <span class="mono" style="font-size: 13px">0.94<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.94<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 10%"></div></div>
-          <span class="mono" style="font-size: 13px">0.10<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.10<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 67%"></div></div>
-          <span class="mono" style="font-size: 13px">0.67<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.67<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -531,35 +532,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>3-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>3rd</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">38%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">38%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 38%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 2 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 2 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 94% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 94% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 9% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 9% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">2.69</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -573,21 +574,21 @@
               <span>C 8%</span><span style="color: #9a3412">D/F/W 56%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">56%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">56%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025 · n=13</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Manat Mustafa</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">2.69</span></span>
-            <span class="muted" style="font-size: 12px">n=13 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">2.69</span></span>
+            <span class="muted" style="font-size: 12px">n=13 · from the grade reports</span>
             
           </div>
           
@@ -600,11 +601,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">CSCI 333</span></span>
+          <span class="muted">similar to <span class="mono">CSCI 333</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -622,7 +623,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с CSCI 423, CSCI 438
+          clashes with CSCI 423, CSCI 438
         </span>
         
       </div>
@@ -635,11 +636,11 @@
             <span>CSCI 435</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Blockchain and Cryptocurrencies</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 152; приоритет: 1-й; в среднем заполнен на 74%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to CSCI 152; 1st priority registration; 74% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.78</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -647,45 +648,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 94%"></div></div>
-          <span class="mono" style="font-size: 13px">0.94<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.94<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 10%"></div></div>
-          <span class="mono" style="font-size: 13px">0.10<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.10<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 93%"></div></div>
-          <span class="mono" style="font-size: 13px">0.93<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.93<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -694,35 +695,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">74%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">74%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 74%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 2 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 2 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 94% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 94% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 39% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 39% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">3.73</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -736,21 +737,21 @@
               <span>C 0%</span><span style="color: #9a3412">D/F/W 7%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">7%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">7%</strong></span>
           
           <span class="muted" style="font-size: 12px">Spring 2026 · n=11</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Talgar Bayan</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">3.73</span></span>
-            <span class="muted" style="font-size: 12px">n=11 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">3.73</span></span>
+            <span class="muted" style="font-size: 12px">n=11 · from the grade reports</span>
             
           </div>
           
@@ -763,11 +764,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">CSCI 152</span></span>
+          <span class="muted">similar to <span class="mono">CSCI 152</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -785,7 +786,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с CSCI 494
+          clashes with CSCI 494
         </span>
         
       </div>
@@ -798,11 +799,11 @@
             <span>PLS 140</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Comparative Politics</a></h3>
-          <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на PHIL 210; приоритет: 1-й; в среднем заполнен на 88%</p>
+          <p class="course__why">closes the plan position “Social Science Elective”; similar to PHIL 210; 1st priority registration; 88% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.78</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -810,45 +811,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 97%"></div></div>
-          <span class="mono" style="font-size: 13px">0.97<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.97<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 69%"></div></div>
-          <span class="mono" style="font-size: 13px">0.69<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.69<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -857,35 +858,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">88%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">88%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 88%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 4 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 4 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 97% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 97% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 21% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 21% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">2.76</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -899,20 +900,20 @@
               <span>C 21%</span><span style="color: #9a3412">D/F/W 13%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">13%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">13%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025, Spring 2026 · n=192</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Berikbol Dukeyev</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
@@ -925,11 +926,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">PHIL 210</span></span>
+          <span class="muted">similar to <span class="mono">PHIL 210</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -947,7 +948,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с ROBT 205, ROBT 414
+          clashes with ROBT 205, ROBT 414
         </span>
         
       </div>
@@ -960,11 +961,11 @@
             <span>PLS 150</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to International Relations</a></h3>
-          <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на PHIL 210; приоритет: 1-й; в среднем заполнен на 90%</p>
+          <p class="course__why">closes the plan position “Social Science Elective”; similar to PHIL 210; 1st priority registration; 90% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.78</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -972,45 +973,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 97%"></div></div>
-          <span class="mono" style="font-size: 13px">0.97<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.97<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 71%"></div></div>
-          <span class="mono" style="font-size: 13px">0.71<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.71<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -1019,35 +1020,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">90%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">90%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 90%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 4 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 4 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 97% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 97% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 21% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 21% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">2.86</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -1061,20 +1062,20 @@
               <span>C 20%</span><span style="color: #9a3412">D/F/W 15%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">15%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">15%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025, Spring 2026 · n=196</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Chun Young Park</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
@@ -1087,11 +1088,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">PHIL 210</span></span>
+          <span class="muted">similar to <span class="mono">PHIL 210</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -1109,7 +1110,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с ANT 410
+          clashes with ANT 410
         </span>
         
       </div>
@@ -1122,11 +1123,11 @@
             <span>CSCI 436</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Cloud Computing</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на PHIL 210; приоритет: 1-й; в среднем заполнен на 70%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to PHIL 210; 1st priority registration; 70% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.77</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -1134,45 +1135,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 94%"></div></div>
-          <span class="mono" style="font-size: 13px">0.94<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.94<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 4%"></div></div>
-          <span class="mono" style="font-size: 13px">0.04<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.04<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 84%"></div></div>
-          <span class="mono" style="font-size: 13px">0.84<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.84<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -1181,35 +1182,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">70%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">70%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 70%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 2 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 2 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 94% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 94% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 38% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 38% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">3.37</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -1223,21 +1224,21 @@
               <span>C 0%</span><span style="color: #9a3412">D/F/W 15%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">15%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">15%</strong></span>
           
           <span class="muted" style="font-size: 12px">Spring 2026 · n=10</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Syed Muhammad Umair Arif</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">3.37</span></span>
-            <span class="muted" style="font-size: 12px">n=10 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">3.37</span></span>
+            <span class="muted" style="font-size: 12px">n=10 · from the grade reports</span>
             
           </div>
           
@@ -1250,11 +1251,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">PHIL 210</span></span>
+          <span class="muted">similar to <span class="mono">PHIL 210</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -1272,7 +1273,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          не хватает: PHYS 172
+          missing: PHYS 172
         </span>
         
         <span class="badge badge--warn">
@@ -1280,7 +1281,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с PLS 150, ROBT 414
+          clashes with PLS 150, ROBT 414
         </span>
         
       </div>
@@ -1293,11 +1294,11 @@
             <span>ROBT 205</span><span>·</span><span>8 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Signals and Sensing with Lab</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на ROBT 206; приоритет: 2-й; в среднем заполнен на 96%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to ROBT 206; 2nd priority registration; 96% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.77</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -1305,45 +1306,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 91%"></div></div>
-          <span class="mono" style="font-size: 13px">0.91<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.91<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 11%"></div></div>
-          <span class="mono" style="font-size: 13px">0.11<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.11<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 74%"></div></div>
-          <span class="mono" style="font-size: 13px">0.74<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.74<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -1352,35 +1353,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>2-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>2nd</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">96%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">96%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 96%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 2 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 2 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 91% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 91% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 24% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 24% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">2.97</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -1394,20 +1395,20 @@
               <span>C 20%</span><span style="color: #9a3412">D/F/W 10%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">10%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">10%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025 · n=39</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Zhanat Kappassov</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
@@ -1420,11 +1421,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">ROBT 206</span></span>
+          <span class="muted">similar to <span class="mono">ROBT 206</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -1442,7 +1443,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с CSCI 435, CSCI 438
+          clashes with CSCI 435, CSCI 438
         </span>
         
       </div>
@@ -1455,11 +1456,11 @@
             <span>CSCI 423</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Parallel Systems and GPU Programming</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 235; приоритет: 1-й; в среднем заполнен на 90%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to CSCI 235; 1st priority registration; 90% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.77</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -1467,45 +1468,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 93%"></div></div>
-          <span class="mono" style="font-size: 13px">0.93<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.93<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 5%"></div></div>
-          <span class="mono" style="font-size: 13px">0.05<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.05<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 83%"></div></div>
-          <span class="mono" style="font-size: 13px">0.83<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.83<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -1514,35 +1515,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">90%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">90%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 90%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 2 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 2 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 93% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 93% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 47% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 47% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">3.32</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -1556,21 +1557,21 @@
               <span>C 10%</span><span style="color: #9a3412">D/F/W 10%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">10%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">10%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025 · n=19</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Talgat Manglayev</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">3.32</span></span>
-            <span class="muted" style="font-size: 12px">n=19 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">3.32</span></span>
+            <span class="muted" style="font-size: 12px">n=19 · from the grade reports</span>
             
           </div>
           
@@ -1583,11 +1584,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">CSCI 235</span></span>
+          <span class="muted">similar to <span class="mono">CSCI 235</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -1606,11 +1607,11 @@
             <span>PLS 120</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Political Theory</a></h3>
-          <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на PHIL 210; приоритет: 1-й; в среднем заполнен на 94%</p>
+          <p class="course__why">closes the plan position “Social Science Elective”; similar to PHIL 210; 1st priority registration; 94% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.76</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -1618,45 +1619,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 93%"></div></div>
-          <span class="mono" style="font-size: 13px">0.93<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.93<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 76%"></div></div>
-          <span class="mono" style="font-size: 13px">0.76<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.76<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -1665,35 +1666,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">94%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">94%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 94%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 4 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 4 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 93% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 93% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 50% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 50% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">3.04</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -1707,21 +1708,21 @@
               <span>C 8%</span><span style="color: #9a3412">D/F/W 5%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">5%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">5%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025 · n=77</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Brian Smith</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">3.04</span></span>
-            <span class="muted" style="font-size: 12px">n=77 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">3.04</span></span>
+            <span class="muted" style="font-size: 12px">n=77 · from the grade reports</span>
             
           </div>
           
@@ -1734,11 +1735,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">PHIL 210</span></span>
+          <span class="muted">similar to <span class="mono">PHIL 210</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -1757,11 +1758,11 @@
             <span>CSCI 434</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Information Security</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на WCS 200; приоритет: 1-й; в среднем заполнен на 105%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to WCS 200; 1st priority registration; 105% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.76</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -1769,45 +1770,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 92%"></div></div>
-          <span class="mono" style="font-size: 13px">0.92<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.92<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 75%"></div></div>
-          <span class="mono" style="font-size: 13px">0.75<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.75<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -1816,35 +1817,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">105%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">105%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 105%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 2 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 2 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 92% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 92% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 55% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 55% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">3.01</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -1858,21 +1859,21 @@
               <span>C 14%</span><span style="color: #9a3412">D/F/W 7%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">7%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">7%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025 · n=41</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Anwar Ghani</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">3.01</span></span>
-            <span class="muted" style="font-size: 12px">n=41 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">3.01</span></span>
+            <span class="muted" style="font-size: 12px">n=41 · from the grade reports</span>
             
           </div>
           
@@ -1885,11 +1886,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">WCS 200</span></span>
+          <span class="muted">similar to <span class="mono">WCS 200</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -1907,7 +1908,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с ECON 120
+          clashes with ECON 120
         </span>
         
       </div>
@@ -1920,11 +1921,11 @@
             <span>CSCI 447</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Machine Learning: Theory and Practice</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 270; приоритет: 1-й; в среднем заполнен на 122%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to CSCI 270; 1st priority registration; 122% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.76</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -1932,45 +1933,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 6%"></div></div>
-          <span class="mono" style="font-size: 13px">0.06<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.06<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 83%"></div></div>
-          <span class="mono" style="font-size: 13px">0.83<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.83<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -1979,35 +1980,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">122%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">122%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 122%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 4 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 4 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 90% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 90% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 64% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 64% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">3.33</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -2021,21 +2022,21 @@
               <span>C 5%</span><span style="color: #9a3412">D/F/W 1%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">1%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">1%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025, Spring 2026 · n=103</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Hari Mohan Rai</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">3.49</span></span>
-            <span class="muted" style="font-size: 12px">n=37 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">3.49</span></span>
+            <span class="muted" style="font-size: 12px">n=37 · from the grade reports</span>
             
           </div>
           
@@ -2048,11 +2049,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">CSCI 270</span></span>
+          <span class="muted">similar to <span class="mono">CSCI 270</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -2070,7 +2071,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с CSCI 435, CSCI 423
+          clashes with CSCI 435, CSCI 423
         </span>
         
       </div>
@@ -2083,11 +2084,11 @@
             <span>CSCI 438</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Extended Reality</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на PHYS 161; приоритет: 1-й; в прошлый раз заполнен на 100%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to PHYS 161; 1st priority registration; 100% full last time</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.76</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -2095,45 +2096,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 92%"></div></div>
-          <span class="mono" style="font-size: 13px">0.92<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.92<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 2%"></div></div>
-          <span class="mono" style="font-size: 13px">0.02<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.02<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar bar--hatch"></div>
-          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">нет данных — не учтено</span>
+          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">no data — not counted</span>
           
         </div>
         
@@ -2142,44 +2143,44 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">100%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">100%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 100%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">по одному семестру</span>
+            <span class="muted" style="font-size: 12px">from one term</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 92% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 92% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 53% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 53% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
-          <div class="missing">отчётов об оценках по этому курсу нет</div>
+          <div class="missing">no grade reports for this course</div>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Syed Muhammad Umair Arif</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
@@ -2192,11 +2193,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">PHYS 161</span></span>
+          <span class="muted">similar to <span class="mono">PHYS 161</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -2214,7 +2215,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с PLS 150, ROBT 205
+          clashes with PLS 150, ROBT 205
         </span>
         
       </div>
@@ -2227,11 +2228,11 @@
             <span>ROBT 414</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Human-Robot Interaction</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на PHIL 210; приоритет: 2-й; в прошлый раз заполнен на 96%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to PHIL 210; 2nd priority registration; 96% full last time</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.76</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -2239,45 +2240,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 91%"></div></div>
-          <span class="mono" style="font-size: 13px">0.91<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.91<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar bar--hatch"></div>
-          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">нет данных — не учтено</span>
+          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">no data — not counted</span>
           
         </div>
         
@@ -2286,44 +2287,44 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>2-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>2nd</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">96%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">96%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 96%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">по одному семестру</span>
+            <span class="muted" style="font-size: 12px">from one term</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 91% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 91% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 24% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 24% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
-          <div class="missing">отчётов об оценках по этому курсу нет</div>
+          <div class="missing">no grade reports for this course</div>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Anara Sandygulova</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
@@ -2336,11 +2337,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">PHIL 210</span></span>
+          <span class="muted">similar to <span class="mono">PHIL 210</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -2358,7 +2359,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с CSCI 436
+          clashes with CSCI 436
         </span>
         
       </div>
@@ -2371,11 +2372,11 @@
             <span>ANT 410</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Ethnography, Fiction, Memoir</a></h3>
-          <p class="course__why">закрывает позицию плана «Social Science Elective»; приоритет: 3-й; в прошлый раз заполнен на 100%</p>
+          <p class="course__why">closes the plan position “Social Science Elective”; 3rd priority registration; 100% full last time</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.75</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -2383,45 +2384,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 66%"></div></div>
-          <span class="mono" style="font-size: 13px">0.66<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.66<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar bar--hatch"></div>
-          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">нет данных — не учтено</span>
+          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">no data — not counted</span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar bar--hatch"></div>
-          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">нет данных — не учтено</span>
+          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">no data — not counted</span>
           
         </div>
         
@@ -2430,44 +2431,44 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>3-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>3rd</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">100%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">100%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 100%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">по одному семестру</span>
+            <span class="muted" style="font-size: 12px">from one term</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 66% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 66% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 53% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 53% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
-          <div class="missing">отчётов об оценках по этому курсу нет</div>
+          <div class="missing">no grade reports for this course</div>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Alima Bissenova</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
@@ -2482,7 +2483,7 @@
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -2501,11 +2502,11 @@
             <span>SOC 201</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Social Science Research Methods</a></h3>
-          <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на CSCI 307; приоритет: 3-й; в среднем заполнен на 98%</p>
+          <p class="course__why">closes the plan position “Social Science Elective”; similar to CSCI 307; 3rd priority registration; 98% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.75</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -2513,45 +2514,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 66%"></div></div>
-          <span class="mono" style="font-size: 13px">0.66<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.66<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 47%"></div></div>
-          <span class="mono" style="font-size: 13px">0.47<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.47<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 70%"></div></div>
-          <span class="mono" style="font-size: 13px">0.70<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.70<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -2560,35 +2561,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>3-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>3rd</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">98%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">98%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 98%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 4 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 4 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 66% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 66% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 52% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 52% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">2.81</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -2602,21 +2603,21 @@
               <span>C 18%</span><span style="color: #9a3412">D/F/W 15%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">15%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">15%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025, Spring 2026 · n=104</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Dana Burkhanova</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">2.74</span></span>
-            <span class="muted" style="font-size: 12px">n=28 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">2.74</span></span>
+            <span class="muted" style="font-size: 12px">n=28 · from the grade reports</span>
             
           </div>
           
@@ -2629,11 +2630,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">CSCI 307</span></span>
+          <span class="muted">similar to <span class="mono">CSCI 307</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -2651,7 +2652,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с PLS 140
+          clashes with PLS 140
         </span>
         
       </div>
@@ -2664,11 +2665,11 @@
             <span>CSCI 494</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Deep Learning</a></h3>
-          <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 151; приоритет: 1-й; в среднем заполнен на 196%</p>
+          <p class="course__why">closes the plan position “Technical Elective”; similar to CSCI 151; 1st priority registration; 196% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.74</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -2676,45 +2677,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 87%"></div></div>
-          <span class="mono" style="font-size: 13px">0.87<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.87<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 2%"></div></div>
-          <span class="mono" style="font-size: 13px">0.02<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.02<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 82%"></div></div>
-          <span class="mono" style="font-size: 13px">0.81<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.81<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -2723,35 +2724,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>1-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>1st</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">196%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">196%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 196%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 2 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 2 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 87% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 87% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 89% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 89% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">3.26</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -2765,21 +2766,21 @@
               <span>C 5%</span><span style="color: #9a3412">D/F/W 4%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">4%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">4%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025 · n=72</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Siamac Fazli</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">3.26</span></span>
-            <span class="muted" style="font-size: 12px">n=72 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">3.26</span></span>
+            <span class="muted" style="font-size: 12px">n=72 · from the grade reports</span>
             
           </div>
           
@@ -2792,11 +2793,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">CSCI 151</span></span>
+          <span class="muted">similar to <span class="mono">CSCI 151</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -2814,7 +2815,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с ANT 285/SOC 212
+          clashes with ANT 285/SOC 212
         </span>
         
       </div>
@@ -2827,11 +2828,11 @@
             <span>ANT 160</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Biological Anthropology</a></h3>
-          <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на PHIL 210; приоритет: 3-й; в среднем заполнен на 92%</p>
+          <p class="course__why">closes the plan position “Social Science Elective”; similar to PHIL 210; 3rd priority registration; 92% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.74</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -2839,45 +2840,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 86%"></div></div>
-          <span class="mono" style="font-size: 13px">0.86<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.86<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 66%"></div></div>
-          <span class="mono" style="font-size: 13px">0.66<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.66<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -2886,35 +2887,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>3-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>3rd</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">92%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">92%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 92%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 3 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 3 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 86% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 86% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 22% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 22% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">2.64</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -2928,20 +2929,20 @@
               <span>C 30%</span><span style="color: #9a3412">D/F/W 12%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">12%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">12%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025 · n=93</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Abay Namen</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
@@ -2954,11 +2955,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">PHIL 210</span></span>
+          <span class="muted">similar to <span class="mono">PHIL 210</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -2976,7 +2977,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с CSCI 447
+          clashes with CSCI 447
         </span>
         
       </div>
@@ -2989,11 +2990,11 @@
             <span>ECON 120</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Managerial Economics</a></h3>
-          <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на CHEM 100; приоритет: 3-й; в среднем заполнен на 92%</p>
+          <p class="course__why">closes the plan position “Social Science Elective”; similar to CHEM 100; 3rd priority registration; 92% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.74</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -3001,45 +3002,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 86%"></div></div>
-          <span class="mono" style="font-size: 13px">0.86<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.86<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 1%"></div></div>
-          <span class="mono" style="font-size: 13px">0.01<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.01<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 75%"></div></div>
-          <span class="mono" style="font-size: 13px">0.75<span class="muted" data-uncounted > не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.75<span class="muted" data-uncounted > not counted</span></span>
           
         </div>
         
@@ -3048,35 +3049,35 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>3-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>3rd</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">92%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">92%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 92%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 4 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 4 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 86% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 86% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 22% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 22% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span class="stat stat--m">2.99</span>
-            <span class="muted" style="font-size: 13px">средний балл</span>
+            <span class="muted" style="font-size: 13px">mean grade</span>
           </div>
           <div class="stack" style="gap: 6px">
             <div class="spectrum">
@@ -3090,21 +3091,21 @@
               <span>C 17%</span><span style="color: #9a3412">D/F/W 8%</span>
             </div>
           </div>
-          <span style="font-size: 14px">плохо кончился у <strong class="mono">8%</strong></span>
+          <span style="font-size: 14px">ended badly for <strong class="mono">8%</strong></span>
           
           <span class="muted" style="font-size: 12px">Fall 2025, Spring 2026 · n=354</span>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Aigerim Sarsenbayeva</span>
             
-            <span style="font-size: 14px">раньше вёл этот курс: средний <span class="mono" style="font-weight: 600">2.99</span></span>
-            <span class="muted" style="font-size: 12px">n=354 · по отчётам об оценках</span>
+            <span style="font-size: 14px">has taught it before: mean <span class="mono" style="font-weight: 600">2.99</span></span>
+            <span class="muted" style="font-size: 12px">n=354 · from the grade reports</span>
             
           </div>
           
@@ -3117,11 +3118,11 @@
       <div class="course__foot">
         <div class="tags">
           
-          <span class="muted">похож на <span class="mono">CHEM 100</span></span>
+          <span class="muted">similar to <span class="mono">CHEM 100</span></span>
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       
@@ -3139,7 +3140,7 @@
             <path d="M12 9v4"></path><path d="M12 17h.01"></path>
             <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path>
           </svg>
-          пересекается по времени с ANT 160
+          clashes with ANT 160
         </span>
         
       </div>
@@ -3152,11 +3153,11 @@
             <span>ANT 285/SOC 212</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Food and Society</a></h3>
-          <p class="course__why">закрывает позицию плана «Social Science Elective»; приоритет: 3-й; в среднем заполнен на 115%</p>
+          <p class="course__why">closes the plan position “Social Science Elective”; 3rd priority registration; 115% full on average</p>
         </div>
         <div class="course__score">
           <span class="stat" data-score>0.74</span>
-          <span class="muted" style="font-size: 12px">итоговый балл</span>
+          <span class="muted" style="font-size: 12px">total score</span>
         </div>
       </div>
 
@@ -3164,45 +3165,45 @@
         
         <div class="component " data-part="need">
           <div class="component__top">
-            <span>Нужность</span>
+            <span>Need</span>
             <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="access">
           <div class="component__top">
-            <span>Шанс попасть</span>
+            <span>Seat chance</span>
             <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 61%"></div></div>
-          <span class="mono" style="font-size: 13px">0.61<span class="muted" data-uncounted hidden> не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.61<span class="muted" data-uncounted hidden> not counted</span></span>
           
         </div>
         
         <div class="component " data-part="fit">
           <div class="component__top">
-            <span>Близость по содержанию</span>
+            <span>Content fit</span>
             <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar bar--hatch"></div>
-          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">нет данных — не учтено</span>
+          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">no data — not counted</span>
           
         </div>
         
         <div class="component component--muted" data-part="ease">
           <div class="component__top">
-            <span>Оценки на курсе</span>
+            <span>Grade history</span>
             <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar bar--hatch"></div>
-          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">нет данных — не учтено</span>
+          <span style="font-size: 13px; font-style: italic; color: var(--ink-2)">no data — not counted</span>
           
         </div>
         
@@ -3211,44 +3212,44 @@
       <div class="evidence">
 
         <div>
-          <h4 class="label">Попасть на курс</h4>
+          <h4 class="label">Getting a seat</h4>
           <div class="stack" style="gap: 2px">
-            <span style="font-size: 14px">Приоритет регистрации: <strong>3-й</strong></span>
-            <span class="muted" style="font-size: 12px">из документа регистрации: колонка приоритета</span>
+            <span style="font-size: 14px">Registration priority: <strong>3rd</strong></span>
+            <span class="muted" style="font-size: 12px">from the registration document: priority column</span>
           </div>
 
           
           <div class="stack" style="gap: 4px">
-            <span style="font-size: 14px">в среднем заполнен на <span class="mono" style="font-weight: 600">115%</span></span>
+            <span style="font-size: 14px"><span class="mono" style="font-weight: 600">115%</span> full on average</span>
             <div class="bar"><div class="bar__fill" style="width: 115%; background: var(--ink-2)"></div></div>
-            <span class="muted" style="font-size: 12px">в среднем за 2 семестра</span>
+            <span class="muted" style="font-size: 12px">averaged over 2 terms</span>
           </div>
           
 
           <div class="stack" style="gap: 6px">
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 61% шанс получить место</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 61% chance of a seat</span>
             
-            <span class="pill pill--estimate" style="align-self: flex-start">≈ 61% что курс заполнится</span>
-            <span class="muted" style="font-size: 12px">обученная модель · уровень курса и приоритета</span>
+            <span class="pill pill--estimate" style="align-self: flex-start">≈ 61% chance the course fills up</span>
+            <span class="muted" style="font-size: 12px">trained model · course and priority round, not you</span>
             
           </div>
         </div>
 
         <div>
-          <h4 class="label">Оценки на курсе</h4>
+          <h4 class="label">Grade history</h4>
           
-          <div class="missing">отчётов об оценках по этому курсу нет</div>
+          <div class="missing">no grade reports for this course</div>
           
         </div>
 
         <div>
-          <h4 class="label">Кто ведёт</h4>
+          <h4 class="label">Who teaches it</h4>
           
           
           <div class="stack" style="gap: 2px">
             <span style="font-size: 15px; font-weight: 600">Russell Zanca</span>
             
-            <span class="missing">этот курс раньше не вёл</span>
+            <span class="missing">has not taught this course before</span>
             
           </div>
           
@@ -3263,7 +3264,7 @@
           
         </div>
         
-        <span class="muted">запасной вариант: <span class="mono">CSCI 437</span></span>
+        <span class="muted">fallback: <span class="mono">CSCI 437</span></span>
         
       </div>
       

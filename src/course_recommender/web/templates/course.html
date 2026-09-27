@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ course.code }} — статистика{% endblock %}
+{% block title %}{{ course.code }} — statistics{% endblock %}
 
 {% block body %}
 <div class="page" style="max-width: 900px">
@@ -11,7 +11,7 @@
       </span>
       <h1 style="font-size: 30px">{{ course.title }}</h1>
     </div>
-    <a class="button" href="{{ back }}">Назад</a>
+    <a class="button" href="{{ back }}">Back</a>
   </div>
 
   {% if course.description %}
@@ -19,24 +19,24 @@
   {% endif %}
 
   {% if not course.known %}
-  <p class="missing">{{ course.note }}. Ноль или среднее вместо них не подставлены.</p>
+  <p class="missing">{{ course.note }}. Neither a zero nor an average was substituted.</p>
 
   {% else %}
   <section class="card" style="display: flex; flex-direction: column; gap: 16px">
     <div class="stack" style="gap: 4px">
       <div style="display: flex; align-items: baseline; gap: 10px">
         <span class="stat stat--l">{{ course.average }}</span>
-        <span style="font-size: 14px; color: var(--ink-2)">средний балл по курсу</span>
+        <span style="font-size: 14px; color: var(--ink-2)">mean grade for the course</span>
       </div>
       <span class="muted" style="font-size: 12px">
-        {{ course.terms }} · секций {{ course.sections_count }} · n={{ course.graded }} · из отчётов об оценках
+        {{ course.terms }} · {{ course.sections_count }} sections · n={{ course.graded }} · from the grade reports
       </span>
     </div>
 
     <div class="sections">
       <div class="sections__head">
-        <span>Секция</span><span>Средний балл · шкала 0–4</span>
-        <span style="text-align: right">n</span><span style="text-align: right">ушли</span>
+        <span>Section</span><span>Mean grade · 0–4 scale</span>
+        <span style="text-align: right">n</span><span style="text-align: right">withdrew</span>
       </div>
       {% for row in course.rows %}
       <div class="sections__row {% if row.thin %}sections__row--thin{% endif %}">
@@ -50,8 +50,8 @@
             <span class="mono" style="font-size: 14px; font-weight: 600; width: 36px">{{ row.average }}</span>
           </div>
           <span style="font-size: 13px; color: var(--ink-2)">
-            {{ row.teacher or 'преподаватель не указан' }} · {{ row.term }}
-            {%- if row.thin %} · мало данных{% endif %}
+            {{ row.teacher or 'instructor not listed' }} · {{ row.term }}
+            {%- if row.thin %} · thin data{% endif %}
           </span>
         </div>
         <span class="mono" style="font-size: 13px; text-align: right">{{ row.n }}</span>
@@ -59,20 +59,20 @@
       </div>
       {% endfor %}
       <span class="muted" style="font-size: 12px; margin-top: 4px">
-        Вертикальная метка — средний по курсу ({{ course.average }}).
+        The vertical marker is the course mean ({{ course.average }}).
       </span>
     </div>
   </section>
 
   {% if course.spread %}
   <section class="notice notice--blue" style="display: flex; flex-direction: column; gap: 6px">
-    <span style="font-size: 14px; font-weight: 600">Разброс между секциями — {{ course.spread }} балла</span>
+    <span style="font-size: 14px; font-weight: 600">Spread between sections — {{ course.spread }} grade points</span>
     <span style="font-size: 13px; line-height: 1.5">
       {% if course.spread_matters %}
-      Выбор секции здесь заметен. Для сравнения: по всем курсам медиана разброса {{ course.median_spread }},
-      у 22% курсов он больше 0.5.
+      Which section you land in matters here. For comparison, the median spread across all courses is
+      {{ course.median_spread }}, and 22% of courses are above 0.5.
       {% else %}
-      Секции идут ровно: по всем курсам медиана разброса {{ course.median_spread }}, здесь не больше.
+      The sections run evenly: the median spread across all courses is {{ course.median_spread }}, and this one is no wider.
       {% endif %}
     </span>
   </section>
@@ -81,7 +81,7 @@
   <div class="columns" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
 
     <section class="card" style="display: flex; flex-direction: column; gap: 12px">
-      <h2 class="label">По семестрам</h2>
+      <h2 class="label">By term</h2>
       <div class="rows">
         {% for term in course.by_term %}
         <div class="row">
@@ -89,17 +89,17 @@
             <span class="mono" style="font-size: 13px">{{ term.term }}</span>
             <span class="mono" style="font-size: 14px; font-weight: 600">{{ term.average }}</span>
           </div>
-          <span class="row__detail">секций {{ term.sections }} · n={{ term.n }}</span>
+          <span class="row__detail">{{ term.sections }} sections · n={{ term.n }}</span>
         </div>
         {% endfor %}
       </div>
       <p class="muted" style="margin: 0; font-size: 12px">
-        Это статистика курса, а не прогноз вашей оценки.
+        These are course statistics, not a forecast of your own grade.
       </p>
     </section>
 
     <section class="card" style="display: flex; flex-direction: column; gap: 12px">
-      <h2 class="label">По преподавателям</h2>
+      <h2 class="label">By instructor</h2>
       <div class="rows">
         {% for teacher in course.teachers %}
         <div class="row">
@@ -112,7 +112,7 @@
         {% endfor %}
       </div>
       <p class="muted" style="margin: 0; font-size: 12px">
-        Имена взяты из расписания того же семестра: в отчёте об оценках их нет, есть только номер секции.
+        Names come from the schedule for the same term: the grade report has none, only section numbers.
       </p>
     </section>
 

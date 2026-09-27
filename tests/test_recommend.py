@@ -167,7 +167,7 @@ def test_recommend_explains_itself():
         semester=3,
         fill_history={"CSCI 231": CourseHistory("CSCI 231", "", (("Fall 2025", 0.9),))},
     )
-    assert "стоит в плане" in result.why
+    assert "on the plan" in result.why
     assert "90%" in result.why
 
 
@@ -198,7 +198,7 @@ def test_recommend_offers_elective_for_open_plan_position():
 
     results = {r.course.code: r for r in recommend(program, student, semester=7)}
     assert set(results) == {"CSCI 408", "CSCI 434"}
-    assert "закрывает позицию плана «Technical Elective»" in results["CSCI 434"].why
+    assert "closes the plan position \u201cTechnical Elective\u201d" in results["CSCI 434"].why
 
 
 def grades_for(code="CSCI 341", average=3.0, graded=50, risky=None):
@@ -244,7 +244,7 @@ def test_relevance_moves_the_score_and_is_named_in_the_explanation():
     result = Recommendation(
         course=course(), score=0.5, evidence=evidence(fit_closest="CSCI 390")
     )
-    assert "похож на CSCI 390" in result.why
+    assert "similar to CSCI 390" in result.why
 
 
 def test_utility_can_be_told_to_prefer_easy_courses():
@@ -268,7 +268,7 @@ def test_permission_is_named_in_the_explanation():
     result = Recommendation(
         course=course(), score=0.5, evidence=evidence(needs_permission=True)
     )
-    assert "нужно согласие преподавателя" in result.why
+    assert "instructor consent required" in result.why
 
 
 def test_teaching_reads_lecturers_from_the_schedule():

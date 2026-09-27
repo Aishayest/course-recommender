@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Загрузка транскрипта{% endblock %}
+{% block title %}Upload a transcript{% endblock %}
 
 {% block body %}
 <div class="page--center">
@@ -30,13 +30,13 @@
     {% endif %}
 
     <div class="stack" style="gap: 8px">
-      <span style="font-weight: 600">Как скачать полный транскрипт</span>
-      <span style="font-size: 14px; color: var(--ink-2)">В личном кабинете Registrar откройте неофициальный транскрипт и сохраните его как PDF — все страницы, вместе с итоговой строкой.</span>
+      <span style="font-weight: 600">How to download the full transcript</span>
+      <span style="font-size: 14px; color: var(--ink-2)">In the Registrar portal, open your unofficial transcript and save it as a PDF — every page, including the total line.</span>
     </div>
 
     {% else %}
-    <h1 style="font-size: 34px; line-height: 1.15">Загрузите транскрипт</h1>
-    <p style="margin: 0; font-size: 16px; color: var(--ink-2)">Система покажет, что осталось до диплома, подберёт курсы на следующий семестр и соберёт из них расписание без пересечений.</p>
+    <h1 style="font-size: 34px; line-height: 1.15">Upload your transcript</h1>
+    <p style="margin: 0; font-size: 16px; color: var(--ink-2)">It will show what is left before graduation, pick courses for next semester and assemble them into a conflict-free timetable.</p>
     {% endif %}
 
     <form method="post" action="/transcript" enctype="multipart/form-data">
@@ -45,15 +45,15 @@
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path>
         </svg>
-        <span class="dropzone__hint">Выберите PDF транскрипта</span>
+        <span class="dropzone__hint">Choose your transcript PDF</span>
         <input class="visually-hidden" id="pdf" name="pdf" type="file" accept="application/pdf" required
-               onchange="this.form.querySelector('button').textContent = this.files[0] ? this.files[0].name : 'Разобрать'">
-        <label class="button button--primary" for="pdf">{% if error %}Выбрать файл заново{% else %}Выбрать файл{% endif %}</label>
-        <button class="button" type="submit">Разобрать</button>
+               onchange="this.form.querySelector('button').textContent = this.files[0] ? this.files[0].name : 'Parse'">
+        <label class="button button--primary" for="pdf">{% if error %}Choose another file{% else %}Choose a file{% endif %}</label>
+        <button class="button" type="submit">Parse</button>
       </div>
     </form>
 
-    <p class="muted" style="margin: 0; font-size: 12px">Нужен только транскрипт: год поступления, специальность и предстоящий семестр мы возьмём из него. Файл разбирается на этой машине и никуда не отправляется.</p>
+    <p class="muted" style="margin: 0; font-size: 12px">The transcript is all that is needed: admission year, major and the upcoming semester are read from it. The file is parsed on this machine and is not sent anywhere.</p>
   </section>
 </div>
 {% endblock %}

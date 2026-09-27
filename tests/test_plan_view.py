@@ -39,7 +39,7 @@ def semester(choices=(), target=30, left_out=()):
 
 def test_block_is_placed_by_the_clock():
     grid = view.week_grid(semester([choice()]))
-    monday = next(day for day in grid["days"] if day["name"] == "Пн")
+    monday = next(day for day in grid["days"] if day["name"] == "Mon")
     block = monday["blocks"][0]
 
     # 10:30 при сетке с девяти и часе в 56 пикселей
@@ -52,17 +52,17 @@ def test_block_is_placed_by_the_clock():
 def test_one_meeting_lands_in_every_day_it_runs():
     grid = view.week_grid(semester([choice()]))
     days = {day["name"]: len(day["blocks"]) for day in grid["days"]}
-    assert days["Пн"] == 1 and days["Ср"] == 1
-    assert days["Вт"] == 0
+    assert days["Mon"] == 1 and days["Wed"] == 1
+    assert days["Tue"] == 0
 
 
 def test_alternative_section_is_drawn_apart():
     other = section(label="2L", days=("T",), start=time(15, 0), end=time(16, 15))
     grid = view.week_grid(semester([choice(alternatives=[other])]))
-    tuesday = next(day for day in grid["days"] if day["name"] == "Вт")
+    tuesday = next(day for day in grid["days"] if day["name"] == "Tue")
 
     assert not tuesday["blocks"][0]["chosen"]
-    assert tuesday["blocks"][0]["note"] == "другая секция"
+    assert tuesday["blocks"][0]["note"] == "other section"
 
 
 def test_online_course_goes_above_the_grid():
@@ -92,10 +92,10 @@ def test_plan_page_warns_when_practice_is_scarce():
 
 
 def test_left_out_reasons_are_carried_over():
-    left = [(Evidence(course=course("CSCI 423")), "пересекается по времени с CSCI 435")]
+    left = [(Evidence(course=course("CSCI 423")), "clashes with CSCI 435")]
     page = view.plan_page(semester([], left_out=left), "Fall 2026")
     assert page["left_out"][0]["code"] == "CSCI 423"
-    assert "пересекается" in page["left_out"][0]["reason"]
+    assert "clashes" in page["left_out"][0]["reason"]
 
 
 def test_chosen_section_is_tried_first():

@@ -66,7 +66,7 @@ def test_warnings_name_every_obstacle():
     )["warnings"]
     texts = " ".join(warning["text"] for warning in found)
 
-    assert "согласие преподавателя" in texts
+    assert "instructor consent required" in texts
     assert "MATH 301" in texts
     assert "CSCI 435" in texts
 
@@ -76,9 +76,9 @@ def test_access_reports_source_of_every_number():
         evidence(priority_tier=2, mean_fill=0.78, terms_observed=3, fill_chance=0.36)
     )["access"]
 
-    assert access["tier"] == "2-й"
+    assert access["tier"] == "2nd"
     assert access["fill"] == 78
-    assert "3 семестра" in access["fill_source"]
+    assert "3 terms" in access["fill_source"]
     assert access["fill_chance_known"]
     assert access["fill_chance"] == 36
 
@@ -86,7 +86,7 @@ def test_access_reports_source_of_every_number():
 def test_access_without_history_says_so():
     access = card(evidence())["access"]
     assert not access["fill_known"]
-    assert "истории заполняемости нет" in access["fill_source"]
+    assert "no fill history" in access["fill_source"]
     assert not access["fill_chance_known"]
 
 
@@ -111,7 +111,7 @@ def test_grades_spread_shown_only_when_it_matters():
 def test_grades_absent_are_not_filled_with_zero():
     shown = card(evidence())["grades"]
     assert not shown["known"]
-    assert "нет" in shown["source"]
+    assert "no grade reports" in shown["source"]
 
 
 def test_teacher_record_is_looked_up_by_name():
@@ -132,7 +132,7 @@ def test_teacher_who_never_taught_it_is_marked():
 def test_teacher_unknown_when_schedule_is_silent():
     shown = card(evidence())["teacher"]
     assert not shown["known"]
-    assert "не указано" in shown["note"]
+    assert "does not say who teaches" in shown["note"]
 
 
 def test_card_carries_fallback_and_similarity():

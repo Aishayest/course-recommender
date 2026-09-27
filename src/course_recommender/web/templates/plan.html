@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}План на семестр{% endblock %}
+{% block title %}Semester plan{% endblock %}
 
 {% block body %}
 <div class="page">
 
   <div class="page__head">
     <div class="stack" style="gap: 10px">
-      <h1>План{% if plan.term %} на {{ plan.term }}{% endif %}</h1>
+      <h1>Plan{% if plan.term %} for {{ plan.term }}{% endif %}</h1>
       <div class="checks">
         {% for guarantee in plan.guarantees %}
         <span class="check-pill">
@@ -20,12 +20,12 @@
 
   <div class="layout">
 
-    <section class="card" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px" aria-label="Неделя">
+    <section class="card" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px" aria-label="Week">
       {% if plan.week.offline %}
       <div class="offline">
-        <span class="label">Без времени</span>
+        <span class="label">No time</span>
         <span class="mono" style="font-weight: 600">{{ plan.week.offline|join(', ') }}</span>
-        <span>онлайн или расписание не указано</span>
+        <span>online, or no schedule listed</span>
       </div>
       {% endif %}
 
@@ -56,8 +56,8 @@
       </div>
 
       <div class="legend">
-        <span><span class="swatch" style="background: var(--blue)"></span>выбранная секция</span>
-        <span><span class="swatch" style="border: 1.5px dashed #c27a3a"></span>другая секция того же курса</span>
+        <span><span class="swatch" style="background: var(--blue)"></span>chosen section</span>
+        <span><span class="swatch" style="border: 1.5px dashed #c27a3a"></span>another section of the same course</span>
       </div>
     </section>
 
@@ -65,8 +65,8 @@
 
       <section class="card" style="display: flex; flex-direction: column; gap: 10px">
         <div style="display: flex; justify-content: space-between; align-items: baseline">
-          <span style="font-size: 14px; font-weight: 600">Семестр собран</span>
-          <span class="mono muted" style="font-size: 13px">курсов {{ plan.count }}</span>
+          <span style="font-size: 14px; font-weight: 600">Semester assembled</span>
+          <span class="mono muted" style="font-size: 13px">{{ plan.count }} courses</span>
         </div>
         <div style="display: flex; align-items: baseline; gap: 8px">
           <span class="stat stat--l">{{ plan.credits }}</span>
@@ -78,7 +78,7 @@
         </div>
         {% endif %}
         {% if plan.missing %}
-        <p class="missing" style="margin: 0">Не хватает {{ plan.missing }} ECTS — закрыть нечем.</p>
+        <p class="missing" style="margin: 0">{{ plan.missing }} ECTS short — nothing left to fill them with.</p>
         {% endif %}
       </section>
 
@@ -93,17 +93,17 @@
               </div>
               <a href="/course/{{ item.code }}?back=/plan" style="font-size: 15px; font-weight: 500; color: inherit">{{ item.title or item.code }}</a>
               <span style="font-size: 13px; color: var(--ink-2)">
-                {{ item.time }}{% if item.teachers %} · ведёт {{ item.teachers }}{% endif %}
+                {{ item.time }}{% if item.teachers %} · taught by {{ item.teachers }}{% endif %}
               </span>
-              <span class="muted" style="font-size: 12px">закрывает: {{ item.closes }}</span>
+              <span class="muted" style="font-size: 12px">closes: {{ item.closes }}</span>
 
               {% if item.unscheduled %}
-              <span class="missing missing--inline" style="align-self: flex-start">расписание неизвестно, время не проверено</span>
+              <span class="missing missing--inline" style="align-self: flex-start">schedule unknown, time not checked</span>
               {% endif %}
 
               {% if item.alternatives %}
               <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 6px">
-                <label for="sec-{{ item.code|replace(' ', '') }}" style="font-size: 13px; color: var(--ink-2)">Секция</label>
+                <label for="sec-{{ item.code|replace(' ', '') }}" style="font-size: 13px; color: var(--ink-2)">Section</label>
                 <select id="sec-{{ item.code|replace(' ', '') }}" name="section" style="min-height: 36px">
                   <option value="{{ item.code }}:{{ item.label }}">{{ item.label }} · {{ item.time }}</option>
                   {% for alternative in item.alternatives %}
@@ -115,19 +115,19 @@
 
               {% if item.practice %}
               <span class="badge badge--warn" style="align-self: flex-start; margin-top: 4px">
-                Практику выбрать отдельно — вариантов всего {{ item.practice }}
+                Pick the practice session separately — only {{ item.practice }} options
               </span>
               {% endif %}
             </div>
             {% endfor %}
           </div>
         </section>
-        <button class="button button--primary" type="submit" style="margin-top: 12px; width: 100%">Пересобрать с этими секциями</button>
+        <button class="button button--primary" type="submit" style="margin-top: 12px; width: 100%">Rebuild with these sections</button>
       </form>
 
       {% if plan.left_out %}
       <section class="card card--quiet" style="display: flex; flex-direction: column; gap: 10px">
-        <span class="label">Не вошло</span>
+        <span class="label">Left out</span>
         {% for item in plan.left_out %}
         <div style="display: flex; gap: 12px; font-size: 13px">
           <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">{{ item.code }}</span>
@@ -139,14 +139,14 @@
 
       {% if plan.registration %}
       <section class="card" style="display: flex; flex-direction: column; gap: 8px">
-        <span class="label">Список для регистрации</span>
+        <span class="label">Registration list</span>
         <code class="mono" style="font-size: 13px; line-height: 1.8">{{ plan.registration|join(', ') }}</code>
       </section>
       {% endif %}
 
       <p class="muted" style="margin: 0; font-size: 12px">
-        Планируются только лекции. Лабораторные и рецитации выберите сами при регистрации:
-        их номера не совпадают с лекционными — у PHYS 161 три лекции и тридцать лабораторных.
+        Only lectures are planned. Pick labs and recitations yourself at registration:
+        their numbers do not match the lecture ones — PHYS 161 has three lectures and thirty labs.
       </p>
 
     </aside>

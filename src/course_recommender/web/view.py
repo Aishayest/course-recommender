@@ -12,21 +12,21 @@ from ..recommend import ORDINAL
 
 # Разделы интерфейса в порядке, в котором студент через них проходит.
 SECTIONS = (
-    ("audit", "Аудит", "/audit"),
-    ("courses", "Рекомендации", "/courses"),
-    ("plan", "План", "/plan"),
+    ("audit", "Audit", "/audit"),
+    ("courses", "Recommendations", "/courses"),
+    ("plan", "Plan", "/plan"),
 )
 
 # Состояния позиции программы. Порядок — от выполненного к неизвестному,
 # в нём же они показываются в легенде.
 STATES = {
-    "closed": "закрыта",
-    "missing": "не пройден",
-    "retake": "ниже проходной",
-    "current": "идёт сейчас",
-    "open": "открыта, есть варианты",
-    "any": "открыта, любой курс",
-    "unverified": "не проверена",
+    "closed": "closed",
+    "missing": "not taken",
+    "retake": "below the minimum",
+    "current": "in progress",
+    "open": "open, options listed",
+    "any": "open, any course",
+    "unverified": "unverified",
 }
 SEASONS = {True: "Fall", False: "Spring"}
 
@@ -35,7 +35,7 @@ def student_chip(transcript: Transcript) -> dict:
     """Шапка: кто это и по какой программе учится."""
     parts = [transcript.major, transcript.school_code]
     if transcript.admission_term:
-        parts.append(f"с {transcript.admission_term}")
+        parts.append(f"since {transcript.admission_term}")
     if transcript.gpa is not None:
         parts.append(f"GPA {transcript.gpa}")
     return {
@@ -53,16 +53,16 @@ def partial_transcript_error(filename: str, transcript: Transcript) -> dict:
     """
     return {
         "filename": filename,
-        "title": "Загрузите транскрипт целиком",
+        "title": "Upload the whole transcript",
         "text": (
-            "Похоже, в файл попала только часть выгрузки. Если продолжить, система "
-            "посчитает непройденными курсы, которые вы на самом деле прошли, — "
-            "поэтому мы остановились."
+            "It looks like only part of the export made it into the file. Going on "
+            "would mark courses you have actually passed as not taken, so we stopped "
+            "here instead."
         ),
         "figures": [
-            {"label": "в итоговой строке", "value": f"{transcript.credits_earned} ECTS"},
-            {"label": "нашли по курсам", "value": f"{transcript.earned} ECTS", "problem": True},
-            {"label": "семестров в файле", "value": str(len(transcript.terms))},
+            {"label": "in the total line", "value": f"{transcript.credits_earned} ECTS"},
+            {"label": "found in the courses", "value": f"{transcript.earned} ECTS", "problem": True},
+            {"label": "terms in the file", "value": str(len(transcript.terms))},
         ],
     }
 
@@ -71,11 +71,11 @@ def unreadable_error(filename: str) -> dict:
     """Экран отказа: это не транскрипт или он нечитаемый."""
     return {
         "filename": filename,
-        "title": "Не удалось прочитать транскрипт",
+        "title": "Could not read the transcript",
         "text": (
-            "В файле не нашлось ни одного курса. Нужен неофициальный транскрипт "
-            "из личного кабинета Registrar, сохранённый как PDF, — не скан и не "
-            "снимок экрана."
+            "No courses were found in the file. What is needed is the unofficial "
+            "transcript from the Registrar portal, saved as a PDF — not a scan and "
+            "not a screenshot."
         ),
         "figures": [],
     }
@@ -155,12 +155,12 @@ def _slot_state(status) -> str:
 
 def _slot_detail(status) -> str:
     if status.is_closed:
-        return f"закрыт {status.closed_by}"
+        return f"closed by {status.closed_by}"
     if status.slot.eligible_codes:
-        return f"{len(status.slot.eligible_codes)} вариантов"
+        return f"{len(status.slot.eligible_codes)} options"
     if status.is_checkable:
-        return "закрывается любым курсом"
-    return "handbook не говорит, чем закрывается"
+        return "closed by any course"
+    return "the handbook does not say what closes it"
 
 
 def program_map(result: Audit, transcript: Transcript) -> list[dict]:
@@ -194,7 +194,7 @@ def program_map(result: Audit, transcript: Transcript) -> list[dict]:
         if cells:
             columns.append(
                 {
-                    "name": f"Семестр {semester}",
+                    "name": f"Semester {semester}",
                     "term": term_of(transcript.admission_term, semester),
                     "cells": cells,
                 }
@@ -215,8 +215,8 @@ def audit_page(result: Audit, transcript: Transcript) -> dict:
             "state": "retake",
             "title": course.title,
             "detail": (
-                f"оценка {grade:.2f} — ниже проходной {course.min_grade} · "
-                f"{course.recommended_semester} семестр плана"
+                f"grade {grade:.2f} — below the minimum {course.min_grade} · "
+                f"semester {course.recommended_semester} of the plan"
             ),
         }
         for course, grade in result.low_grade
@@ -225,7 +225,7 @@ def audit_page(result: Audit, transcript: Transcript) -> dict:
             "code": course.code,
             "state": "missing",
             "title": course.title,
-            "detail": f"обязательный · {course.recommended_semester} семестр плана · {course.credits} ECTS",
+            "detail": f"required · semester {course.recommended_semester} of the plan · {course.credits} ECTS",
         }
         for course in result.missing
     ] + [
@@ -233,7 +233,7 @@ def audit_page(result: Audit, transcript: Transcript) -> dict:
             "code": course.code,
             "state": "current",
             "title": course.title,
-            "detail": "без оценки · в кредиты пока не входит",
+            "detail": "no grade yet · not counted in credits",
         }
         for course in result.in_progress
     ]
@@ -251,16 +251,16 @@ def audit_page(result: Audit, transcript: Transcript) -> dict:
             "progress_share": round(in_progress_credits / total * 100, 1) if total else 0,
         },
         "tiles": [
-            {"n": len(result.missing), "state": "missing", "label": "обязательных не пройдено",
-             "sub": ", ".join(c.code for c in result.missing[:3]) or "всё сдано"},
-            {"n": len(result.low_grade), "state": "retake", "label": "нужна пересдача",
-             "sub": "пройден ниже проходной"},
-            {"n": len(result.in_progress), "state": "current", "label": "идёт сейчас",
-             "sub": "без оценки, в кредиты не входит"},
-            {"n": len(open_slots), "state": "open", "label": "открытые позиции",
-             "sub": "можно закрыть курсами"},
-            {"n": len(unchecked), "state": "unverified", "label": "не проверено",
-             "sub": "handbook не уточняет"},
+            {"n": len(result.missing), "state": "missing", "label": "required not taken",
+             "sub": ", ".join(c.code for c in result.missing[:3]) or "all done"},
+            {"n": len(result.low_grade), "state": "retake", "label": "need a retake",
+             "sub": "passed below the minimum grade"},
+            {"n": len(result.in_progress), "state": "current", "label": "in progress",
+             "sub": "no grade yet, not counted in credits"},
+            {"n": len(open_slots), "state": "open", "label": "open positions",
+             "sub": "can be closed with courses"},
+            {"n": len(unchecked), "state": "unverified", "label": "unverified",
+             "sub": "the handbook does not specify"},
         ],
         "legend": [{"state": state, "label": label} for state, label in STATES.items()],
         "map": program_map(result, transcript),
@@ -286,10 +286,10 @@ def audit_page(result: Audit, transcript: Transcript) -> dict:
 
 # Из чего складывается итоговый балл. Порядок — как в формуле.
 COMPONENTS = (
-    ("need", "Нужность", "стоит в плане или закрывает позицию"),
-    ("access", "Шанс попасть", "по приоритету регистрации и заполняемости"),
-    ("fit", "Близость по содержанию", "к пройденным курсам, с весом по оценке"),
-    ("ease", "Оценки на курсе", "средний балл тех, кто его брал"),
+    ("need", "Need", "on the plan, or closes an open position"),
+    ("access", "Seat chance", "from registration priority and fill history"),
+    ("fit", "Content fit", "to completed courses, weighted by grade"),
+    ("ease", "Grade history", "mean grade of those who took it"),
 )
 
 
@@ -328,12 +328,12 @@ def _warnings(evidence) -> list[dict]:
     """Что стоит знать до регистрации."""
     found = []
     if evidence.needs_permission:
-        found.append({"kind": "warn", "text": "нужно согласие преподавателя"})
+        found.append({"kind": "warn", "text": "instructor consent required"})
     if evidence.missing:
-        found.append({"kind": "warn", "text": f"не хватает: {', '.join(evidence.missing)}"})
+        found.append({"kind": "warn", "text": f"missing: {', '.join(evidence.missing)}"})
     if evidence.conflicts:
         found.append(
-            {"kind": "warn", "text": f"пересекается по времени с {', '.join(evidence.conflicts)}"}
+            {"kind": "warn", "text": f"clashes with {', '.join(evidence.conflicts)}"}
         )
     return found
 
@@ -342,17 +342,17 @@ def _access(evidence) -> dict:
     """Свидетельства о том, попадёт ли студент на курс."""
     tier = evidence.priority_tier
     return {
-        "tier": ORDINAL.get(tier, tier) if tier else "нет",
-        "tier_source": "из документа регистрации: колонка приоритета",
+        "tier": ORDINAL.get(tier, tier) if tier else "none",
+        "tier_source": "from the registration document: priority column",
         "fill_known": evidence.mean_fill is not None,
         "fill": round((evidence.mean_fill or 0) * 100),
         "fill_source": (
-            f"в среднем за {evidence.terms_observed} семестра"
+            f"averaged over {evidence.terms_observed} terms"
             if evidence.terms_observed > 1
-            else "по одному семестру"
+            else "from one term"
         )
         if evidence.mean_fill is not None
-        else "истории заполняемости нет",
+        else "no fill history",
         "chance": round(evidence.seat_chance * 100),
         "fill_chance_known": evidence.fill_chance is not None,
         "fill_chance": round((evidence.fill_chance or 0) * 100),
@@ -363,7 +363,7 @@ def _grades(evidence) -> dict:
     """Чем курс заканчивался у тех, кто его брал."""
     stats = evidence.grades
     if stats is None or stats.average is None:
-        return {"known": False, "source": "отчётов об оценках по этому курсу нет"}
+        return {"known": False, "source": "no grade reports for this course"}
 
     shares = stats.shares
     bad = shares.get("D", 0.0) + shares.get("F", 0.0) + shares.get("W", 0.0)
@@ -383,7 +383,7 @@ def _grades(evidence) -> dict:
 def _teacher(evidence) -> dict:
     """Кто ведёт в этом семестре и чем это кончалось раньше."""
     if not evidence.instructors:
-        return {"known": False, "note": "кто ведёт — в расписании не указано"}
+        return {"known": False, "note": "the schedule does not say who teaches it"}
 
     records = []
     for name in evidence.instructors:
@@ -441,7 +441,7 @@ def courses_page(results, weights: dict, term: str | None, slots) -> dict:
 GRID_START = 9
 GRID_HOURS = 10
 HOUR = 56
-WEEKDAYS = (("M", "Пн"), ("T", "Вт"), ("W", "Ср"), ("R", "Чт"), ("F", "Пт"))
+WEEKDAYS = (("M", "Mon"), ("T", "Tue"), ("W", "Wed"), ("R", "Thu"), ("F", "Fri"))
 
 
 def _minutes(moment) -> int:
@@ -457,7 +457,7 @@ def _placement(start, end) -> dict:
 
 def _time_label(meeting) -> str:
     if meeting.online or not meeting.start:
-        return "онлайн"
+        return "online"
     return f"{meeting.start:%H:%M}–{meeting.end:%H:%M}"
 
 
@@ -479,7 +479,7 @@ def _blocks(choice, chosen: bool) -> list[dict]:
                     "code": choice.course.code,
                     "label": getattr(source, "section", ""),
                     "time": _time_label(meeting),
-                    "note": choice.evidence.fills_slot or "курс плана",
+                    "note": choice.evidence.fills_slot or "plan course",
                     "chosen": chosen,
                     **_placement(meeting.start, meeting.end),
                 }
@@ -507,7 +507,7 @@ def week_grid(semester) -> dict:
                             "code": choice.course.code,
                             "label": alternative.section,
                             "time": _time_label(meeting),
-                            "note": "другая секция",
+                            "note": "other section",
                             "chosen": False,
                             **_placement(meeting.start, meeting.end),
                         }
@@ -547,9 +547,9 @@ def plan_page(semester, term: str | None) -> dict:
                 "title": choice.course.title,
                 "credits": choice.credits,
                 "label": choice.label,
-                "time": "; ".join(_time_label(m) for m in meetings) or "время не указано",
+                "time": "; ".join(_time_label(m) for m in meetings) or "time not listed",
                 "teachers": ", ".join(choice.instructors),
-                "closes": choice.evidence.fills_slot or "курс плана на этот семестр",
+                "closes": choice.evidence.fills_slot or "plan course for this semester",
                 "alternatives": [
                     {
                         "label": alternative.section,
@@ -569,9 +569,9 @@ def plan_page(semester, term: str | None) -> dict:
         "missing": semester.missing_credits,
         "count": len(semester.choices),
         "guarantees": [
-            "секции не пересекаются по времени",
-            "укладывается в целевую нагрузку",
-            "курсов не больше, чем открытых позиций",
+            "no time conflicts between sections",
+            "fits the target credit load",
+            "no more courses than open positions",
         ],
         "week": week_grid(semester),
         "courses": items,
@@ -643,7 +643,7 @@ def course_page(code: str, grades, entry=None, description=None) -> dict:
         "known": grades is not None and grades.average is not None,
     }
     if not page["known"]:
-        page["note"] = "отчётов об оценках по этому курсу нет"
+        page["note"] = "no grade reports for this course"
         return page
 
     scale = 4.0

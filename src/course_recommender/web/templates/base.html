@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,7 +16,7 @@
       <span class="brand__where">NU{% if term %} · {{ term }}{% endif %}</span>
     </a>
     {% if student %}
-    <nav class="nav" aria-label="Разделы">
+    <nav class="nav" aria-label="Sections">
       {% for key, title, href in sections %}
       <a href="{{ href }}" {% if active == key %}aria-current="page"{% endif %}>{{ title }}</a>
       {% endfor %}
@@ -27,11 +27,11 @@
   <div class="header__right">
     {% if student %}
     <div class="student">
-      <span class="student__name">{{ student.name or 'Студент' }}</span>
+      <span class="student__name">{{ student.name or 'Student' }}</span>
       <span class="student__facts">{{ student.facts }}</span>
     </div>
     {% endif %}
-    <a href="/" style="font-size: 13px">Транскрипт</a>
+    <a href="/" style="font-size: 13px">Transcript</a>
   </div>
 </header>
 

@@ -44,12 +44,12 @@ def test_program_map_groups_by_semester_and_marks_states():
     )
     columns = {c["name"]: c for c in view.program_map(audit, TRANSCRIPT)}
 
-    assert columns["Семестр 1"]["term"] == "Fall 2023"
-    assert columns["Семестр 1"]["cells"][0]["state"] == "closed"
-    assert columns["Семестр 7"]["cells"][0]["state"] == "missing"
-    assert columns["Семестр 8"]["cells"][0]["state"] == "open"
+    assert columns["Semester 1"]["term"] == "Fall 2023"
+    assert columns["Semester 1"]["cells"][0]["state"] == "closed"
+    assert columns["Semester 7"]["cells"][0]["state"] == "missing"
+    assert columns["Semester 8"]["cells"][0]["state"] == "open"
     # Пустые семестры в карту не попадают
-    assert "Семестр 2" not in columns
+    assert "Semester 2" not in columns
 
 
 def test_map_key_is_not_called_items():
@@ -96,7 +96,7 @@ def test_attention_lists_every_kind_of_problem():
     attention = {item["code"]: item for item in view.audit_page(audit, TRANSCRIPT)["attention"]}
 
     assert attention["CSCI 245"]["state"] == "retake"
-    assert "ниже проходной C-" in attention["CSCI 245"]["detail"]
+    assert "below the minimum C-" in attention["CSCI 245"]["detail"]
     assert attention["CSCI 408"]["state"] == "missing"
     assert attention["CSCI 299"]["state"] == "current"
 
@@ -111,10 +111,10 @@ def test_tiles_count_what_needs_doing():
     )
     tiles = {tile["label"]: tile["n"] for tile in view.audit_page(audit, TRANSCRIPT)["tiles"]}
 
-    assert tiles["обязательных не пройдено"] == 1
-    assert tiles["открытые позиции"] == 1
+    assert tiles["required not taken"] == 1
+    assert tiles["open positions"] == 1
     # Непроверенная позиция считается отдельно: это не «не выполнено»
-    assert tiles["не проверено"] == 1
+    assert tiles["unverified"] == 1
 
 
 def test_legend_covers_all_states_used_on_the_page():

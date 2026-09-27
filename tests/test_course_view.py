@@ -18,7 +18,7 @@ def grades(*sections):
 def test_course_without_reports_says_so():
     page = view.course_page("CSCI 231", None)
     assert not page["known"]
-    assert "нет" in page["note"]
+    assert "no grade reports" in page["note"]
     # Ноль вместо неизвестного не подставлен
     assert "average" not in page
 

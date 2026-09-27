@@ -31,9 +31,10 @@ BANNER = """
 <div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
             font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
             flex-wrap: wrap; align-items: baseline">
-  <strong>Статический снимок</strong>
-  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Ползунки весов
-  работают, загрузка транскрипта и выбор секции — нет: считать здесь нечем.</span>
+  <strong>Static snapshot</strong>
+  <span style="opacity: .75">The course data is real, the student is invented. The weight
+  sliders work; uploading a transcript and picking a section do not — there is nothing here
+  to compute with.</span>
 </div>"""
 
 # Выдуманный студент: специальность и коды курсов настоящие, человек — нет.

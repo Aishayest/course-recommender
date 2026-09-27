@@ -96,7 +96,7 @@ def test_assemble_avoids_time_conflicts():
     built = assemble(pool, sections, target_credits=12, capacity={"Technical Elective": 2})
     assert len(built.choices) == 1
     reason = {e.course.code: why for e, why in built.left_out}
-    assert "пересекается" in next(iter(reason.values()))
+    assert "clashes" in next(iter(reason.values()))
 
 
 def test_assemble_takes_the_free_section_of_a_course():
@@ -116,7 +116,7 @@ def test_assemble_does_not_take_more_than_there_are_open_positions():
     built = assemble(pool, sections, target_credits=30, capacity={"Technical Elective": 2})
     assert len(built.choices) == 2
     reasons = [why for _, why in built.left_out]
-    assert any("уже закрыты" in why for why in reasons)
+    assert any("already filled" in why for why in reasons)
 
 
 def test_required_course_is_taken_regardless_of_positions():

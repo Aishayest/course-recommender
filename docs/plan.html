@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>План на семестр</title>
+<title>Semester plan</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
@@ -11,9 +11,10 @@
 <div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
             font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
             flex-wrap: wrap; align-items: baseline">
-  <strong>Статический снимок</strong>
-  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Ползунки весов
-  работают, загрузка транскрипта и выбор секции — нет: считать здесь нечем.</span>
+  <strong>Static snapshot</strong>
+  <span style="opacity: .75">The course data is real, the student is invented. The weight
+  sliders work; uploading a transcript and picking a section do not — there is nothing here
+  to compute with.</span>
 </div>
 
 <header class="header">
@@ -23,13 +24,13 @@
       <span class="brand__where">NU · Fall 2026</span>
     </a>
     
-    <nav class="nav" aria-label="Разделы">
+    <nav class="nav" aria-label="Sections">
       
-      <a href="index.html" >Аудит</a>
+      <a href="index.html" >Audit</a>
       
-      <a href="courses.html" >Рекомендации</a>
+      <a href="courses.html" >Recommendations</a>
       
-      <a href="plan.html" aria-current="page">План</a>
+      <a href="plan.html" aria-current="page">Plan</a>
       
     </nav>
     
@@ -39,10 +40,10 @@
     
     <div class="student">
       <span class="student__name">Aisha Demo</span>
-      <span class="student__facts">Computer Science · SCAI · с Fall 2023 · GPA 3.08</span>
+      <span class="student__facts">Computer Science · SCAI · since Fall 2023 · GPA 3.08</span>
     </div>
     
-    <a href="upload.html" style="font-size: 13px">Транскрипт</a>
+    <a href="upload.html" style="font-size: 13px">Transcript</a>
   </div>
 </header>
 
@@ -51,22 +52,22 @@
 
   <div class="page__head">
     <div class="stack" style="gap: 10px">
-      <h1>План на Fall 2026</h1>
+      <h1>Plan for Fall 2026</h1>
       <div class="checks">
         
         <span class="check-pill">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
-          секции не пересекаются по времени
+          no time conflicts between sections
         </span>
         
         <span class="check-pill">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
-          укладывается в целевую нагрузку
+          fits the target credit load
         </span>
         
         <span class="check-pill">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
-          курсов не больше, чем открытых позиций
+          no more courses than open positions
         </span>
         
       </div>
@@ -75,27 +76,27 @@
 
   <div class="layout">
 
-    <section class="card" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px" aria-label="Неделя">
+    <section class="card" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px" aria-label="Week">
       
       <div class="offline">
-        <span class="label">Без времени</span>
+        <span class="label">No time</span>
         <span class="mono" style="font-weight: 600">CSCI 408</span>
-        <span>онлайн или расписание не указано</span>
+        <span>online, or no schedule listed</span>
       </div>
       
 
       <div class="week">
         <span></span>
         
-        <span class="week__day">Пн</span>
+        <span class="week__day">Mon</span>
         
-        <span class="week__day">Вт</span>
+        <span class="week__day">Tue</span>
         
-        <span class="week__day">Ср</span>
+        <span class="week__day">Wed</span>
         
-        <span class="week__day">Чт</span>
+        <span class="week__day">Thu</span>
         
-        <span class="week__day">Пт</span>
+        <span class="week__day">Fri</span>
         
 
         <div class="week__hours" style="height: 560px">
@@ -223,8 +224,8 @@
       </div>
 
       <div class="legend">
-        <span><span class="swatch" style="background: var(--blue)"></span>выбранная секция</span>
-        <span><span class="swatch" style="border: 1.5px dashed #c27a3a"></span>другая секция того же курса</span>
+        <span><span class="swatch" style="background: var(--blue)"></span>chosen section</span>
+        <span><span class="swatch" style="border: 1.5px dashed #c27a3a"></span>another section of the same course</span>
       </div>
     </section>
 
@@ -232,8 +233,8 @@
 
       <section class="card" style="display: flex; flex-direction: column; gap: 10px">
         <div style="display: flex; justify-content: space-between; align-items: baseline">
-          <span style="font-size: 14px; font-weight: 600">Семестр собран</span>
-          <span class="mono muted" style="font-size: 13px">курсов 5</span>
+          <span style="font-size: 14px; font-weight: 600">Semester assembled</span>
+          <span class="mono muted" style="font-size: 13px">5 courses</span>
         </div>
         <div style="display: flex; align-items: baseline; gap: 8px">
           <span class="stat stat--l">30</span>
@@ -258,9 +259,9 @@
               </div>
               <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Senior Project I</a>
               <span style="font-size: 13px; color: var(--ink-2)">
-                онлайн · ведёт Adnan Yazici, Anh Tu Nguyen
+                online · taught by Adnan Yazici, Anh Tu Nguyen
               </span>
-              <span class="muted" style="font-size: 12px">закрывает: курс плана на этот семестр</span>
+              <span class="muted" style="font-size: 12px">closes: plan course for this semester</span>
 
               
 
@@ -276,9 +277,9 @@
               </div>
               <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Internet of Things: Technologies and Applications</a>
               <span style="font-size: 13px; color: var(--ink-2)">
-                17:00–17:50 · ведёт Dimitrios Zormpas
+                17:00–17:50 · taught by Dimitrios Zormpas
               </span>
-              <span class="muted" style="font-size: 12px">закрывает: Technical Elective</span>
+              <span class="muted" style="font-size: 12px">closes: Technical Elective</span>
 
               
 
@@ -294,9 +295,9 @@
               </div>
               <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Introduction to Comparative Politics</a>
               <span style="font-size: 13px; color: var(--ink-2)">
-                12:00–12:50 · ведёт Berikbol Dukeyev
+                12:00–12:50 · taught by Berikbol Dukeyev
               </span>
-              <span class="muted" style="font-size: 12px">закрывает: Social Science Elective</span>
+              <span class="muted" style="font-size: 12px">closes: Social Science Elective</span>
 
               
 
@@ -312,9 +313,9 @@
               </div>
               <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Cryptography</a>
               <span style="font-size: 13px; color: var(--ink-2)">
-                16:30–17:45 · ведёт Manat Mustafa
+                16:30–17:45 · taught by Manat Mustafa
               </span>
-              <span class="muted" style="font-size: 12px">закрывает: Technical Elective</span>
+              <span class="muted" style="font-size: 12px">closes: Technical Elective</span>
 
               
 
@@ -330,9 +331,9 @@
               </div>
               <a href="course.html" style="font-size: 15px; font-weight: 500; color: inherit">Introduction to Cloud Computing</a>
               <span style="font-size: 13px; color: var(--ink-2)">
-                16:00–16:50 · ведёт Syed Muhammad Umair Arif
+                16:00–16:50 · taught by Syed Muhammad Umair Arif
               </span>
-              <span class="muted" style="font-size: 12px">закрывает: Technical Elective</span>
+              <span class="muted" style="font-size: 12px">closes: Technical Elective</span>
 
               
 
@@ -343,51 +344,51 @@
             
           </div>
         </section>
-        <button class="button button--primary" type="submit" style="margin-top: 12px; width: 100%">Пересобрать с этими секциями</button>
+        <button class="button button--primary" type="submit" style="margin-top: 12px; width: 100%">Rebuild with these sections</button>
       </form>
 
       
       <section class="card card--quiet" style="display: flex; flex-direction: column; gap: 10px">
-        <span class="label">Не вошло</span>
+        <span class="label">Left out</span>
         
         <div style="display: flex; gap: 12px; font-size: 13px">
           <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">PLS 150</span>
-          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+          <span style="color: var(--ink-2)">would exceed the credit target</span>
         </div>
         
         <div style="display: flex; gap: 12px; font-size: 13px">
           <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">CSCI 435</span>
-          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+          <span style="color: var(--ink-2)">would exceed the credit target</span>
         </div>
         
         <div style="display: flex; gap: 12px; font-size: 13px">
           <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">CSCI 423</span>
-          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+          <span style="color: var(--ink-2)">would exceed the credit target</span>
         </div>
         
         <div style="display: flex; gap: 12px; font-size: 13px">
           <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">PLS 120</span>
-          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+          <span style="color: var(--ink-2)">would exceed the credit target</span>
         </div>
         
         <div style="display: flex; gap: 12px; font-size: 13px">
           <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">CSCI 438</span>
-          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+          <span style="color: var(--ink-2)">would exceed the credit target</span>
         </div>
         
         <div style="display: flex; gap: 12px; font-size: 13px">
           <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">CSCI 434</span>
-          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+          <span style="color: var(--ink-2)">would exceed the credit target</span>
         </div>
         
         <div style="display: flex; gap: 12px; font-size: 13px">
           <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">ROBT 205</span>
-          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+          <span style="color: var(--ink-2)">would exceed the credit target</span>
         </div>
         
         <div style="display: flex; gap: 12px; font-size: 13px">
           <span class="mono" style="font-weight: 600; width: 76px; flex-shrink: 0">ROBT 414</span>
-          <span style="color: var(--ink-2)">не хватает кредитов в семестре</span>
+          <span style="color: var(--ink-2)">would exceed the credit target</span>
         </div>
         
       </section>
@@ -395,14 +396,14 @@
 
       
       <section class="card" style="display: flex; flex-direction: column; gap: 8px">
-        <span class="label">Список для регистрации</span>
+        <span class="label">Registration list</span>
         <code class="mono" style="font-size: 13px; line-height: 1.8">CSCI 408 1L, CSCI 437 1L, PLS 140 1L, MATH 417 1L, CSCI 436 1L</code>
       </section>
       
 
       <p class="muted" style="margin: 0; font-size: 12px">
-        Планируются только лекции. Лабораторные и рецитации выберите сами при регистрации:
-        их номера не совпадают с лекционными — у PHYS 161 три лекции и тридцать лабораторных.
+        Only lectures are planned. Pick labs and recitations yourself at registration:
+        their numbers do not match the lecture ones — PHYS 161 has three lectures and thirty labs.
       </p>
 
     </aside>

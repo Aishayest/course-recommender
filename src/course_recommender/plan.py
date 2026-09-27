@@ -254,14 +254,14 @@ def _why_not(
             if choice.section is not None
             and all(s.conflicts_with(choice.section) for s in course_sections)
         )
-        return f"пересекается по времени с {', '.join(clashing)}" if clashing else "не влезает по времени"
+        return f"clashes with {', '.join(clashing)}" if clashing else "no time slot fits"
     if credits + evidence.course.credits > target:
-        return "не хватает кредитов в семестре"
+        return "would exceed the credit target"
     if evidence.fills_slot and not evidence.on_plan:
         taken = sum(1 for c in chosen if c.evidence.fills_slot == evidence.fills_slot)
         if taken:
-            return f"позиции «{evidence.fills_slot}» уже закрыты"
-    return "нашлось что-то нужнее"
+            return f"the \u201c{evidence.fills_slot}\u201d positions are already filled"
+    return "something more needed came first"
 
 
 def target_credits(program, semester: int) -> int:

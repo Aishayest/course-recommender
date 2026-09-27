@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CSCI 231 — статистика</title>
+<title>CSCI 231 — statistics</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
@@ -11,9 +11,10 @@
 <div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
             font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
             flex-wrap: wrap; align-items: baseline">
-  <strong>Статический снимок</strong>
-  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Ползунки весов
-  работают, загрузка транскрипта и выбор секции — нет: считать здесь нечем.</span>
+  <strong>Static snapshot</strong>
+  <span style="opacity: .75">The course data is real, the student is invented. The weight
+  sliders work; uploading a transcript and picking a section do not — there is nothing here
+  to compute with.</span>
 </div>
 
 <header class="header">
@@ -23,13 +24,13 @@
       <span class="brand__where">NU · Fall 2026</span>
     </a>
     
-    <nav class="nav" aria-label="Разделы">
+    <nav class="nav" aria-label="Sections">
       
-      <a href="index.html" >Аудит</a>
+      <a href="index.html" >Audit</a>
       
-      <a href="courses.html" >Рекомендации</a>
+      <a href="courses.html" >Recommendations</a>
       
-      <a href="plan.html" >План</a>
+      <a href="plan.html" >Plan</a>
       
     </nav>
     
@@ -39,10 +40,10 @@
     
     <div class="student">
       <span class="student__name">Aisha Demo</span>
-      <span class="student__facts">Computer Science · SCAI · с Fall 2023 · GPA 3.08</span>
+      <span class="student__facts">Computer Science · SCAI · since Fall 2023 · GPA 3.08</span>
     </div>
     
-    <a href="upload.html" style="font-size: 13px">Транскрипт</a>
+    <a href="upload.html" style="font-size: 13px">Transcript</a>
   </div>
 </header>
 
@@ -56,7 +57,7 @@
       </span>
       <h1 style="font-size: 30px">Computer Systems and Organization</h1>
     </div>
-    <a class="button" href="courses.html">Назад</a>
+    <a class="button" href="courses.html">Back</a>
   </div>
 
   
@@ -66,17 +67,17 @@
     <div class="stack" style="gap: 4px">
       <div style="display: flex; align-items: baseline; gap: 10px">
         <span class="stat stat--l">2.23</span>
-        <span style="font-size: 14px; color: var(--ink-2)">средний балл по курсу</span>
+        <span style="font-size: 14px; color: var(--ink-2)">mean grade for the course</span>
       </div>
       <span class="muted" style="font-size: 12px">
-        Fall 2025 · секций 3 · n=218 · из отчётов об оценках
+        Fall 2025 · 3 sections · n=218 · from the grade reports
       </span>
     </div>
 
     <div class="sections">
       <div class="sections__head">
-        <span>Секция</span><span>Средний балл · шкала 0–4</span>
-        <span style="text-align: right">n</span><span style="text-align: right">ушли</span>
+        <span>Section</span><span>Mean grade · 0–4 scale</span>
+        <span style="text-align: right">n</span><span style="text-align: right">withdrew</span>
       </div>
       
       <div class="sections__row ">
@@ -134,18 +135,18 @@
       </div>
       
       <span class="muted" style="font-size: 12px; margin-top: 4px">
-        Вертикальная метка — средний по курсу (2.23).
+        The vertical marker is the course mean (2.23).
       </span>
     </div>
   </section>
 
   
   <section class="notice notice--blue" style="display: flex; flex-direction: column; gap: 6px">
-    <span style="font-size: 14px; font-weight: 600">Разброс между секциями — 0.40 балла</span>
+    <span style="font-size: 14px; font-weight: 600">Spread between sections — 0.40 grade points</span>
     <span style="font-size: 13px; line-height: 1.5">
       
-      Выбор секции здесь заметен. Для сравнения: по всем курсам медиана разброса 0.25,
-      у 22% курсов он больше 0.5.
+      Which section you land in matters here. For comparison, the median spread across all courses is
+      0.25, and 22% of courses are above 0.5.
       
     </span>
   </section>
@@ -154,7 +155,7 @@
   <div class="columns" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
 
     <section class="card" style="display: flex; flex-direction: column; gap: 12px">
-      <h2 class="label">По семестрам</h2>
+      <h2 class="label">By term</h2>
       <div class="rows">
         
         <div class="row">
@@ -162,17 +163,17 @@
             <span class="mono" style="font-size: 13px">Fall 2025</span>
             <span class="mono" style="font-size: 14px; font-weight: 600">2.23</span>
           </div>
-          <span class="row__detail">секций 3 · n=218</span>
+          <span class="row__detail">3 sections · n=218</span>
         </div>
         
       </div>
       <p class="muted" style="margin: 0; font-size: 12px">
-        Это статистика курса, а не прогноз вашей оценки.
+        These are course statistics, not a forecast of your own grade.
       </p>
     </section>
 
     <section class="card" style="display: flex; flex-direction: column; gap: 12px">
-      <h2 class="label">По преподавателям</h2>
+      <h2 class="label">By instructor</h2>
       <div class="rows">
         
         <div class="row">
@@ -201,7 +202,7 @@
         
       </div>
       <p class="muted" style="margin: 0; font-size: 12px">
-        Имена взяты из расписания того же семестра: в отчёте об оценках их нет, есть только номер секции.
+        Names come from the schedule for the same term: the grade report has none, only section numbers.
       </p>
     </section>
 

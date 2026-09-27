@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,9 +11,10 @@
 <div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
             font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
             flex-wrap: wrap; align-items: baseline">
-  <strong>Статический снимок</strong>
-  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Ползунки весов
-  работают, загрузка транскрипта и выбор секции — нет: считать здесь нечем.</span>
+  <strong>Static snapshot</strong>
+  <span style="opacity: .75">The course data is real, the student is invented. The weight
+  sliders work; uploading a transcript and picking a section do not — there is nothing here
+  to compute with.</span>
 </div>
 
 <header class="header">
@@ -23,13 +24,13 @@
       <span class="brand__where">NU · Fall 2026</span>
     </a>
     
-    <nav class="nav" aria-label="Разделы">
+    <nav class="nav" aria-label="Sections">
       
-      <a href="index.html" aria-current="page">Аудит</a>
+      <a href="index.html" aria-current="page">Audit</a>
       
-      <a href="courses.html" >Рекомендации</a>
+      <a href="courses.html" >Recommendations</a>
       
-      <a href="plan.html" >План</a>
+      <a href="plan.html" >Plan</a>
       
     </nav>
     
@@ -39,10 +40,10 @@
     
     <div class="student">
       <span class="student__name">Aisha Demo</span>
-      <span class="student__facts">Computer Science · SCAI · с Fall 2023 · GPA 3.08</span>
+      <span class="student__facts">Computer Science · SCAI · since Fall 2023 · GPA 3.08</span>
     </div>
     
-    <a href="upload.html" style="font-size: 13px">Транскрипт</a>
+    <a href="upload.html" style="font-size: 13px">Transcript</a>
   </div>
 </header>
 
@@ -51,9 +52,9 @@
 
   <div class="page__head">
     <div class="stack">
-      <h1>Что осталось до диплома</h1>
+      <h1>What is left before graduation</h1>
       <p class="muted" style="margin: 0; font-size: 14px">
-        BSc in COMPUTER SCIENCE (CS) · план по handbook года поступления (Fall 2023)
+        BSc in COMPUTER SCIENCE (CS) · plan from the handbook of the admission year (Fall 2023)
       </p>
     </div>
   </div>
@@ -61,10 +62,10 @@
   <section class="card" style="display: flex; flex-direction: column; gap: 14px">
     <div style="display: flex; align-items: baseline; gap: 14px">
       <span class="stat stat--xl">198</span>
-      <span class="mono muted" style="font-size: 18px">из 240 ECTS</span>
+      <span class="mono muted" style="font-size: 18px">of 240 ECTS</span>
       
       <span style="font-size: 16px; font-weight: 500; margin-left: 12px">
-        осталось <span class="mono" style="font-weight: 600">42</span>
+        <span class="mono" style="font-weight: 600">42</span> left
       </span>
       
     </div>
@@ -75,11 +76,11 @@
     </div>
 
     <div class="legend">
-      <span><span class="swatch" style="background: var(--blue)"></span>набрано 198 · из транскрипта</span>
+      <span><span class="swatch" style="background: var(--blue)"></span>earned 198 · from the transcript</span>
       
-      <span><span class="swatch bar__progress"></span>идёт сейчас 6 · без оценки, в набранные не входит</span>
+      <span><span class="swatch bar__progress"></span>in progress 6 · no grade yet, not counted as earned</span>
       
-      <span><span class="swatch" style="background: var(--track); border: 1px solid var(--line)"></span>не набрано</span>
+      <span><span class="swatch" style="background: var(--track); border: 1px solid var(--line)"></span>not earned</span>
     </div>
   </section>
 
@@ -87,54 +88,54 @@
     
     <div class="tile tile--missing">
       <span class="stat">2</span>
-      <span style="font-size: 14px; font-weight: 500">обязательных не пройдено</span>
+      <span style="font-size: 14px; font-weight: 500">required not taken</span>
       <span class="tile__sub">CSCI 408, CSCI 409</span>
     </div>
     
     <div class="tile tile--retake">
       <span class="stat">0</span>
-      <span style="font-size: 14px; font-weight: 500">нужна пересдача</span>
-      <span class="tile__sub">пройден ниже проходной</span>
+      <span style="font-size: 14px; font-weight: 500">need a retake</span>
+      <span class="tile__sub">passed below the minimum grade</span>
     </div>
     
     <div class="tile tile--current">
       <span class="stat">1</span>
-      <span style="font-size: 14px; font-weight: 500">идёт сейчас</span>
-      <span class="tile__sub">без оценки, в кредиты не входит</span>
+      <span style="font-size: 14px; font-weight: 500">in progress</span>
+      <span class="tile__sub">no grade yet, not counted in credits</span>
     </div>
     
     <div class="tile tile--open">
       <span class="stat">5</span>
-      <span style="font-size: 14px; font-weight: 500">открытые позиции</span>
-      <span class="tile__sub">можно закрыть курсами</span>
+      <span style="font-size: 14px; font-weight: 500">open positions</span>
+      <span class="tile__sub">can be closed with courses</span>
     </div>
     
     <div class="tile tile--unverified">
       <span class="stat">0</span>
-      <span style="font-size: 14px; font-weight: 500">не проверено</span>
-      <span class="tile__sub">handbook не уточняет</span>
+      <span style="font-size: 14px; font-weight: 500">unverified</span>
+      <span class="tile__sub">the handbook does not specify</span>
     </div>
     
   </div>
 
   <section class="card" style="display: flex; flex-direction: column; gap: 18px">
     <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px">
-      <h2>Карта программы</h2>
+      <h2>Program map</h2>
       <div class="legend">
         
-        <span><span class="swatch tile--closed"></span>закрыта</span>
+        <span><span class="swatch tile--closed"></span>closed</span>
         
-        <span><span class="swatch tile--missing"></span>не пройден</span>
+        <span><span class="swatch tile--missing"></span>not taken</span>
         
-        <span><span class="swatch tile--retake"></span>ниже проходной</span>
+        <span><span class="swatch tile--retake"></span>below the minimum</span>
         
-        <span><span class="swatch tile--current"></span>идёт сейчас</span>
+        <span><span class="swatch tile--current"></span>in progress</span>
         
-        <span><span class="swatch tile--open"></span>открыта, есть варианты</span>
+        <span><span class="swatch tile--open"></span>open, options listed</span>
         
-        <span><span class="swatch tile--any"></span>открыта, любой курс</span>
+        <span><span class="swatch tile--any"></span>open, any course</span>
         
-        <span><span class="swatch tile--unverified"></span>не проверена</span>
+        <span><span class="swatch tile--unverified"></span>unverified</span>
         
       </div>
     </div>
@@ -143,7 +144,7 @@
       
       <div class="map__column">
         <div class="map__head">
-          <span class="map__name">Семестр 1</span>
+          <span class="map__name">Semester 1</span>
           <span class="map__term">Fall 2023</span>
         </div>
         
@@ -176,7 +177,7 @@
       
       <div class="map__column">
         <div class="map__head">
-          <span class="map__name">Семестр 2</span>
+          <span class="map__name">Semester 2</span>
           <span class="map__term">Spring 2024</span>
         </div>
         
@@ -199,7 +200,7 @@
       
       <div class="map__column">
         <div class="map__head">
-          <span class="map__name">Семестр 3</span>
+          <span class="map__name">Semester 3</span>
           <span class="map__term">Fall 2024</span>
         </div>
         
@@ -232,7 +233,7 @@
       
       <div class="map__column">
         <div class="map__head">
-          <span class="map__name">Семестр 4</span>
+          <span class="map__name">Semester 4</span>
           <span class="map__term">Spring 2025</span>
         </div>
         
@@ -258,14 +259,14 @@
         
         <div class="tile tile--closed">
           <span class="tile__name">Kazakh Language</span>
-          <span class="tile__sub">закрыт KAZ 313</span>
+          <span class="tile__sub">closed by KAZ 313</span>
         </div>
         
       </div>
       
       <div class="map__column">
         <div class="map__head">
-          <span class="map__name">Семестр 5</span>
+          <span class="map__name">Semester 5</span>
           <span class="map__term">Fall 2025</span>
         </div>
         
@@ -286,19 +287,19 @@
         
         <div class="tile tile--closed">
           <span class="tile__name">Natural Science Elective</span>
-          <span class="tile__sub">закрыт BIOL 101</span>
+          <span class="tile__sub">closed by BIOL 101</span>
         </div>
         
         <div class="tile tile--closed">
           <span class="tile__name">Kazakh Language</span>
-          <span class="tile__sub">закрыт KAZ 356</span>
+          <span class="tile__sub">closed by KAZ 356</span>
         </div>
         
       </div>
       
       <div class="map__column">
         <div class="map__head">
-          <span class="map__name">Семестр 6</span>
+          <span class="map__name">Semester 6</span>
           <span class="map__term">Spring 2026</span>
         </div>
         
@@ -324,14 +325,14 @@
         
         <div class="tile tile--closed">
           <span class="tile__name">Natural Science Elective</span>
-          <span class="tile__sub">закрыт CHEM 100</span>
+          <span class="tile__sub">closed by CHEM 100</span>
         </div>
         
       </div>
       
       <div class="map__column">
         <div class="map__head">
-          <span class="map__name">Семестр 7</span>
+          <span class="map__name">Semester 7</span>
           <span class="map__term">Fall 2026</span>
         </div>
         
@@ -342,29 +343,29 @@
         
         <div class="tile tile--closed">
           <span class="tile__name">Technical Elective</span>
-          <span class="tile__sub">закрыт CSCI 262</span>
+          <span class="tile__sub">closed by CSCI 262</span>
         </div>
         
         <div class="tile tile--open">
           <span class="tile__name">Technical Elective</span>
-          <span class="tile__sub">37 вариантов</span>
+          <span class="tile__sub">37 options</span>
         </div>
         
         <div class="tile tile--any">
           <span class="tile__name">Open Elective</span>
-          <span class="tile__sub">закрывается любым курсом</span>
+          <span class="tile__sub">closed by any course</span>
         </div>
         
         <div class="tile tile--open">
           <span class="tile__name">Social Science Elective</span>
-          <span class="tile__sub">183 вариантов</span>
+          <span class="tile__sub">183 options</span>
         </div>
         
       </div>
       
       <div class="map__column">
         <div class="map__head">
-          <span class="map__name">Семестр 8</span>
+          <span class="map__name">Semester 8</span>
           <span class="map__term">Spring 2027</span>
         </div>
         
@@ -380,12 +381,12 @@
         
         <div class="tile tile--open">
           <span class="tile__name">Technical Elective</span>
-          <span class="tile__sub">37 вариантов</span>
+          <span class="tile__sub">37 options</span>
         </div>
         
         <div class="tile tile--open">
           <span class="tile__name">Technical Elective</span>
-          <span class="tile__sub">37 вариантов</span>
+          <span class="tile__sub">37 options</span>
         </div>
         
       </div>
@@ -396,59 +397,59 @@
   <div class="columns">
 
     <section class="card" style="display: flex; flex-direction: column; gap: 12px">
-      <h2 class="label">Свободные позиции плана</h2>
+      <h2 class="label">Open plan positions</h2>
       
       <div class="rows">
         
         <div class="row">
           <div class="row__top">
             <span style="font-size: 14px; font-weight: 500">Technical Elective</span>
-            <span class="chip chip--open">открыта, есть варианты</span>
+            <span class="chip chip--open">open, options listed</span>
           </div>
-          <span class="row__detail">37 вариантов · 8 семестр плана</span>
+          <span class="row__detail">37 options · semester 8 of the plan</span>
         </div>
         
         <div class="row">
           <div class="row__top">
             <span style="font-size: 14px; font-weight: 500">Technical Elective</span>
-            <span class="chip chip--open">открыта, есть варианты</span>
+            <span class="chip chip--open">open, options listed</span>
           </div>
-          <span class="row__detail">37 вариантов · 7 семестр плана</span>
+          <span class="row__detail">37 options · semester 7 of the plan</span>
         </div>
         
         <div class="row">
           <div class="row__top">
             <span style="font-size: 14px; font-weight: 500">Technical Elective</span>
-            <span class="chip chip--open">открыта, есть варианты</span>
+            <span class="chip chip--open">open, options listed</span>
           </div>
-          <span class="row__detail">37 вариантов · 8 семестр плана</span>
+          <span class="row__detail">37 options · semester 8 of the plan</span>
         </div>
         
         <div class="row">
           <div class="row__top">
             <span style="font-size: 14px; font-weight: 500">Open Elective</span>
-            <span class="chip chip--any">открыта, любой курс</span>
+            <span class="chip chip--any">open, any course</span>
           </div>
-          <span class="row__detail">закрывается любым курсом · 7 семестр плана</span>
+          <span class="row__detail">closed by any course · semester 7 of the plan</span>
         </div>
         
         <div class="row">
           <div class="row__top">
             <span style="font-size: 14px; font-weight: 500">Social Science Elective</span>
-            <span class="chip chip--open">открыта, есть варианты</span>
+            <span class="chip chip--open">open, options listed</span>
           </div>
-          <span class="row__detail">183 вариантов · 7 семестр плана</span>
+          <span class="row__detail">183 options · semester 7 of the plan</span>
         </div>
         
       </div>
       
       <p class="muted" style="margin: 0; font-size: 12px">
-        «Не проверена» — это не «не выполнено». Мы не знаем, чем закрывается позиция: уточните у эдвайзера.
+        “Unverified” is not “not done”. We do not know what closes this position — ask your advisor.
       </p>
     </section>
 
     <section class="card" style="display: flex; flex-direction: column; gap: 12px">
-      <h2 class="label">Требует внимания</h2>
+      <h2 class="label">Needs attention</h2>
       
       <div class="rows">
         
@@ -456,30 +457,30 @@
           <div class="row__top">
             <span class="mono" style="font-size: 14px; font-weight: 600">CSCI 408</span>
             <span class="chip chip--missing">
-              не пройден
+              not taken
             </span>
           </div>
-          <span class="row__detail">обязательный · 7 семестр плана · 6 ECTS</span>
+          <span class="row__detail">required · semester 7 of the plan · 6 ECTS</span>
         </div>
         
         <div class="row">
           <div class="row__top">
             <span class="mono" style="font-size: 14px; font-weight: 600">CSCI 409</span>
             <span class="chip chip--missing">
-              не пройден
+              not taken
             </span>
           </div>
-          <span class="row__detail">обязательный · 8 семестр плана · 6 ECTS</span>
+          <span class="row__detail">required · semester 8 of the plan · 6 ECTS</span>
         </div>
         
         <div class="row">
           <div class="row__top">
             <span class="mono" style="font-size: 14px; font-weight: 600">CSCI 299</span>
             <span class="chip chip--current">
-              идёт сейчас
+              in progress
             </span>
           </div>
-          <span class="row__detail">без оценки · в кредиты пока не входит</span>
+          <span class="row__detail">no grade yet · not counted in credits</span>
         </div>
         
       </div>
@@ -487,12 +488,12 @@
     </section>
 
     <section class="card" style="display: flex; flex-direction: column; gap: 12px">
-      <h2 class="label">Сверх программы</h2>
+      <h2 class="label">Beyond the program</h2>
       
-      <p class="muted" style="margin: 0; font-size: 14px">Все пройденные курсы засчитаны в программу.</p>
+      <p class="muted" style="margin: 0; font-size: 14px">Every completed course counts towards the program.</p>
       
       <p class="muted" style="margin: 0; font-size: 12px">
-        Такие курсы учитываются в GPA, но не приближают к диплому по этой программе.
+        These courses count towards your GPA, but not towards this degree.
       </p>
     </section>
 

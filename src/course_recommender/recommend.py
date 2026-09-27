@@ -29,7 +29,7 @@ from .domain import Course, CourseKind, Student
 # и оно нарочно стоит отдельно от измеренного.
 TIER_PLACE = {1: 0.85, 2: 0.60, 3: 0.35, 4: 0.15}
 # Как эти очереди названы в самом документе: "1st priority registration".
-ORDINAL = {1: "1-й", 2: "2-й", 3: "3-й", 4: "4-й", 5: "5-й", 6: "6-й", 7: "7-й"}
+ORDINAL = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th", 5: "5th", 6: "6th", 7: "7th"}
 NO_TIER_PLACE = 0.05
 # Курс без истории: ни да, ни нет.
 UNKNOWN_FILL_CHANCE = 0.5
@@ -161,24 +161,24 @@ class Recommendation:
     def why(self) -> str:
         parts = []
         if self.evidence.on_plan:
-            parts.append("стоит в плане на этот семестр")
+            parts.append("on the plan for this semester")
         elif self.evidence.fills_slot is not None:
-            parts.append(f"закрывает позицию плана «{self.evidence.fills_slot}»")
+            parts.append(f"closes the plan position \u201c{self.evidence.fills_slot}\u201d")
         elif self.evidence.covers is not None:
-            parts.append(f"закрывает {self.evidence.covers.value}")
+            parts.append(f"closes {self.evidence.covers.value}")
         if self.evidence.fit_closest:
-            parts.append(f"похож на {self.evidence.fit_closest}")
+            parts.append(f"similar to {self.evidence.fit_closest}")
         tier = self.evidence.priority_tier
-        parts.append(f"приоритет: {ORDINAL.get(tier, tier)}" if tier else "приоритета нет")
+        parts.append(f"{ORDINAL.get(tier, tier)} priority registration" if tier else "no priority")
         if self.evidence.needs_permission:
-            parts.append("нужно согласие преподавателя")
+            parts.append("instructor consent required")
         # Модель смотрит на среднее по всем семестрам, и объяснение показывает
         # то же самое: иначе рядом стоят "заполнен на 92%" и "заполнится с
         # вероятностью 11%", и читать это невозможно.
         if self.evidence.terms_observed > 1 and self.evidence.mean_fill is not None:
-            parts.append(f"в среднем заполнен на {self.evidence.mean_fill:.0%}")
+            parts.append(f"{self.evidence.mean_fill:.0%} full on average")
         elif self.evidence.last_fill is not None:
-            parts.append(f"в прошлый раз заполнен на {self.evidence.last_fill:.0%}")
+            parts.append(f"{self.evidence.last_fill:.0%} full last time")
         return "; ".join(parts)
 
 

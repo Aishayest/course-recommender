@@ -90,7 +90,7 @@ async def receive_transcript(
 
     from pdfplumber.utils.exceptions import PdfminerException
 
-    name = pdf.filename or "транскрипт.pdf"
+    name = pdf.filename or "transcript.pdf"
     try:
         transcript = parse_stream(BytesIO(await pdf.read()))
     except (PdfminerException, ValueError, OSError):

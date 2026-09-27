@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Загрузка транскрипта</title>
+<title>Upload a transcript</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
@@ -11,9 +11,10 @@
 <div style="padding: 10px 40px; background: #1b1e24; color: #f4f2ec; font-size: 13px;
             font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
             flex-wrap: wrap; align-items: baseline">
-  <strong>Статический снимок</strong>
-  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Ползунки весов
-  работают, загрузка транскрипта и выбор секции — нет: считать здесь нечем.</span>
+  <strong>Static snapshot</strong>
+  <span style="opacity: .75">The course data is real, the student is invented. The weight
+  sliders work; uploading a transcript and picking a section do not — there is nothing here
+  to compute with.</span>
 </div>
 
 <header class="header">
@@ -23,13 +24,13 @@
       <span class="brand__where">NU · Fall 2026</span>
     </a>
     
-    <nav class="nav" aria-label="Разделы">
+    <nav class="nav" aria-label="Sections">
       
-      <a href="index.html" >Аудит</a>
+      <a href="index.html" >Audit</a>
       
-      <a href="courses.html" >Рекомендации</a>
+      <a href="courses.html" >Recommendations</a>
       
-      <a href="plan.html" >План</a>
+      <a href="plan.html" >Plan</a>
       
     </nav>
     
@@ -39,10 +40,10 @@
     
     <div class="student">
       <span class="student__name">Aisha Demo</span>
-      <span class="student__facts">Computer Science · SCAI · с Fall 2023 · GPA 3.08</span>
+      <span class="student__facts">Computer Science · SCAI · since Fall 2023 · GPA 3.08</span>
     </div>
     
-    <a href="upload.html" style="font-size: 13px">Транскрипт</a>
+    <a href="upload.html" style="font-size: 13px">Transcript</a>
   </div>
 </header>
 
@@ -51,8 +52,8 @@
   <section class="card card--narrow" style="display: flex; flex-direction: column; gap: 22px">
 
     
-    <h1 style="font-size: 34px; line-height: 1.15">Загрузите транскрипт</h1>
-    <p style="margin: 0; font-size: 16px; color: var(--ink-2)">Система покажет, что осталось до диплома, подберёт курсы на следующий семестр и соберёт из них расписание без пересечений.</p>
+    <h1 style="font-size: 34px; line-height: 1.15">Upload your transcript</h1>
+    <p style="margin: 0; font-size: 16px; color: var(--ink-2)">It will show what is left before graduation, pick courses for next semester and assemble them into a conflict-free timetable.</p>
     
 
     <form method="post" action="#" enctype="multipart/form-data">
@@ -61,15 +62,15 @@
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path>
         </svg>
-        <span class="dropzone__hint">Выберите PDF транскрипта</span>
+        <span class="dropzone__hint">Choose your transcript PDF</span>
         <input class="visually-hidden" id="pdf" name="pdf" type="file" accept="application/pdf" required
-               onchange="this.form.querySelector('button').textContent = this.files[0] ? this.files[0].name : 'Разобрать'">
-        <label class="button button--primary" for="pdf">Выбрать файл</label>
-        <button class="button" type="submit">Разобрать</button>
+               onchange="this.form.querySelector('button').textContent = this.files[0] ? this.files[0].name : 'Parse'">
+        <label class="button button--primary" for="pdf">Choose a file</label>
+        <button class="button" type="submit">Parse</button>
       </div>
     </form>
 
-    <p class="muted" style="margin: 0; font-size: 12px">Нужен только транскрипт: год поступления, специальность и предстоящий семестр мы возьмём из него. Файл разбирается на этой машине и никуда не отправляется.</p>
+    <p class="muted" style="margin: 0; font-size: 12px">The transcript is all that is needed: admission year, major and the upcoming semester are read from it. The file is parsed on this machine and is not sent anywhere.</p>
   </section>
 </div>
 

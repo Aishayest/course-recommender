@@ -79,7 +79,7 @@ def upload(client, text=SAMPLE, name="transcript.pdf"):
 def test_landing_asks_for_a_transcript(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert "Загрузите транскрипт" in response.text
+    assert "Upload your transcript" in response.text
     # Пока транскрипта нет, разделов в шапке тоже нет
     assert "/audit" not in response.text
 
@@ -93,7 +93,7 @@ def test_full_transcript_is_accepted_and_shown(client):
     assert "SCAI" in page.text
     # Незачтённый курс виден, но кредитов не приносит
     assert "16 ECTS" in page.text
-    assert "нет оценки" in page.text
+    assert "no grade" in page.text
 
 
 def test_partial_transcript_is_refused(client):
@@ -101,8 +101,8 @@ def test_partial_transcript_is_refused(client):
     broken = SAMPLE.replace("Credits Earned: 16\n", "Credits Earned: 198\n")
     response = upload(client, broken)
 
-    assert "Загрузите транскрипт целиком" in response.text
-    assert "нашли по курсам" in response.text
+    assert "Upload the whole transcript" in response.text
+    assert "found in the courses" in response.text
     # Сессия не заведена: считать по такому файлу нельзя
     assert client.get("/student").url.path == "/"
 
@@ -111,12 +111,12 @@ def test_file_that_is_not_a_pdf_is_refused(client):
     response = client.post(
         "/transcript", files={"pdf": ("заметки.pdf", "не pdf вовсе".encode(), "application/pdf")}
     )
-    assert "Не удалось прочитать транскрипт" in response.text
+    assert "Could not read the transcript" in response.text
 
 
 def test_pdf_without_courses_is_refused(client):
     response = upload(client, "NAZARBAYEV UNIVERSITY\nStudent Unofficial Transcript\n")
-    assert "Не удалось прочитать транскрипт" in response.text
+    assert "Could not read the transcript" in response.text
 
 
 def test_student_page_needs_a_transcript(client):
@@ -135,7 +135,7 @@ def test_forgetting_removes_the_transcript(client):
 def test_header_shows_who_is_working(client):
     upload(client)
     page = client.get("/student")
-    assert "с Fall 2023" in page.text
+    assert "since Fall 2023" in page.text
     assert "GPA 3.0" in page.text
 
 
@@ -199,7 +199,7 @@ def test_course_statistics_open_without_a_transcript(client):
 
 
 def test_unknown_course_says_there_are_no_reports(client):
-    assert "отчётов об оценках" in client.get("/course/ZZZ 999").text
+    assert "no grade reports" in client.get("/course/ZZZ 999").text
 
 
 def test_slider_value_updates_without_submitting(client):
@@ -234,7 +234,7 @@ def test_snapshot_links_point_to_neighbouring_files():
     assert 'action="#"' in html
     # На статике ничего не должно вести на чужой хост
     assert not [u for u in re.findall(r'href="([^"]+)"', html) if u.startswith(("http", "/"))]
-    assert "Статический снимок" in html
+    assert "Static snapshot" in html
 
 
 def test_snapshot_student_is_made_up():
