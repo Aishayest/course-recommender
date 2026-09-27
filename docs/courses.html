@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Рекомендации</title>
+<title>Рекомендации<script src="rank.js"></script>
+</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
@@ -12,8 +13,8 @@
             font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
             flex-wrap: wrap; align-items: baseline">
   <strong>Статический снимок</strong>
-  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Загрузка
-  транскрипта, ползунки и выбор секции здесь не работают — это черновик интерфейса.</span>
+  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Ползунки весов
+  работают, загрузка транскрипта и выбор секции — нет: считать здесь нечем.</span>
 </div>
 
 <header class="header">
@@ -51,7 +52,7 @@
 <div class="layout">
 
   <aside class="sidebar">
-    <form class="card" method="get" action="#" style="display: flex; flex-direction: column; gap: 18px">
+    <form class="card" id="weights" method="get" action="#" style="display: flex; flex-direction: column; gap: 18px">
       <h2 class="label">Как считается балл</h2>
       
       <div class="control">
@@ -102,7 +103,8 @@
         <span class="control__hint">средний балл тех, кто его брал</span>
       </div>
       
-      <button class="button button--primary" type="submit">Пересчитать</button>
+      <button class="button button--primary" type="submit">Пересобрать список</button>
+      <span class="control__hint" data-live-note hidden>Балл и порядок меняются сразу; кнопка нужна, чтобы подобрать другие курсы.</span>
       <a href="courses.html" style="font-size: 13px">Вернуть веса по умолчанию</a>
     </form>
 
@@ -140,69 +142,71 @@
 
     
 
+    <div id="courses" style="display: flex; flex-direction: column; gap: 20px">
     
-    <article class="card course">
+    <article class="card course"
+             data-need="1.00" data-access="0.97" data-fit="0.12" data-ease="0.95" >
 
       
 
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#1</span>
+            <span class="course__rank" data-rank>#1</span>
             <span>CSCI 408</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Senior Project I</a></h3>
           <p class="course__why">стоит в плане на этот семестр; похож на CSCI 262; приоритет: 1-й; в среднем заполнен на 94%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.84</span>
+          <span class="stat" data-score>0.84</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 100%"></div></div>
-          <span class="mono" style="font-size: 13px">1.00</span>
+          <span class="mono" style="font-size: 13px">1.00<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 97%"></div></div>
-          <span class="mono" style="font-size: 13px">0.97</span>
+          <span class="mono" style="font-size: 13px">0.97<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 12%"></div></div>
-          <span class="mono" style="font-size: 13px">0.12</span>
+          <span class="mono" style="font-size: 13px">0.12<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 95%"></div></div>
-          <span class="mono" style="font-size: 13px">0.95 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.95<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -295,68 +299,69 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.98" data-fit="0.04" data-ease="0.72" >
 
       
 
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#2</span>
+            <span class="course__rank" data-rank>#2</span>
             <span>CSCI 437</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Internet of Things: Technologies and Applications</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 333; приоритет: 1-й; в среднем заполнен на 70%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.78</span>
+          <span class="stat" data-score>0.78</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 98%"></div></div>
-          <span class="mono" style="font-size: 13px">0.98</span>
+          <span class="mono" style="font-size: 13px">0.98<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 4%"></div></div>
-          <span class="mono" style="font-size: 13px">0.04</span>
+          <span class="mono" style="font-size: 13px">0.04<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 72%"></div></div>
-          <span class="mono" style="font-size: 13px">0.72 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.72<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -443,7 +448,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.94" data-fit="0.10" data-ease="0.67" >
 
       
       <div class="tags">
@@ -462,61 +468,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#3</span>
+            <span class="course__rank" data-rank>#3</span>
             <span>MATH 417</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Cryptography</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 333; приоритет: 3-й; в среднем заполнен на 38%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.78</span>
+          <span class="stat" data-score>0.78</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 94%"></div></div>
-          <span class="mono" style="font-size: 13px">0.94</span>
+          <span class="mono" style="font-size: 13px">0.94<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 10%"></div></div>
-          <span class="mono" style="font-size: 13px">0.10</span>
+          <span class="mono" style="font-size: 13px">0.10<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 67%"></div></div>
-          <span class="mono" style="font-size: 13px">0.67 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.67<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -605,7 +611,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.94" data-fit="0.10" data-ease="0.93" >
 
       
       <div class="tags">
@@ -624,61 +631,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#4</span>
+            <span class="course__rank" data-rank>#4</span>
             <span>CSCI 435</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Blockchain and Cryptocurrencies</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 152; приоритет: 1-й; в среднем заполнен на 74%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.78</span>
+          <span class="stat" data-score>0.78</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 94%"></div></div>
-          <span class="mono" style="font-size: 13px">0.94</span>
+          <span class="mono" style="font-size: 13px">0.94<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 10%"></div></div>
-          <span class="mono" style="font-size: 13px">0.10</span>
+          <span class="mono" style="font-size: 13px">0.10<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 93%"></div></div>
-          <span class="mono" style="font-size: 13px">0.93 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.93<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -767,7 +774,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.97" data-fit="0.03" data-ease="0.69" >
 
       
       <div class="tags">
@@ -786,61 +794,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#5</span>
+            <span class="course__rank" data-rank>#5</span>
             <span>PLS 140</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Comparative Politics</a></h3>
           <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на PHIL 210; приоритет: 1-й; в среднем заполнен на 88%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.78</span>
+          <span class="stat" data-score>0.78</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 97%"></div></div>
-          <span class="mono" style="font-size: 13px">0.97</span>
+          <span class="mono" style="font-size: 13px">0.97<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03</span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 69%"></div></div>
-          <span class="mono" style="font-size: 13px">0.69 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.69<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -928,7 +936,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.97" data-fit="0.03" data-ease="0.71" >
 
       
       <div class="tags">
@@ -947,61 +956,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#6</span>
+            <span class="course__rank" data-rank>#6</span>
             <span>PLS 150</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to International Relations</a></h3>
           <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на PHIL 210; приоритет: 1-й; в среднем заполнен на 90%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.78</span>
+          <span class="stat" data-score>0.78</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 97%"></div></div>
-          <span class="mono" style="font-size: 13px">0.97</span>
+          <span class="mono" style="font-size: 13px">0.97<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03</span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 71%"></div></div>
-          <span class="mono" style="font-size: 13px">0.71 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.71<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -1089,7 +1098,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.94" data-fit="0.04" data-ease="0.84" >
 
       
       <div class="tags">
@@ -1108,61 +1118,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#7</span>
+            <span class="course__rank" data-rank>#7</span>
             <span>CSCI 436</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Cloud Computing</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на PHIL 210; приоритет: 1-й; в среднем заполнен на 70%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.77</span>
+          <span class="stat" data-score>0.77</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 94%"></div></div>
-          <span class="mono" style="font-size: 13px">0.94</span>
+          <span class="mono" style="font-size: 13px">0.94<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 4%"></div></div>
-          <span class="mono" style="font-size: 13px">0.04</span>
+          <span class="mono" style="font-size: 13px">0.04<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 84%"></div></div>
-          <span class="mono" style="font-size: 13px">0.84 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.84<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -1251,7 +1261,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.91" data-fit="0.11" data-ease="0.74" >
 
       
       <div class="tags">
@@ -1278,61 +1289,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#8</span>
+            <span class="course__rank" data-rank>#8</span>
             <span>ROBT 205</span><span>·</span><span>8 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Signals and Sensing with Lab</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на ROBT 206; приоритет: 2-й; в среднем заполнен на 96%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.77</span>
+          <span class="stat" data-score>0.77</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 91%"></div></div>
-          <span class="mono" style="font-size: 13px">0.91</span>
+          <span class="mono" style="font-size: 13px">0.91<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 11%"></div></div>
-          <span class="mono" style="font-size: 13px">0.11</span>
+          <span class="mono" style="font-size: 13px">0.11<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 74%"></div></div>
-          <span class="mono" style="font-size: 13px">0.74 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.74<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -1420,7 +1431,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.93" data-fit="0.05" data-ease="0.83" >
 
       
       <div class="tags">
@@ -1439,61 +1451,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#9</span>
+            <span class="course__rank" data-rank>#9</span>
             <span>CSCI 423</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Parallel Systems and GPU Programming</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 235; приоритет: 1-й; в среднем заполнен на 90%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.77</span>
+          <span class="stat" data-score>0.77</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 93%"></div></div>
-          <span class="mono" style="font-size: 13px">0.93</span>
+          <span class="mono" style="font-size: 13px">0.93<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 5%"></div></div>
-          <span class="mono" style="font-size: 13px">0.05</span>
+          <span class="mono" style="font-size: 13px">0.05<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 83%"></div></div>
-          <span class="mono" style="font-size: 13px">0.83 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.83<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -1582,68 +1594,69 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.93" data-fit="0.03" data-ease="0.76" >
 
       
 
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#10</span>
+            <span class="course__rank" data-rank>#10</span>
             <span>PLS 120</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Political Theory</a></h3>
           <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на PHIL 210; приоритет: 1-й; в среднем заполнен на 94%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.76</span>
+          <span class="stat" data-score>0.76</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 93%"></div></div>
-          <span class="mono" style="font-size: 13px">0.93</span>
+          <span class="mono" style="font-size: 13px">0.93<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03</span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 76%"></div></div>
-          <span class="mono" style="font-size: 13px">0.76 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.76<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -1732,68 +1745,69 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.92" data-fit="0.03" data-ease="0.75" >
 
       
 
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#11</span>
+            <span class="course__rank" data-rank>#11</span>
             <span>CSCI 434</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Information Security</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на WCS 200; приоритет: 1-й; в среднем заполнен на 105%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.76</span>
+          <span class="stat" data-score>0.76</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 92%"></div></div>
-          <span class="mono" style="font-size: 13px">0.92</span>
+          <span class="mono" style="font-size: 13px">0.92<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03</span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 75%"></div></div>
-          <span class="mono" style="font-size: 13px">0.75 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.75<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -1882,7 +1896,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.90" data-fit="0.06" data-ease="0.83" >
 
       
       <div class="tags">
@@ -1901,61 +1916,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#12</span>
+            <span class="course__rank" data-rank>#12</span>
             <span>CSCI 447</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Machine Learning: Theory and Practice</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 270; приоритет: 1-й; в среднем заполнен на 122%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.76</span>
+          <span class="stat" data-score>0.76</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 6%"></div></div>
-          <span class="mono" style="font-size: 13px">0.06</span>
+          <span class="mono" style="font-size: 13px">0.06<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 83%"></div></div>
-          <span class="mono" style="font-size: 13px">0.83 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.83<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -2044,7 +2059,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.92" data-fit="0.02" data-ease="0.50" >
 
       
       <div class="tags">
@@ -2063,57 +2079,57 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#13</span>
+            <span class="course__rank" data-rank>#13</span>
             <span>CSCI 438</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Extended Reality</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на PHYS 161; приоритет: 1-й; в прошлый раз заполнен на 100%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.76</span>
+          <span class="stat" data-score>0.76</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 92%"></div></div>
-          <span class="mono" style="font-size: 13px">0.92</span>
+          <span class="mono" style="font-size: 13px">0.92<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 2%"></div></div>
-          <span class="mono" style="font-size: 13px">0.02</span>
+          <span class="mono" style="font-size: 13px">0.02<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar bar--hatch"></div>
@@ -2187,7 +2203,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.91" data-fit="0.03" data-ease="0.50" >
 
       
       <div class="tags">
@@ -2206,57 +2223,57 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#14</span>
+            <span class="course__rank" data-rank>#14</span>
             <span>ROBT 414</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Human-Robot Interaction</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на PHIL 210; приоритет: 2-й; в прошлый раз заполнен на 96%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.76</span>
+          <span class="stat" data-score>0.76</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 91%"></div></div>
-          <span class="mono" style="font-size: 13px">0.91</span>
+          <span class="mono" style="font-size: 13px">0.91<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03</span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar bar--hatch"></div>
@@ -2330,7 +2347,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.66" data-fit="0.50" data-ease="0.50" >
 
       
       <div class="tags">
@@ -2349,46 +2367,46 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#15</span>
+            <span class="course__rank" data-rank>#15</span>
             <span>ANT 410</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Ethnography, Fiction, Memoir</a></h3>
           <p class="course__why">закрывает позицию плана «Social Science Elective»; приоритет: 3-й; в прошлый раз заполнен на 100%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.75</span>
+          <span class="stat" data-score>0.75</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 66%"></div></div>
-          <span class="mono" style="font-size: 13px">0.66</span>
+          <span class="mono" style="font-size: 13px">0.66<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar bar--hatch"></div>
@@ -2396,10 +2414,10 @@
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar bar--hatch"></div>
@@ -2471,68 +2489,69 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.66" data-fit="0.47" data-ease="0.70" >
 
       
 
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#16</span>
+            <span class="course__rank" data-rank>#16</span>
             <span>SOC 201</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Social Science Research Methods</a></h3>
           <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на CSCI 307; приоритет: 3-й; в среднем заполнен на 98%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.75</span>
+          <span class="stat" data-score>0.75</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 66%"></div></div>
-          <span class="mono" style="font-size: 13px">0.66</span>
+          <span class="mono" style="font-size: 13px">0.66<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 47%"></div></div>
-          <span class="mono" style="font-size: 13px">0.47</span>
+          <span class="mono" style="font-size: 13px">0.47<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 70%"></div></div>
-          <span class="mono" style="font-size: 13px">0.70 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.70<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -2621,7 +2640,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.87" data-fit="0.02" data-ease="0.81" >
 
       
       <div class="tags">
@@ -2640,61 +2660,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#17</span>
+            <span class="course__rank" data-rank>#17</span>
             <span>CSCI 494</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Deep Learning</a></h3>
           <p class="course__why">закрывает позицию плана «Technical Elective»; похож на CSCI 151; приоритет: 1-й; в среднем заполнен на 196%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.74</span>
+          <span class="stat" data-score>0.74</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 87%"></div></div>
-          <span class="mono" style="font-size: 13px">0.87</span>
+          <span class="mono" style="font-size: 13px">0.87<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 2%"></div></div>
-          <span class="mono" style="font-size: 13px">0.02</span>
+          <span class="mono" style="font-size: 13px">0.02<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 82%"></div></div>
-          <span class="mono" style="font-size: 13px">0.81 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.81<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -2783,7 +2803,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.86" data-fit="0.03" data-ease="0.66" >
 
       
       <div class="tags">
@@ -2802,61 +2823,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#18</span>
+            <span class="course__rank" data-rank>#18</span>
             <span>ANT 160</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Introduction to Biological Anthropology</a></h3>
           <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на PHIL 210; приоритет: 3-й; в среднем заполнен на 92%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.74</span>
+          <span class="stat" data-score>0.74</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 86%"></div></div>
-          <span class="mono" style="font-size: 13px">0.86</span>
+          <span class="mono" style="font-size: 13px">0.86<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 3%"></div></div>
-          <span class="mono" style="font-size: 13px">0.03</span>
+          <span class="mono" style="font-size: 13px">0.03<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 66%"></div></div>
-          <span class="mono" style="font-size: 13px">0.66 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.66<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -2944,7 +2965,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.86" data-fit="0.01" data-ease="0.75" >
 
       
       <div class="tags">
@@ -2963,61 +2985,61 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#19</span>
+            <span class="course__rank" data-rank>#19</span>
             <span>ECON 120</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Managerial Economics</a></h3>
           <p class="course__why">закрывает позицию плана «Social Science Elective»; похож на CHEM 100; приоритет: 3-й; в среднем заполнен на 92%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.74</span>
+          <span class="stat" data-score>0.74</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 86%"></div></div>
-          <span class="mono" style="font-size: 13px">0.86</span>
+          <span class="mono" style="font-size: 13px">0.86<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 1%"></div></div>
-          <span class="mono" style="font-size: 13px">0.01</span>
+          <span class="mono" style="font-size: 13px">0.01<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 75%"></div></div>
-          <span class="mono" style="font-size: 13px">0.75 <span class="muted">не учтено</span></span>
+          <span class="mono" style="font-size: 13px">0.75<span class="muted" data-uncounted > не учтено</span></span>
           
         </div>
         
@@ -3106,7 +3128,8 @@
 
     </article>
     
-    <article class="card course">
+    <article class="card course"
+             data-need="0.90" data-access="0.61" data-fit="0.50" data-ease="0.50" >
 
       
       <div class="tags">
@@ -3125,46 +3148,46 @@
       <div class="course__head">
         <div class="stack" style="min-width: 0">
           <div class="course__meta">
-            <span class="course__rank">#20</span>
+            <span class="course__rank" data-rank>#20</span>
             <span>ANT 285/SOC 212</span><span>·</span><span>6 ECTS</span>
           </div>
           <h3><a href="course.html" style="color: inherit; text-decoration: none">Food and Society</a></h3>
           <p class="course__why">закрывает позицию плана «Social Science Elective»; приоритет: 3-й; в среднем заполнен на 115%</p>
         </div>
         <div class="course__score">
-          <span class="stat">0.74</span>
+          <span class="stat" data-score>0.74</span>
           <span class="muted" style="font-size: 12px">итоговый балл</span>
         </div>
       </div>
 
       <div class="components">
         
-        <div class="component ">
+        <div class="component " data-part="need">
           <div class="component__top">
             <span>Нужность</span>
-            <span class="mono">×0.6</span>
+            <span class="mono" data-weight>×0.6</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 90%"></div></div>
-          <span class="mono" style="font-size: 13px">0.90</span>
+          <span class="mono" style="font-size: 13px">0.90<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="access">
           <div class="component__top">
             <span>Шанс попасть</span>
-            <span class="mono">×0.4</span>
+            <span class="mono" data-weight>×0.4</span>
           </div>
           
           <div class="bar"><div class="bar__fill" style="width: 61%"></div></div>
-          <span class="mono" style="font-size: 13px">0.61</span>
+          <span class="mono" style="font-size: 13px">0.61<span class="muted" data-uncounted hidden> не учтено</span></span>
           
         </div>
         
-        <div class="component ">
+        <div class="component " data-part="fit">
           <div class="component__top">
             <span>Близость по содержанию</span>
-            <span class="mono">×0.2</span>
+            <span class="mono" data-weight>×0.2</span>
           </div>
           
           <div class="bar bar--hatch"></div>
@@ -3172,10 +3195,10 @@
           
         </div>
         
-        <div class="component component--muted">
+        <div class="component component--muted" data-part="ease">
           <div class="component__top">
             <span>Оценки на курсе</span>
-            <span class="mono">×0.0</span>
+            <span class="mono" data-weight>×0.0</span>
           </div>
           
           <div class="bar bar--hatch"></div>
@@ -3247,10 +3270,12 @@
 
     </article>
     
+    </div>
   </main>
 
 </div>
 </div>
+<script src="rank.js"></script>
 
 
 </body>

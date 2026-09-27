@@ -32,8 +32,8 @@ BANNER = """
             font-family: 'Onest', system-ui, sans-serif; display: flex; gap: 10px;
             flex-wrap: wrap; align-items: baseline">
   <strong>Статический снимок</strong>
-  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Загрузка
-  транскрипта, ползунки и выбор секции здесь не работают — это черновик интерфейса.</span>
+  <span style="opacity: .75">Данные курсов настоящие, студент выдуманный. Ползунки весов
+  работают, загрузка транскрипта и выбор секции — нет: считать здесь нечем.</span>
 </div>"""
 
 # Выдуманный студент: специальность и коды курсов настоящие, человек — нет.
@@ -132,7 +132,7 @@ def localize(html: str, name: str) -> str:
     """Переписать ссылки на соседние файлы вместо маршрутов приложения."""
     for route, file in LINKS:
         html = html.replace(f'href="{route}"', f'href="{file}"')
-    html = re.sub(r'href="[^"]*?/static/app\.css"', 'href="app.css"', html)
+    html = re.sub(r'(href|src)="[^"]*?/static/([\w.-]+)"', r'\1="\2"', html)
     html = re.sub(r'href="/course/[^"]*"', 'href="course.html"', html)
     html = html.replace('href="/"', 'href="upload.html"')
     # Абсолютные адреса тестового клиента: без этого страница ищет стили на чужом хосте.
@@ -163,10 +163,11 @@ def render(destination: Path) -> list[Path]:
             path.write_text(localize(client.get(route).text, name), encoding="utf-8")
             written.append(path)
 
-    styles = Path(__file__).parent / "static" / "app.css"
-    target = destination / "app.css"
-    target.write_text(styles.read_text(encoding="utf-8"), encoding="utf-8")
-    written.append(target)
+    # Стили и скрипты кладём рядом: пересчёт балла работает и без сервера.
+    for asset in sorted((Path(__file__).parent / "static").iterdir()):
+        target = destination / asset.name
+        target.write_text(asset.read_text(encoding="utf-8"), encoding="utf-8")
+        written.append(target)
     return written
 
 

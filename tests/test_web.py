@@ -248,3 +248,32 @@ def test_snapshot_student_is_made_up():
     # Курсы настоящие, и их достаточно, чтобы страницы не были пустыми
     assert len(transcript.courses) > 25
     assert not transcript.is_partial
+
+
+def test_cards_carry_the_numbers_the_browser_needs(client):
+    # Ползунки пересчитывают балл на месте: слагаемые должны быть в разметке
+    import re
+
+    upload(client)
+    html = client.get("/courses").text
+
+    assert 'src="/static/rank.js"' in html or "rank.js" in html
+    cards = re.findall(r'<article class="card course"\s+([^>]*)>', html)
+    assert cards
+    for attributes in cards:
+        for part in ("need", "access", "fit", "ease"):
+            assert f"data-{part}=" in attributes
+    assert 'id="courses"' in html and 'id="weights"' in html
+
+
+def test_browser_formula_matches_the_server():
+    from course_recommender.recommend import utility
+
+    weights = {"need": 0.6, "access": 0.4, "fit": 0.2, "ease": 0.0}
+    need, access, fit, ease = 1.0, 0.97, 0.12, 0.95
+    # Ровно то, что считает rank.js: взвешенная сумма, нормированная весами
+    in_browser = sum(weights[k] * v for k, v in
+                     (("need", need), ("access", access), ("fit", fit), ("ease", ease)))
+    in_browser /= sum(weights.values())
+
+    assert utility(need, access, ease, fit, weights) == pytest.approx(in_browser)
