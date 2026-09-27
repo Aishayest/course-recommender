@@ -146,13 +146,16 @@ There are two baselines, both fair: the rule the system previously used ("it
 filled up before, so it will fill up again"), and the same rule expressed as a
 probability — without the second, the model would win on calibration for free.
 
-| validation term | model AUC / Brier | best baseline |
-|---|---|---|
-| Fall 2025 | **0.759 / 0.143** | 0.728 / 0.235 |
-| Spring 2026 | **0.795 / 0.159** | 0.727 / 0.209 |
-| Fall 2026 | **0.760 / 0.214** | 0.663 / 0.289 |
+| validation term | model | baseline: ever filled up | baseline: mean fill ≥ 100% |
+|---|---|---|---|
+| Fall 2025 (n=153) | **0.759 / 0.143** | 0.711 / 0.261 | 0.728 / 0.235 |
+| Spring 2026 (n=363) | **0.795 / 0.159** | 0.729 / 0.242 | 0.727 / 0.209 |
+| Fall 2026 (n=374) | **0.760 / 0.214** | 0.694 / 0.289 | 0.663 / 0.294 |
 
-It wins on all three splits on both metrics.
+Each cell is AUC / Brier. Both baselines are shown: their strengths differ, and
+taking the better number from each one per metric would mean comparing the model
+against an opponent that does not exist. It wins on all three splits, on both
+metrics, against both baselines.
 
 The model is deliberately small — logistic regression on two history features
 (mean fill rate and "did it ever fill up"). That is not thrift but a result:
@@ -213,7 +216,7 @@ gets a random key.
 |---|---|
 | prerequisites known | 402 of 434 plan courses in the 2026 cohort (93%) |
 | elective positions | 62 with a list, 32 "any course", 11 unanswered, out of 105 |
-| availability model | AUC 0.76–0.80 against 0.66–0.73 for the baseline, three held-out terms |
+| availability model | AUC 0.76–0.80 against 0.69–0.73 for the best baseline, three held-out terms |
 | transcript parsing | across 8 files the credit total matched the transcript's own line everywhere except a partial file — which is detected and refused |
 | audit | 198 of 240 ECTS matched the official degree audit sheet to the credit |
 | spread between sections | median 0.25 grade points, above 0.5 for 22% of courses, up to 1.8 for WCS 150 |
