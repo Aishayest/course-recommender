@@ -164,3 +164,43 @@ def test_parse_requirements_ignores_tables_before_any_program():
         blocks=[Block("table", top=50, left=10, width=500, height=400, table=_requirements_table())],
     )
     assert parse_requirements([page], 2023) == []
+
+
+def test_continuation_table_is_recognised():
+    from course_recommender.data.requirements import is_requirement_continuation
+
+    # У продолжения заголовка нет — первая строка сразу данные
+    continued = Table(rows=[["Major required electives**", "24"], ["Technical electives", "12"]])
+    assert is_requirement_continuation(continued)
+
+    # Одна строка — не таблица требований, а подпись
+    assert not is_requirement_continuation(Table(rows=[["Total", "240"]]))
+    # Во второй колонке должно быть число кредитов
+    assert not is_requirement_continuation(
+        Table(rows=[["Fall", "minimum grade"], ["Spring", "minimum grade"]])
+    )
+
+
+def test_continuation_inherits_the_section_above_it():
+    from course_recommender.data.canva import Block, Page
+    from course_recommender.data.requirements import parse_requirements
+
+    page = Page(
+        number=16,
+        blocks=[
+            Block(kind="text", top=0, left=0, text="BSc in CHEMISTRY"),
+            Block(
+                kind="table", top=10, left=0,
+                table=Table(rows=[["MAJOR requirements", "Credits"], ["CHEM 101 General Chemistry", "6"]]),
+            ),
+            Block(
+                kind="table", top=20, left=0,
+                table=Table(rows=[["Technical electives (BIOL, ECON, MATH)", "12"]]),
+            ),
+        ],
+    )
+    rows = parse_requirements([page], 2026)
+    names = {row.name: row for row in rows}
+    assert "CHEM 101 General Chemistry" in names
+    # Продолжение подхватывается только если строк в нём хотя бы две
+    assert len(rows) == 1

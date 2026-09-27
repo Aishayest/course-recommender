@@ -95,6 +95,7 @@ SUBJECT_OF_DEPARTMENT = {
     "chemistry": "CHEM",
     "biology": "BIOL",
     "biological sciences": "BIOL",
+    "biological science": "BIOL",
     "geology": "GEOL",
     "geosciences": "GEOL",
     "mathematics": "MATH",
@@ -121,8 +122,20 @@ SUBJECT_WORDS = re.compile(
     r"((?:[A-Za-z0-9][A-Za-z0-9–-]{1,19}[\s,]+){0,4})(?:courses?|electives?)\b", re.IGNORECASE
 )
 ANY_COURSES = re.compile(r"\bany\b[^.]{0,40}?\b(?:courses?|electives?)\b", re.IGNORECASE)
+# "any courses outside Biological Sciences" — предмет не назван, назван изъятый.
+OUTSIDE = re.compile(
+    r"\boutside\s+(?:the\s+)?([A-Za-z][A-Za-z ]{2,32}?)"
+    r"(?=\s+with\b|\s+at\b|\s+that\b|[.,;:]|$)",
+    re.IGNORECASE,
+)
+# "any courses offered at NU", "any courses offered by any School" — без ограничений.
+ANYWHERE = re.compile(
+    r"\bany\s+courses?\b[^.]{0,40}?\b(?:offered\s+at\s+NU|any\s+school)", re.IGNORECASE
+)
 # Категория, записанная одними кодами предметов: "ANT ECON PLS SOC".
 SUBJECT_LIST = re.compile(r"^(?:[A-Z]{2,5}[\s,/]+)+[A-Z]{2,5}$")
+# Перечень предметов в скобках: "Technical electives (BIOL, ECON, MATH, PHYS, SoE".
+SUBJECTS_IN_BRACKETS = re.compile(r"\(\s*([A-Za-z]{2,5}(?:\s*,\s*[A-Za-z]{2,5}){1,})")
 
 # Школы в правилах записаны сокращением, и состав школы известен не из handbook,
 # а из документа регистрации: там у каждого курса проставлена школа.
@@ -145,13 +158,17 @@ class ElectiveRule:
     # "with the consent of the advisor" — не право студента, а разрешение,
     # которого может и не быть. Такие курсы не подставляются молча.
     advisor_consent: bool = False
+    # "любой курс, кроме..." — предмет не назван вовсе. Перечислять такое
+    # бессмысленно: под него подходит почти весь каталог.
+    any_subject: bool = False
+    exclude_subjects: tuple[str, ...] = ()
     # Изъятия из правила: "Any HST courses (except HST 100)".
     exclude_codes: frozenset[str] = frozenset()
     raw: str = ""
 
     @property
     def is_empty(self) -> bool:
-        return not self.subjects and not self.schools
+        return not self.subjects and not self.schools and not self.any_subject
 
     def matches(self, code: str, required: frozenset[str] = frozenset(), school: str | None = None) -> bool:
         """Подходит ли курс под правило."""
@@ -159,13 +176,13 @@ class ElectiveRule:
         if not match:
             return False
         subject, number = match.group(1), int(match.group(2)[:3])
-        if code in self.exclude_codes:
+        if code in self.exclude_codes or subject in self.exclude_subjects:
             return False
         if self.exclude_required and code in required:
             return False
         if self.min_level is not None and number < self.min_level:
             return False
-        if subject in self.subjects:
+        if self.any_subject or subject in self.subjects:
             return True
         return bool(self.schools and school and school.upper() in self.schools)
 
@@ -187,6 +204,16 @@ class ElectiveGroup:
     # Сколько курсов этого типа нужно выбрать, если handbook это говорит.
     count: int | None = None
     notes: list[str] = field(default_factory=list)
+
+    @property
+    def is_open(self) -> bool:
+        """Под позицию подходит почти любой курс.
+
+        Так устроены общие элективы и техэлективы биологов: "любой курс вне
+        специальности". Перечислять такое нечестно — список получится
+        длиной в каталог и ничего не объяснит.
+        """
+        return any(rule.any_subject for rule in self.rules)
 
     @property
     def listed_codes(self) -> set[str]:
@@ -289,6 +316,16 @@ def parse_subjects(text: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
         if word.upper() not in schools:
             schools.append(word.upper())
 
+    # "Technical electives (BIOL, ECON, MATH, PHYS, SoE" — перечень в скобках
+    # без слова "courses", обычный разбор его не видит.
+    for fragment in SUBJECTS_IN_BRACKETS.findall(text):
+        for token in re.split(r"\s*,\s*", fragment):
+            token = token.strip()
+            if token.lower() in SCHOOL_NAMES:
+                schools.append(token.upper())
+            elif token.isupper() and token not in STOP_SUBJECTS:
+                subjects.append(SUBJECT_OF_DEPARTMENT.get(token.lower(), token))
+
     for fragment in SUBJECT_WORDS.findall(text):
         for word in re.split(r"[\s,]+", fragment):
             subject = SUBJECT_OF_DEPARTMENT.get(word.strip().lower())
@@ -326,6 +363,16 @@ def parse_exclusions(text: str) -> frozenset[str]:
     )
 
 
+def parse_excluded_subjects(text: str) -> tuple[str, ...]:
+    """Предметы, выведенные из правила: "any courses outside Biological Sciences"."""
+    found = []
+    for fragment in OUTSIDE.findall(text):
+        subject = SUBJECT_OF_DEPARTMENT.get(normalize(fragment).lower())
+        if subject and subject not in found:
+            found.append(subject)
+    return tuple(found)
+
+
 def parse_rule(text: str) -> ElectiveRule | None:
     """Разобрать одно предложение правила."""
     text = normalize(text)
@@ -333,7 +380,11 @@ def parse_rule(text: str) -> ElectiveRule | None:
         return None
 
     subjects, schools = parse_subjects(text)
-    if not subjects and not schools:
+    excluded = parse_excluded_subjects(text)
+    # "любой курс вне специальности" и "любой курс, читаемый в NU": предмет
+    # не назван, и это не пробел — ограничения действительно нет.
+    anywhere = bool(ANYWHERE.search(text)) or bool(excluded and ANY_COURSES.search(text))
+    if not subjects and not schools and not anywhere:
         return None
 
     return ElectiveRule(
@@ -343,6 +394,8 @@ def parse_rule(text: str) -> ElectiveRule | None:
         exclude_required=bool(NON_REQUIRED.search(text)),
         advisor_consent=bool(ADVISOR.search(text)),
         exclude_codes=parse_exclusions(text),
+        any_subject=anywhere,
+        exclude_subjects=excluded,
         raw=text,
     )
 

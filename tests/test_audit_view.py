@@ -129,3 +129,15 @@ def test_no_audit_key_shadows_a_dict_method():
         slots=[SlotStatus(slot=slot("Technical Elective", codes=["CSCI 434"]))],
     )
     assert view.shadows_dict_methods(view.audit_page(audit, TRANSCRIPT)) == set()
+
+
+def test_open_ended_position_is_checked_not_unknown():
+    from course_recommender.audit import SlotStatus
+
+    # "любой курс вне специальности" — это не «неизвестно», а «подходит почти всё»
+    wide = SlotStatus(slot=PlanSlot(
+        name="Technical Elective", semester=8, term="spring", credits=6,
+        kind="technical", open_ended=True,
+    ))
+    assert wide.is_checkable
+    assert view.audit_page(result(slots=[wide]), TRANSCRIPT)["slots"][0]["state"] == "any"

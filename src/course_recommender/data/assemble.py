@@ -55,6 +55,8 @@ class PlanSlot:
     # Чем эту позицию можно закрыть. Пусто, пока не известен каталог курсов:
     # правило "любой курс CS 200+" без каталога не разворачивается.
     eligible_codes: frozenset[str] = frozenset()
+    # Позиция закрывается почти любым курсом — перечислять нечего.
+    open_ended: bool = False
 
 
 @dataclass
@@ -365,6 +367,10 @@ def resolve_slots(
     """
 
     def expand(group: ElectiveGroup) -> frozenset[str]:
+        # Открытую категорию не разворачиваем: под неё подходит почти весь
+        # каталог, и список из тысячи кодов ничего не сообщает.
+        if group.is_open:
+            return frozenset()
         return frozenset(group.resolve(titles, required, schools) - required)
 
     resolved = {kind: expand(group) for kind, group in program.electives.items()}
@@ -375,6 +381,18 @@ def resolve_slots(
         if group is not None:
             resolved[slot.name] = expand(group)
     return resolved
+
+
+def open_ended_slots(program: Program) -> set[str]:
+    """Типы и названия позиций, под которые подходит почти любой курс."""
+    found = {kind for kind, group in program.electives.items() if group.is_open}
+    for slot in program.slots:
+        if slot.kind in found or slot.name in found:
+            continue
+        group = match_category(slot.name, program.core)
+        if group is not None and group.is_open:
+            found.add(slot.name)
+    return found
 
 
 def slot_codes(slot: PlanSlot, resolved: dict[str, frozenset[str]]) -> frozenset[str]:
@@ -405,8 +423,14 @@ def attach_electives(programs: dict[str, Program], catalog: Catalog, term: str |
     for program in programs.values():
         required = frozenset(program.courses)
         resolved = resolve_slots(program, titles, schools, required)
+        open_ended = open_ended_slots(program)
         program.slots = [
-            replace(slot, eligible_codes=slot_codes(slot, resolved)) for slot in program.slots
+            replace(
+                slot,
+                eligible_codes=slot_codes(slot, resolved),
+                open_ended=slot.kind in open_ended or slot.name in open_ended,
+            )
+            for slot in program.slots
         ]
         program.requirements = [
             replace(requirement, eligible_codes=frozenset(resolved[requirement.elective_kind]))

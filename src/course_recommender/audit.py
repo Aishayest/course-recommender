@@ -46,7 +46,7 @@ class SlotStatus:
         handbook нигде не перечисляет, какие курсы её закрывают. Такую
         позицию честнее показать непроверенной, чем закрыть наугад.
         """
-        return bool(self.slot.eligible_codes) or self.slot.kind in OPEN_KINDS
+        return bool(self.slot.eligible_codes) or self.slot.kind in OPEN_KINDS or self.slot.open_ended
 
 
 @dataclass
@@ -139,7 +139,7 @@ def _fill_slots(
         slot = slots[index]
         if slot.eligible_codes:
             candidates = [code for code in sorted(leftovers) if code in slot.eligible_codes]
-        elif slot.kind in OPEN_KINDS:
+        elif slot.kind in OPEN_KINDS or slot.open_ended:
             candidates = sorted(leftovers)
         else:
             # Чем закрывается позиция, неизвестно — оставляем непроверенной.

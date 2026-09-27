@@ -164,16 +164,44 @@ def is_requirement_table(table: Table) -> bool:
     )
 
 
+def is_requirement_continuation(table: Table) -> bool:
+    """Продолжение таблицы требований, начатой выше.
+
+    Длинный список требований Canva разрезает на несколько таблиц, и у
+    продолжения заголовка уже нет — первая строка сразу данные. Опознаётся
+    по форме: две колонки, во второй число кредитов, в первой название
+    требования. Без этого у химиков терялся весь блок элективов.
+    """
+    rows = [row for row in table.rows if row and normalize(row[0])]
+    if len(rows) < 2 or is_plan_table(table):
+        return False
+    return all(
+        len(row) >= 2
+        and _credits(row[1]) is not None
+        and len(normalize(row[0])) > 3
+        and not normalize(row[0]).isdigit()
+        for row in rows
+    )
+
+
 def parse_requirement_table(
-    table: Table, admission_year: int, program: str
+    table: Table, admission_year: int, program: str, section: str | None = None
 ) -> list[RequirementRow]:
-    """Разобрать одну таблицу требований, включая вложенные секции."""
-    section = _is_section_header(table.header) or "major"
-    # "Anthropology requirements" -> major, "Core requirements" -> core
-    section = "core" if section.startswith("core") else "major"
+    """Разобрать одну таблицу требований, включая вложенные секции.
+
+    section передаётся, когда таблица — продолжение начатой выше: своего
+    заголовка у неё нет, и секцию она наследует.
+    """
+    if section is None:
+        section = _is_section_header(table.header) or "major"
+        # "Anthropology requirements" -> major, "Core requirements" -> core
+        section = "core" if section.startswith("core") else "major"
+        body = table.body
+    else:
+        body = table.rows
 
     rows: list[RequirementRow] = []
-    for raw in table.body:
+    for raw in body:
         if not raw or not normalize(raw[0]):
             continue
         nested = _is_section_header(raw)
@@ -209,16 +237,27 @@ def parse_requirements(pages: list[Page], admission_year: int) -> list[Requireme
     program: str | None = None
 
     for page in pages:
-        for block in page.blocks:
+        # Продолжение относится к той таблице, что шла выше на этой же странице,
+        # а порядок блоков в выгрузке Canva произвольный — идём по геометрии.
+        previous: str | None = None
+        for block in sorted(page.blocks, key=lambda b: (b.top, b.left)):
             if block.kind == "text":
                 heading = parse_program_heading(block.text)
                 if heading:
                     program = heading[1]
+                    previous = None
                 continue
             table = block.table
-            if table is None or program is None or not is_requirement_table(table):
+            if table is None or program is None:
                 continue
-            rows.extend(parse_requirement_table(table, admission_year, program))
+            if is_requirement_table(table):
+                found = parse_requirement_table(table, admission_year, program)
+                previous = found[-1].section if found else None
+            elif previous is not None and is_requirement_continuation(table):
+                found = parse_requirement_table(table, admission_year, program, previous)
+            else:
+                continue
+            rows.extend(found)
     return rows
 
 

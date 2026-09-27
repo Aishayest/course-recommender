@@ -275,3 +275,47 @@ def test_match_titles_requires_exact_match():
     assert match_titles(["Database Systems"], catalog) == {"CSCI 341"}
     # Похожее название — другой курс, и угадывать нельзя
     assert match_titles(["Machine Learning with Applications"], catalog) == set()
+
+
+def test_subjects_listed_in_brackets_are_read():
+    # "Technical electives (BIOL, ECON, MATH, PHYS, SoE" — без слова courses
+    rule = parse_rule("Technical electives (BIOL, ECON, MATH, PHYS, SoE) 300-level or above")
+    assert rule.subjects == ("BIOL", "ECON", "MATH", "PHYS")
+    assert rule.schools == ("SOE",)
+    assert rule.min_level == 300
+
+
+def test_course_numbers_in_brackets_are_not_subjects():
+    assert parse_rule("One Ethics course (PHIL 210, 211 or 212)") is None
+
+
+def test_any_course_outside_the_major():
+    rule = parse_rule(
+        "Technical electives. Any letter-grade (A-F) courses outside Biological Sciences "
+        "with one course at 300-level or higher"
+    )
+    assert rule.any_subject
+    assert rule.exclude_subjects == ("BIOL",)
+    # Под правило подходит что угодно, кроме своей специальности
+    assert rule.matches("CSCI 341")
+    assert not rule.matches("BIOL 301")
+
+
+def test_any_course_offered_at_the_university():
+    rule = parse_rule("General electives. Students must take any courses offered at NU")
+    assert rule.any_subject
+    assert not rule.exclude_subjects
+    assert rule.matches("ANT 101")
+
+
+def test_open_group_is_not_enumerated():
+    open_group = ElectiveGroup(
+        admission_year=2026, program="BIOLOGICAL SCIENCES", kind="technical",
+        rules=[ElectiveRule(any_subject=True, exclude_subjects=("BIOL",))],
+    )
+    closed = ElectiveGroup(
+        admission_year=2026, program="COMPUTER SCIENCE (CS)", kind="technical",
+        rules=[ElectiveRule(subjects=("CSCI",))],
+    )
+    assert open_group.is_open
+    assert not closed.is_open
