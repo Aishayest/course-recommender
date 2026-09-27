@@ -353,7 +353,7 @@ def main() -> None:
     import argparse
     import json
 
-    parser = argparse.ArgumentParser(description="Разобрать требования и приоритеты регистрации")
+    parser = argparse.ArgumentParser(description="Parse the registration requirements and priorities")
     parser.add_argument("pdf", type=Path)
     parser.add_argument("-o", "--output", type=Path)
     args = parser.parse_args()
@@ -361,7 +361,7 @@ def main() -> None:
     offerings = parse_pdf(args.pdf)
     term = offerings[0].term if offerings else "?"
     with_prereq = sum(1 for o in offerings if o.prerequisite)
-    print(f"{term}: курсов {len(offerings)}, с пререквизитами {with_prereq}")
+    print(f"{term}: {len(offerings)} courses, {with_prereq} with prerequisites")
 
     if args.output:
         payload = [

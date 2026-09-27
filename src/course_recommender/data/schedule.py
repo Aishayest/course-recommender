@@ -551,7 +551,7 @@ def default_path() -> Path:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Разобрать расписание семестра")
+    parser = argparse.ArgumentParser(description="Parse a term schedule")
     parser.add_argument("pdf", type=Path, nargs="+")
     parser.add_argument("-o", "--output", type=Path)
     args = parser.parse_args()
@@ -563,9 +563,9 @@ def main() -> None:
         over = sum(1 for s in snapshot.sections if s.is_over_capacity)
         stamp = snapshot.taken_at.date().isoformat() if snapshot.taken_at else "?"
         print(
-            f"{snapshot.term:12s} {stamp}  секций {len(snapshot.sections):4d}  "
-            f"заполнено {full:4d} ({full / max(len(snapshot.sections), 1):.0%})  "
-            f"сверх капа {over:3d}"
+            f"{snapshot.term:12s} {stamp}  sections {len(snapshot.sections):4d}  "
+            f"full {full:4d} ({full / max(len(snapshot.sections), 1):.0%})  "
+            f"over cap {over:3d}"
         )
         snapshots.append(snapshot)
 

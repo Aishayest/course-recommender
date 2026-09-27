@@ -103,13 +103,13 @@ def build(
     if requirements:
         prepared.catalog = catalog_data.from_pdfs(requirements)
         catalog_data.save(prepared.catalog, catalog_data.default_path())
-        report(f"каталог: {len(prepared.catalog)} курсов, {len(prepared.catalog.terms)} семестров")
+        report(f"catalog: {len(prepared.catalog)} courses, {len(prepared.catalog.terms)} terms")
 
     if schedules:
         prepared.schedules = [schedule_data.parse_pdf(path) for path in schedules]
         schedule_data.save(prepared.schedules, schedule_data.default_path())
         sections = sum(len(snapshot.sections) for snapshot in prepared.schedules)
-        report(f"расписания: {len(prepared.schedules)} снимков, {sections} секций")
+        report(f"schedules: {len(prepared.schedules)} snapshots, {sections} sections")
 
     if reports:
         rows = grades_data.read_reports(reports, schedules if with_instructors else ())
@@ -117,15 +117,15 @@ def build(
         prepared.grades = grades_data.by_course(rows)
         named = sum(1 for row in rows if row.instructors)
         report(
-            f"оценки: {len(rows)} секций, {len(prepared.grades)} курсов, "
-            + (f"с преподавателем {named}" if with_instructors else "без имён преподавателей")
+            f"grades: {len(rows)} sections, {len(prepared.grades)} courses, "
+            + (f"{named} with an instructor" if with_instructors else "without instructor names")
         )
 
     if fetch_descriptions:
         prepared.descriptions = descriptions_data.fetch_all()
         descriptions_data.save(prepared.descriptions, descriptions_data.default_path())
         described = sum(1 for c in prepared.descriptions.courses.values() if c.has_description)
-        report(f"описания: {len(prepared.descriptions)} курсов, с описанием {described}")
+        report(f"descriptions: {len(prepared.descriptions)} courses, {described} with text")
 
     if prepared.schedules:
         from ..models import availability as availability_model
@@ -134,9 +134,9 @@ def build(
         if availability_model.can_train(rows):
             prepared.availability = availability_model.train(rows)
             prepared.availability.save(availability_model_path())
-            report(f"модель заполняемости: {prepared.availability.describe()}")
+            report(f"availability model: {prepared.availability.describe()}")
         else:
-            report("модель заполняемости: данных не хватает, нужны оба исхода")
+            report("availability model: not enough data, both outcomes are needed")
 
     if vectors_backend:
         from ..models import embeddings
@@ -147,7 +147,7 @@ def build(
         prepared.vectors = embeddings.cached(
             catalog.texts(catalog.undergraduate), vectors_backend
         )
-        report(f"векторы: {len(prepared.vectors)} курсов, способ {prepared.vectors.backend}")
+        report(f"vectors: {len(prepared.vectors)} courses, method {prepared.vectors.backend}")
 
     return prepared
 
@@ -196,30 +196,30 @@ def load(vectors_backend: str | None = None) -> Prepared:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Разобрать источники и сложить кеши")
+    parser = argparse.ArgumentParser(description="Parse the sources and write the caches")
     parser.add_argument(
-        "--sources", type=Path, help="папка с выгрузками Registrar (PDF)"
+        "--sources", type=Path, help="folder with the Registrar exports (PDF)"
     )
     parser.add_argument("--requirements", type=Path, nargs="*", default=[])
     parser.add_argument("--schedule", type=Path, nargs="*", default=[])
     parser.add_argument("--grades", type=Path, nargs="*", default=[])
     parser.add_argument(
-        "--descriptions", action="store_true", help="выгрузить описания с сайта Registrar"
+        "--descriptions", action="store_true", help="fetch descriptions from the Registrar site"
     )
     parser.add_argument(
-        "--vectors", nargs="?", const="tfidf", help="посчитать векторы: tfidf или имя модели"
+        "--vectors", nargs="?", const="tfidf", help="compute vectors: tfidf or a model name"
     )
     parser.add_argument(
         "--no-instructors",
         action="store_true",
-        help="не связывать оценки с именами преподавателей: для публичной выкладки",
+        help="do not link grades to instructor names: for a public deployment",
     )
     args = parser.parse_args()
 
     if not any(
         (args.sources, args.requirements, args.schedule, args.grades, args.descriptions, args.vectors)
     ):
-        parser.error("нечего разбирать: укажите --sources или файлы по видам")
+        parser.error("nothing to parse: pass --sources or files by kind")
 
     build(
         directory=args.sources,

@@ -14,7 +14,7 @@ def main() -> None:
 
     # Хостинги сообщают адрес и порт через окружение, локально нужен localhost:
     # слушать все интерфейсы на своей машине незачем.
-    parser = argparse.ArgumentParser(description="Запустить веб-интерфейс")
+    parser = argparse.ArgumentParser(description="Run the web interface")
     parser.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8000")))
     parser.add_argument("--reload", action="store_true")

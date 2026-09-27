@@ -277,29 +277,29 @@ def describe(semester: Semester) -> list[str]:
     """Человекочитаемый отчёт о собранном семестре."""
     lines = [
         (
-            f"семестр собран: {semester.credits} ECTS из {semester.target_credits}, "
-            f"курсов {len(semester.choices)}"
+            f"semester assembled: {semester.credits} ECTS of {semester.target_credits}, "
+            f"{len(semester.choices)} courses"
         )
     ]
     if semester.missing_credits:
-        lines.append(f"не хватает {semester.missing_credits} ECTS — закрыть нечем")
+        lines.append(f"{semester.missing_credits} ECTS short — nothing left to fill them with")
 
     for choice in semester.choices:
-        label = f" секция {choice.label}" if choice.label else ""
+        label = f" section {choice.label}" if choice.label else ""
         lines.append(f"  {choice.course.code:10s}{label:12s} {choice.credits:2d} ECTS  "
                      f"{choice.course.title[:38]}")
         when = _timetable(choice.section)
         if when:
             lines.append(f"      {when}")
         if choice.instructors:
-            lines.append(f"      ведёт {', '.join(choice.instructors)}")
+            lines.append(f"      taught by {', '.join(choice.instructors)}")
         if choice.alternatives:
             other = ", ".join(getattr(s, "section", "?") for s in choice.alternatives)
-            lines.append(f"      другие секции: {other}")
+            lines.append(f"      other sections: {other}")
         if choice.practice_is_tight:
-            lines.append(f"      практику выбирать отдельно, вариантов {choice.practice}")
+            lines.append(f"      pick the practice session separately, {choice.practice} options")
         if choice.section is None:
-            lines.append("      расписание неизвестно, время не проверено")
+            lines.append("      schedule unknown, time not checked")
     return lines
 
 
@@ -310,7 +310,7 @@ def _timetable(section) -> str:
     parts = []
     for meeting in getattr(section, "meetings", ()):
         if meeting.online:
-            parts.append("онлайн")
+            parts.append("online")
         elif meeting.days and meeting.start and meeting.end:
             days = "".join(meeting.days)
             parts.append(f"{days} {meeting.start:%H:%M}-{meeting.end:%H:%M}")

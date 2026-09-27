@@ -155,10 +155,10 @@ def test_evaluate_compares_model_with_the_rule_it_replaces():
         ]
     )
     metrics = evaluate(rows, "Fall 2026")
-    assert "модель" in metrics
-    assert metrics["модель"]["n"] == 20
+    assert "model" in metrics
+    assert metrics["model"]["n"] == 20
     # Эталон, который модель должна побить, считается на тех же данных
-    assert "эталон сейчас: заполнялся полностью" in metrics
+    assert "baseline now: ever filled up" in metrics
 
 
 def test_evaluate_returns_nothing_without_enough_history():

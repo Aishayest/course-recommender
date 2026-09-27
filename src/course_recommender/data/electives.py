@@ -758,17 +758,17 @@ def describe(group: ElectiveGroup) -> str:
     """Одна строка про то, чем задан список."""
     parts = []
     if group.listed_codes:
-        parts.append(f"перечислено {len(group.listed_codes)}")
+        parts.append(f"{len(group.listed_codes)} listed")
     if group.titles:
-        parts.append(f"названий без кода {len(group.titles)}")
+        parts.append(f"{len(group.titles)} titles without a code")
     if group.areas:
-        parts.append(f"областей {len(group.areas)}")
+        parts.append(f"{len(group.areas)} areas")
     for rule in group.rules:
         target = "+".join(rule.subjects + rule.schools) or "?"
         level = f" {rule.min_level}+" if rule.min_level else ""
-        note = " (с согласия советника)" if rule.advisor_consent else ""
-        parts.append(f"правило: {target}{level}{note}")
-    return "; ".join(parts) or "пусто"
+        note = " (with advisor consent)" if rule.advisor_consent else ""
+        parts.append(f"rule: {target}{level}{note}")
+    return "; ".join(parts) or "empty"
 
 
 def load_groups(admission_year: int) -> dict[tuple[str, str], ElectiveGroup]:
@@ -790,10 +790,10 @@ def main() -> None:
     import argparse
     from pathlib import Path
 
-    parser = argparse.ArgumentParser(description="Показать списки элективов специальностей")
+    parser = argparse.ArgumentParser(description="Show the elective lists of each major")
     parser.add_argument("--year", type=int, required=True)
-    parser.add_argument("--program", help="часть названия, без учёта регистра")
-    parser.add_argument("--catalog", type=Path, help="PDF Course Requirements — раскрыть правила")
+    parser.add_argument("--program", help="part of the name, case-insensitive")
+    parser.add_argument("--catalog", type=Path, help="Course Requirements PDF — to resolve the rules")
     args = parser.parse_args()
 
     groups = load_groups(args.year)
@@ -813,13 +813,13 @@ def main() -> None:
     for (program, kind), group in sorted(groups.items()):
         if args.program and args.program.upper() not in program:
             continue
-        print(f"{program or '— общеуниверситетские'} / {kind}")
+        print(f"{program or '— university-wide'} / {kind}")
         print(f"   {describe(group)}")
         if catalog:
             # Обязательные курсы плана свободную позицию не закрывают.
             required = frozenset(programs[program].courses) if program in programs else frozenset()
             codes = sorted(group.resolve(catalog, required, schools) - required)
-            print(f"   курсов в каталоге: {len(codes)}")
+            print(f"   courses in the catalog: {len(codes)}")
             print(f"   {', '.join(codes) if codes else '—'}")
 
 

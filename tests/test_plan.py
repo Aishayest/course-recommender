@@ -130,13 +130,13 @@ def test_course_without_a_schedule_is_taken_but_flagged():
     built = assemble([evidence("A 101")], {}, target_credits=6, capacity={"Technical Elective": 1})
     assert built.codes == ("A 101",)
     assert built.unscheduled == built.choices
-    assert "время не проверено" in "\n".join(describe(built))
+    assert "time not checked" in "\n".join(describe(built))
 
 
 def test_missing_credits_are_reported():
     built = assemble([evidence("A 101")], {}, target_credits=30, capacity={"Technical Elective": 1})
     assert built.missing_credits == 24
-    assert "не хватает 24 ECTS" in "\n".join(describe(built))
+    assert "24 ECTS short" in "\n".join(describe(built))
 
 
 def test_target_credits_come_from_the_plan():
@@ -155,5 +155,5 @@ def test_describe_shows_time_and_alternatives():
     built = assemble(pool, sections, target_credits=6, capacity={"Technical Elective": 1})
     text = "\n".join(describe(built))
     assert "M 09:00-09:50" in text
-    assert "ведёт Кто-то" in text
-    assert "другие секции: 2L" in text
+    assert "taught by Кто-то" in text
+    assert "other sections: 2L" in text

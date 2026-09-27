@@ -388,14 +388,14 @@ def main() -> None:
     from ..data.descriptions import load as load_descriptions
     from ..data.transcripts import parse_pdf as parse_transcript
 
-    parser = argparse.ArgumentParser(description="Что близко этому студенту по содержанию")
+    parser = argparse.ArgumentParser(description="What is close to this student by content")
     parser.add_argument("--transcript", type=Path, required=True)
     parser.add_argument("--descriptions", type=Path, default=None)
-    parser.add_argument("--backend", default=TFIDF, help="tfidf или имя модели эмбеддингов")
-    parser.add_argument("--no-cache", action="store_true", help="пересчитать, не читая кеш")
+    parser.add_argument("--backend", default=TFIDF, help="tfidf or an embedding model name")
+    parser.add_argument("--no-cache", action="store_true", help="recompute, ignoring the cache")
     parser.add_argument("--mode", default=NEAREST, choices=(NEAREST, CENTROID))
     parser.add_argument("--top", type=int, default=12)
-    parser.add_argument("--subject", help="ограничить префиксом, например CSCI")
+    parser.add_argument("--subject", help="limit to a prefix, for example CSCI")
     args = parser.parse_args()
 
     catalog = load_descriptions(args.descriptions or default_path())
@@ -405,7 +405,7 @@ def main() -> None:
 
     found = affinities(student, vectors, args.mode)
     if not found:
-        print("профиль не построить: ни один пройденный курс не найден в каталоге")
+        print("cannot build a profile: no completed course was found in the catalog")
         return
 
     profile = student_profile(student, vectors)
@@ -420,16 +420,16 @@ def main() -> None:
         reverse=True,
     )
 
-    print(f"способ: {vectors.backend} ({args.mode}), курсов в пространстве: {len(vectors)}")
-    print(f"профиль собран из {len(taken & set(vectors.codes))} пройденных курсов\n")
+    print(f"method: {vectors.backend} ({args.mode}), courses in the space: {len(vectors)}")
+    print(f"profile built from {len(taken & set(vectors.codes))} completed courses\n")
     for score, code in ranked[: args.top]:
         course = catalog.get(code)
         title = course.title if course else ""
         closest = found[code].closest
-        print(f"  {score:.2f}  {code:10s} {title[:44]:46s}" + (f"похож на {closest}" if closest else ""))
+        print(f"  {score:.2f}  {code:10s} {title[:44]:46s}" + (f"similar to {closest}" if closest else ""))
         words = explain(code, vectors, profile)
         if words:
-            print(f"        по словам: {', '.join(words)}")
+            print(f"        by words: {', '.join(words)}")
 
 
 if __name__ == "__main__":

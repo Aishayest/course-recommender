@@ -413,17 +413,17 @@ def main() -> None:
     from .models.embeddings import TFIDF, affinities, cached, rescale
     from .plan import assemble, describe, target_credits
 
-    parser = argparse.ArgumentParser(description="Что брать в следующем семестре")
-    parser.add_argument("--transcript", type=Path, help="PDF транскрипта — настоящее пройденное")
-    parser.add_argument("--admission-year", type=int, help="год поступления")
-    parser.add_argument("--program", help="часть названия специальности")
-    parser.add_argument("--school", help="школа студента: SCAI, SSH, SoE, SoM, GSB, SMG")
-    parser.add_argument("--semester", type=int, help="целевой семестр, 1..8")
+    parser = argparse.ArgumentParser(description="What to take next semester")
+    parser.add_argument("--transcript", type=Path, help="transcript PDF — what was really completed")
+    parser.add_argument("--admission-year", type=int, help="admission year")
+    parser.add_argument("--program", help="part of the major name")
+    parser.add_argument("--school", help="student's school: SCAI, SSH, SoE, SoM, GSB, SMG")
+    parser.add_argument("--semester", type=int, help="target semester, 1..8")
     parser.add_argument(
         "--completed-through",
         type=int,
         default=0,
-        help="без транскрипта: считать пройденными все курсы плана по этот семестр",
+        help="without a transcript: treat every plan course up to this semester as done",
     )
     parser.add_argument("--gpa", type=float, default=3.0)
     parser.add_argument(
@@ -431,35 +431,35 @@ def main() -> None:
         type=Path,
         nargs="*",
         default=[],
-        help="PDF Course Requirements: можно несколько, тогда известны и весенние курсы",
+        help="Course Requirements PDFs: several are allowed, then spring courses are known too",
     )
-    parser.add_argument("--catalog", type=Path, help="собранный catalog.json вместо PDF")
-    parser.add_argument("--term", help='семестр регистрации: "Fall 2026"')
-    parser.add_argument("--schedule", type=Path, nargs="*", default=[], help="PDF расписаний")
+    parser.add_argument("--catalog", type=Path, help="assembled catalog.json instead of PDFs")
+    parser.add_argument("--term", help='registration term: "Fall 2026"')
+    parser.add_argument("--schedule", type=Path, nargs="*", default=[], help="schedule PDFs")
     parser.add_argument(
-        "--availability", type=Path, help="обученная модель заполняемости (JSON)"
+        "--availability", type=Path, help="trained availability model (JSON)"
     )
     parser.add_argument(
         "--grades", type=Path, nargs="*", default=[],
-        help="PDF UG_Grade_Report_* — чем курс заканчивался у тех, кто его брал",
+        help="UG_Grade_Report_* PDFs — how the course ended for those who took it",
     )
     parser.add_argument(
         "--descriptions", type=Path, nargs="?", const=True, default=None,
-        help="описания курсов для оценки близости; без пути берётся выгрузка по умолчанию",
+        help="course descriptions for content fit; with no path, the default export is used",
     )
     parser.add_argument(
         "--relevance", default=TFIDF,
-        help="как мерить близость: tfidf или имя модели эмбеддингов",
+        help="how to measure fit: tfidf or an embedding model name",
     )
     parser.add_argument(
-        "--prefer-easy", type=float, default=0.0, metavar="ВЕС",
-        help="учитывать средний балл при ранжировании: 0 — не учитывать (по умолчанию)",
+        "--prefer-easy", type=float, default=0.0, metavar="WEIGHT",
+        help="count the mean grade in the ranking: 0 — ignore it (default)",
     )
     parser.add_argument(
         "--plan", action="store_true",
-        help="собрать семестр целиком: курсы, секции и время, без пересечений",
+        help="assemble the whole semester: courses, sections and times, with no conflicts",
     )
-    parser.add_argument("--credits", type=int, help="целевая нагрузка семестра в ECTS")
+    parser.add_argument("--credits", type=int, help="target semester load in ECTS")
     parser.add_argument("--limit", type=int, default=5)
     args = parser.parse_args()
 
@@ -468,25 +468,25 @@ def main() -> None:
         transcript = parse_transcript(args.transcript)
         if transcript.is_partial:
             parser.error(
-                f"в файле не все страницы транскрипта: разобрано {transcript.earned} кредитов "
-                f"из {transcript.credits_earned}"
+                f"the file does not hold every transcript page: parsed {transcript.earned} "
+                f"credits out of {transcript.credits_earned}"
             )
 
     year = args.admission_year or (transcript.admission_year if transcript else None)
     name = args.program or (transcript.major if transcript else None)
     school = args.school or (transcript.school_code if transcript else None)
     if not year or not name:
-        parser.error("нужен --transcript либо --admission-year вместе с --program")
+        parser.error("either --transcript, or --admission-year together with --program, is required")
 
     programs = load_programs(year)
     matches = [p for key, p in programs.items() if name.upper() in key]
     if not matches:
-        parser.error(f"специальность не найдена: {name}")
+        parser.error(f"major not found: {name}")
     program = matches[0]
     # Следующий семестр после последнего пройденного, если он не задан явно.
     semester = args.semester or (transcript.next_semester if transcript else None)
     if not semester:
-        parser.error("нужен --semester либо --transcript, по которому его видно")
+        parser.error("either --semester, or a --transcript that shows it, is required")
 
     catalog = Catalog()
     if args.catalog:
@@ -553,14 +553,14 @@ def main() -> None:
             if code in scores
         }
 
-    print(f"{program.degree} in {program.name}, семестр {semester}")
-    print(f"пройдено курсов: {len(student.completed)}, кредитов: {student.earned_credits}")
+    print(f"{program.degree} in {program.name}, semester {semester}")
+    print(f"completed courses: {len(student.completed)}, credits: {student.earned_credits}")
     if availability is not None:
-        print(f"модель заполняемости: {availability.describe()}")
+        print(f"availability model: {availability.describe()}")
     if fit:
-        print(f"близость по содержанию: {args.relevance}, курсов в пространстве {len(fit)}")
+        print(f"content fit: {args.relevance}, {len(fit)} courses in the space")
     if args.prefer_easy:
-        print(f"средний балл учитывается при ранжировании с весом {args.prefer_easy}")
+        print(f"mean grade counted in the ranking with weight {args.prefer_easy}")
     print()
 
     # Для сборки семестра нужен запас кандидатов: из пяти курсов набор
@@ -587,7 +587,7 @@ def main() -> None:
         limit=limit,
     )
     if not results:
-        print("подходящих курсов не нашлось")
+        print("no suitable courses found")
         return
 
     if args.plan:
@@ -599,40 +599,40 @@ def main() -> None:
         for line in describe(built):
             print(line)
         if built.left_out:
-            print("\nне вошло:")
+            print("\nleft out:")
             for evidence, reason in built.left_out[:6]:
                 print(f"  {evidence.course.code:10s} {reason}")
         return
 
     for result in results:
         evidence = result.evidence
-        print(f"{result.course.code:10s} {result.course.title[:40]:42s} балл {result.score:.2f}")
+        print(f"{result.course.code:10s} {result.course.title[:40]:42s} score {result.score:.2f}")
         print(f"   {result.why}")
-        print(f"   шанс получить место ≈ {evidence.seat_chance:.0%}", end="")
+        print(f"   seat chance ≈ {evidence.seat_chance:.0%}", end="")
         if evidence.fill_chance is not None:
-            print(f"   (заполнится с вероятностью {evidence.fill_chance:.0%}, "
-                  f"семестров в истории: {evidence.terms_observed})")
+            print(f"   (fills up with probability {evidence.fill_chance:.0%}, "
+                  f"terms of history: {evidence.terms_observed})")
         else:
-            print(f"   (семестров в истории: {evidence.terms_observed})")
+            print(f"   (terms of history: {evidence.terms_observed})")
         stats = evidence.grades
         if stats is not None and stats.average is not None:
-            line = f"   средний балл {stats.average:.2f}"
+            line = f"   mean grade {stats.average:.2f}"
             if stats.risky:
-                line += f"; плохо кончился у {stats.risky:.0f}%"
+                line += f"; ended badly for {stats.risky:.0f}%"
             spread = stats.spread()
             if spread and spread >= 0.3:
-                line += f"; секции расходятся на {spread:.2f}"
+                line += f"; sections differ by {spread:.2f}"
             print(line)
             for name in evidence.instructors:
                 record = stats.record_of(name)
-                known = f"раньше {record.average:.2f} (n={record.graded})" if record else "раньше не вёл"
-                print(f"      ведёт {name}: {known}")
+                known = f"previously {record.average:.2f} (n={record.graded})" if record else "has not taught it before"
+                print(f"      taught by {name}: {known}")
         if evidence.missing:
-            print(f"   не хватает: {', '.join(evidence.missing)}")
+            print(f"   missing: {', '.join(evidence.missing)}")
         if evidence.conflicts:
-            print(f"   несовместим по времени с: {', '.join(evidence.conflicts)}")
+            print(f"   clashes with: {', '.join(evidence.conflicts)}")
         if result.fallback is not None:
-            print(f"   запасной вариант: {result.fallback.code}")
+            print(f"   fallback: {result.fallback.code}")
         print()
 
 

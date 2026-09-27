@@ -320,7 +320,7 @@ def default_path() -> Path:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Собрать каталог курсов из документов Registrar")
+    parser = argparse.ArgumentParser(description="Assemble the course catalog from the Registrar documents")
     parser.add_argument("pdf", type=Path, nargs="+")
     parser.add_argument("-o", "--output", type=Path, default=None)
     args = parser.parse_args()
@@ -332,8 +332,8 @@ def main() -> None:
             seasons[name] += 1
     with_prereq = sum(1 for e in catalog.entries.values() if e.prerequisites)
 
-    print(f"семестров: {len(catalog.terms)} ({', '.join(catalog.terms)})")
-    print(f"курсов: {len(catalog)}, с пререквизитами: {with_prereq}")
+    print(f"terms: {len(catalog.terms)} ({', '.join(catalog.terms)})")
+    print(f"courses: {len(catalog)}, with prerequisites: {with_prereq}")
     print("  " + ", ".join(f"{name.lower()}: {count}" for name, count in seasons.items()))
 
     output = args.output or default_path()

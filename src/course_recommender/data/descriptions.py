@@ -340,22 +340,22 @@ def default_path() -> Path:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Выгрузить описания курсов из каталога Registrar")
+    parser = argparse.ArgumentParser(description="Export course descriptions from the Registrar catalog")
     parser.add_argument("-o", "--output", type=Path, default=None)
-    parser.add_argument("--limit", type=int, default=PAGE_SIZE, help="записей за запрос")
-    parser.add_argument("--pause", type=float, default=PAUSE_SECONDS, help="пауза между запросами")
+    parser.add_argument("--limit", type=int, default=PAGE_SIZE, help="records per request")
+    parser.add_argument("--pause", type=float, default=PAUSE_SECONDS, help="pause between requests")
     args = parser.parse_args()
 
     def show(done: int, total: int) -> None:
-        print(f"   {done} из {total}")
+        print(f"   {done} of {total}")
 
-    print("выгрузка каталога...")
+    print("exporting the catalog...")
     catalog = fetch_all(args.limit, args.pause, progress=show)
     described = [c for c in catalog.courses.values() if c.has_description]
     undergraduate = catalog.undergraduate
 
-    print(f"курсов: {len(catalog)}, с описанием: {len(described)}")
-    print(f"бакалавриат: {len(undergraduate)}")
+    print(f"courses: {len(catalog)}, with a description: {len(described)}")
+    print(f"undergraduate: {len(undergraduate)}")
 
     output = args.output or default_path()
     save(catalog, output)

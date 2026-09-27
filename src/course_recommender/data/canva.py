@@ -106,7 +106,7 @@ def extract_bootstrap(html: str) -> dict:
     """Достать встроенный JSON дизайна из HTML."""
     start = html.find(BOOTSTRAP_START)
     if start == -1:
-        raise ValueError("bootstrap JSON не найден — ссылка не публичная или Canva сменила формат")
+        raise ValueError("bootstrap JSON not found — the link is not public, or Canva changed its format")
     start += len(BOOTSTRAP_START)
     end = html.find("')", start)
     raw = html[start:end]
@@ -233,11 +233,11 @@ def load(path: Path) -> list[Page]:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Выгрузить handbook из Canva в JSON")
-    parser.add_argument("url", nargs="?", help="публичная ссылка на дизайн Canva")
+    parser = argparse.ArgumentParser(description="Export the handbook from Canva to JSON")
+    parser.add_argument("url", nargs="?", help="public link to the Canva design")
     parser.add_argument("-o", "--output", type=Path)
     parser.add_argument(
-        "--all", action="store_true", help="выгрузить все годы из config.HANDBOOK_SOURCES"
+        "--all", action="store_true", help="export every year listed in config.HANDBOOK_SOURCES"
     )
     args = parser.parse_args()
 
@@ -246,7 +246,7 @@ def main() -> None:
     elif args.url and args.output:
         targets = [(None, args.url, args.output)]
     else:
-        parser.error("нужно указать url и -o, либо --all")
+        parser.error("pass either a url together with -o, or --all")
 
     for year, url, output in targets:
         pages = parse_url(url)
@@ -256,7 +256,7 @@ def main() -> None:
         )
         tables = sum(len(p.tables) for p in pages)
         label = f"{year}: " if year else ""
-        print(f"{label}{len(pages)} страниц, {tables} таблиц -> {output}")
+        print(f"{label}{len(pages)} pages, {tables} tables -> {output}")
 
 
 if __name__ == "__main__":

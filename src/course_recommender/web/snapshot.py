@@ -177,12 +177,12 @@ def main() -> None:
 
     from ..config import ROOT
 
-    parser = argparse.ArgumentParser(description="Сохранить страницы как статический сайт")
+    parser = argparse.ArgumentParser(description="Save the pages as a static site")
     parser.add_argument("-o", "--output", type=Path, default=ROOT / "docs")
     args = parser.parse_args()
 
     for path in render(args.output):
-        print(f"   {path.stat().st_size / 1024:6.1f} КБ  {path.name}")
+        print(f"   {path.stat().st_size / 1024:6.1f} KB  {path.name}")
     print(f"-> {args.output}")
 
 

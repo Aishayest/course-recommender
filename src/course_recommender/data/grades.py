@@ -374,42 +374,42 @@ def by_course(rows: list[SectionGrades]) -> dict[str, CourseGrades]:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Разобрать отчёты о распределении оценок")
+    parser = argparse.ArgumentParser(description="Parse the grade distribution reports")
     parser.add_argument("report", type=Path, nargs="+", help="PDF UG_Grade_Report_*")
     parser.add_argument("--schedule", type=Path, nargs="*", default=[],
-                        help="PDF расписаний — чтобы узнать преподавателей")
-    parser.add_argument("--course", help="показать один курс подробно")
+                        help="schedule PDFs — to recover the instructors")
+    parser.add_argument("--course", help="show one course in detail")
     args = parser.parse_args()
 
     courses = load_reports(args.report, args.schedule)
     rows = [section for course in courses.values() for section in course.sections]
     named = sum(1 for row in rows if row.instructors)
     terms = sorted({row.term for row in rows})
-    print(f"семестров: {len(terms)} ({', '.join(terms)})")
-    print(f"секций: {len(rows)}, курсов: {len(courses)}, с преподавателем: {named}")
+    print(f"terms: {len(terms)} ({', '.join(terms)})")
+    print(f"sections: {len(rows)}, courses: {len(courses)}, with an instructor: {named}")
 
     if not args.course:
         spread = [(c.spread(), c.code) for c in courses.values() if c.spread()]
         spread.sort(reverse=True)
-        print("\nгде секции расходятся сильнее всего:")
+        print("\nwhere sections differ the most:")
         for width, code in spread[:8]:
-            print(f"   {code:10s} разброс {width:.2f} балла  {courses[code].title[:44]}")
+            print(f"   {code:10s} spread {width:.2f} grade points  {courses[code].title[:44]}")
         return
 
     course = next((c for code, c in courses.items() if args.course.upper() in code), None)
     if course is None:
-        parser.error(f"курс не найден: {args.course}")
+        parser.error(f"course not found: {args.course}")
     print(f"\n{course.code} {course.title}")
-    print(f"средний балл {course.average:.2f}, плохих исходов {course.risky:.0f}%")
+    print(f"mean grade {course.average:.2f}, bad outcomes {course.risky:.0f}%")
     for section in sorted(course.sections, key=lambda s: (s.term, s.section)):
         who = ", ".join(section.instructors) or "—"
         print(
-            f"   {section.term:12s} секция {section.section}  балл {section.average:.2f}  "
-            f"медиана {section.median:.2f}  n={section.graded:3d}  ушли {section.withdrew:4.1f}%  {who[:40]}"
+            f"   {section.term:12s} section {section.section}  grade {section.average:.2f}  "
+            f"median {section.median:.2f}  n={section.graded:3d}  withdrew {section.withdrew:4.1f}%  {who[:40]}"
         )
     records = course.instructors()
     if len(records) > 1:
-        print("\n   по преподавателям:")
+        print("\n   by instructor:")
         for record in records:
             print(f"      {record.average:.2f}  n={record.graded:4d}  {record.name}")
 

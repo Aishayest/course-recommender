@@ -226,26 +226,26 @@ def parse_pdf(path: Path) -> Transcript:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Разобрать транскрипт студента")
+    parser = argparse.ArgumentParser(description="Parse a student transcript")
     parser.add_argument("transcript", type=Path)
     args = parser.parse_args()
 
     transcript = parse_pdf(args.transcript)
     print(f"{transcript.name or '—'}, {transcript.major or '—'} ({transcript.school_code})")
-    print(f"поступление: {transcript.admission_term}, семестров: {len(transcript.terms)}")
+    print(f"admitted: {transcript.admission_term}, terms: {len(transcript.terms)}")
     print(
-        f"курсов: {len(transcript.courses)}, кредитов набрано: {transcript.earned}"
-        + (f" (в транскрипте {transcript.credits_earned})" if transcript.credits_earned else "")
+        f"courses: {len(transcript.courses)}, credits earned: {transcript.earned}"
+        + (f" (transcript says {transcript.credits_earned})" if transcript.credits_earned else "")
     )
     print(f"GPA: {transcript.gpa}")
     if transcript.is_partial:
-        print("ВНИМАНИЕ: в файле не все страницы транскрипта")
+        print("WARNING: the file does not hold every transcript page")
     for term in transcript.terms:
         courses = [c for c in transcript.courses if c.term == term]
-        print(f"\n--- {term} (семестр {courses[0].semester})")
+        print(f"\n--- {term} (semester {courses[0].semester})")
         for course in courses:
-            grade = f"{course.grade:.2f}" if course.grade is not None else "нет"
-            print(f"   {course.code:10s} {course.credits:2d} ECTS  балл {grade:5s} {course.title[:44]}")
+            grade = f"{course.grade:.2f}" if course.grade is not None else "none"
+            print(f"   {course.code:10s} {course.credits:2d} ECTS  grade {grade:5s} {course.title[:44]}")
 
 
 if __name__ == "__main__":

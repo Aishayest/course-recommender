@@ -490,16 +490,16 @@ def main() -> None:
     import argparse
     from pathlib import Path
 
-    parser = argparse.ArgumentParser(description="Показать собранную специальность")
+    parser = argparse.ArgumentParser(description="Show an assembled major")
     parser.add_argument("--year", type=int, required=True)
-    parser.add_argument("--program", help="часть названия, без учёта регистра")
+    parser.add_argument("--program", help="part of the name, case-insensitive")
     parser.add_argument(
         "--catalog",
         type=Path,
         nargs="*",
-        help="каталог курсов: PDF Course Requirements или собранный catalog.json",
+        help="course catalog: Course Requirements PDF or an assembled catalog.json",
     )
-    parser.add_argument("--term", help="семестр каталога: \"Fall 2026\"")
+    parser.add_argument("--term", help="catalog term: \"Fall 2026\"")
     args = parser.parse_args()
 
     programs = load_programs(args.year)
@@ -517,41 +517,41 @@ def main() -> None:
     if not args.program:
         for name in sorted(programs):
             program = programs[name]
-            print(f"{len(program.courses):3d} курсов  {len(program.requirements):2d} требований  {name}")
+            print(f"{len(program.courses):3d} courses  {len(program.requirements):2d} requirements  {name}")
         return
 
     matches = [p for name, p in programs.items() if args.program.upper() in name]
     if not matches:
-        parser.error(f"специальность не найдена: {args.program}")
+        parser.error(f"major not found: {args.program}")
 
     program = matches[0]
     print(f"{program.degree} in {program.name} ({program.admission_year})")
-    print(f"кредитов на диплом: {program.total_credits or '—'}")
-    print(f"минимальная оценка по профильным: {program.min_major_grade or '—'}")
+    print(f"credits for the degree: {program.total_credits or '—'}")
+    print(f"minimum grade in major courses: {program.min_major_grade or '—'}")
     on_plan = sum(1 for c in program.courses.values() if c.recommended_semester is not None)
     print(
-        f"курсов в плане: {on_plan}, слотов на выбор: {len(program.slots)}, "
-        f"кандидатов в элективы: {len(program.courses) - on_plan}"
+        f"courses on the plan: {on_plan}, open positions: {len(program.slots)}, "
+        f"elective candidates: {len(program.courses) - on_plan}"
     )
     for kind, group in sorted(program.electives.items()):
         from .electives import describe
 
-        print(f"элективы «{kind}»: {describe(group)}")
+        print(f"electives \u201c{kind}\u201d: {describe(group)}")
 
     for semester in range(1, 9):
         courses = sorted(program.semester_courses(semester), key=lambda c: c.code)
         slots = [s for s in program.slots if s.semester == semester]
         if not courses and not slots:
             continue
-        year, term = (semester + 1) // 2, "осень" if semester % 2 else "весна"
-        print(f"\n--- семестр {semester} ({year} курс, {term}) ---")
+        year, term = (semester + 1) // 2, "fall" if semester % 2 else "spring"
+        print(f"\n--- semester {semester} (year {year}, {term}) ---")
         for course in courses:
             print(f"  {course.code:10s} {course.credits:2d} ECTS  {course.min_grade or '—':3s}  "
                   f"{course.kind.value:11s} {course.title[:40]}")
         for slot in slots:
-            choice = f"  ({len(slot.eligible_codes)} вариантов)" if slot.eligible_codes else ""
+            choice = f"  ({len(slot.eligible_codes)} options)" if slot.eligible_codes else ""
             print(f"  {'—':10s} {slot.credits or 0:2d} ECTS  {slot.min_grade or '—':3s}  "
-                  f"{'слот':11s} {slot.name[:40]}{choice}")
+                  f"{'position':11s} {slot.name[:40]}{choice}")
 
 
 if __name__ == "__main__":

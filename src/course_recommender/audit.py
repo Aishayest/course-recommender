@@ -209,31 +209,31 @@ def main() -> None:
     from .data.catalog import load as load_catalog
     from .data.transcripts import parse_pdf as parse_transcript
 
-    parser = argparse.ArgumentParser(description="Что студенту осталось до диплома")
-    parser.add_argument("transcript", type=Path, help="PDF транскрипта")
-    parser.add_argument("--program", help="специальность, если в транскрипте её нет")
-    parser.add_argument("--admission-year", type=int, help="год поступления, если его нет")
+    parser = argparse.ArgumentParser(description="What is left before graduation")
+    parser.add_argument("transcript", type=Path, help="transcript PDF")
+    parser.add_argument("--program", help="major, if the transcript does not name it")
+    parser.add_argument("--admission-year", type=int, help="admission year, if it is missing")
     parser.add_argument("--catalog", type=Path, nargs="*", default=[],
-                        help="catalog.json или PDF Course Requirements — раскрыть элективы")
-    parser.add_argument("--term", help='семестр каталога: "Fall 2026"')
+                        help="catalog.json or Course Requirements PDFs — to resolve electives")
+    parser.add_argument("--term", help='catalog term: "Fall 2026"')
     args = parser.parse_args()
 
     transcript = parse_transcript(args.transcript)
     if transcript.is_partial:
         parser.error(
-            f"в файле не все страницы транскрипта: разобрано {transcript.earned} кредитов "
-            f"из {transcript.credits_earned}. Аудит по нему соврёт."
+            f"the file does not hold every transcript page: parsed {transcript.earned} "
+            f"credits out of {transcript.credits_earned}. An audit on it would lie."
         )
 
     year = args.admission_year or transcript.admission_year
     name = args.program or transcript.major
     if not year or not name:
-        parser.error("в транскрипте нет года поступления или специальности — задайте их явно")
+        parser.error("the transcript has no admission year or major — pass them explicitly")
 
     programs = load_programs(year)
     matches = [p for key, p in programs.items() if name.upper() in key]
     if not matches:
-        parser.error(f"специальность не найдена в handbook {year}: {name}")
+        parser.error(f"major not found in the {year} handbook: {name}")
     program = matches[0]
 
     if args.catalog:
@@ -249,44 +249,44 @@ def main() -> None:
     result = audit(program, student)
 
     print(f"{transcript.name or student.student_id} — {program.degree} in {program.name}")
-    print(f"поступление: {transcript.admission_term}, GPA {transcript.gpa}")
+    print(f"admitted: {transcript.admission_term}, GPA {transcript.gpa}")
     total = result.degree_credits
-    print(f"кредитов: {result.earned_credits} из {total}, осталось {result.remaining_credits}")
+    print(f"credits: {result.earned_credits} of {total}, {result.remaining_credits} left")
     print()
 
     if result.missing:
-        print(f"не пройдено обязательных курсов: {len(result.missing)}")
+        print(f"required courses not taken: {len(result.missing)}")
         for course in result.missing:
-            print(f"   сем {course.recommended_semester}  {course.code:10s} {course.credits:2d} ECTS  {course.title[:44]}")
+            print(f"   sem {course.recommended_semester}  {course.code:10s} {course.credits:2d} ECTS  {course.title[:44]}")
     if result.low_grade:
-        print(f"\nпройдено ниже проходной оценки: {len(result.low_grade)}")
+        print(f"\npassed below the minimum grade: {len(result.low_grade)}")
         for course, grade in result.low_grade:
-            print(f"   {course.code:10s} получено {grade:.2f}, нужно {course.min_grade}  {course.title[:40]}")
+            print(f"   {course.code:10s} got {grade:.2f}, needs {course.min_grade}  {course.title[:40]}")
     if result.in_progress:
-        print(f"\nбез результата: {len(result.in_progress)}")
+        print(f"\nno result yet: {len(result.in_progress)}")
         for course in result.in_progress:
             print(f"   {course.code:10s} {course.term}  {course.title[:44]}")
 
-    print(f"\nсвободные позиции плана: закрыто {len(result.slots) - len(result.open_slots)} из {len(result.slots)}")
+    print(f"\nopen plan positions: {len(result.slots) - len(result.open_slots)} of {len(result.slots)} closed")
     for status in result.slots:
         if status.is_closed:
-            mark, note = "+", f"закрыт: {status.closed_by}"
+            mark, note = "+", f"closed by: {status.closed_by}"
         elif status.slot.eligible_codes:
-            mark, note = "-", f"вариантов: {len(status.slot.eligible_codes)}"
+            mark, note = "-", f"options: {len(status.slot.eligible_codes)}"
         elif status.is_checkable:
-            mark, note = "-", "закрывается любым курсом"
+            mark, note = "-", "closed by any course"
         else:
-            mark, note = "?", "чем закрывается — handbook не говорит"
-        print(f"   {mark} сем {status.slot.semester}  {status.slot.name[:34]:36s} {note}")
+            mark, note = "?", "the handbook does not say what closes it"
+        print(f"   {mark} sem {status.slot.semester}  {status.slot.name[:34]:36s} {note}")
 
     if result.extra:
-        print(f"\nсверх программы: {len(result.extra)}")
+        print(f"\nbeyond the program: {len(result.extra)}")
         for course in result.extra:
             print(f"   {course.code:10s} {course.credits:2d} ECTS  {course.title[:44]}")
 
     unchecked = result.unchecked_slots
     if unchecked:
-        print(f"\nнепроверенных позиций: {len(unchecked)} — аудит по ним ничего не утверждает")
+        print(f"\nunverified positions: {len(unchecked)} — the audit claims nothing about them")
 
 
 if __name__ == "__main__":

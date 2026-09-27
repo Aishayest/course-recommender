@@ -138,7 +138,7 @@ class AvailabilityModel:
 
         usable = [row for row in rows if row.has_history]
         if len(usable) < 2 or len({row.is_full for row in usable}) < 2:
-            raise ValueError("для обучения нужны наблюдения обоих исходов")
+            raise ValueError("training needs observations of both outcomes")
 
         columns = list(zip(*(row.features for row in usable)))
         self.means = [sum(column) / len(column) for column in columns]
@@ -163,7 +163,7 @@ class AvailabilityModel:
     def probability(self, mean_fill: float, ever_full: bool) -> float:
         """Вероятность, что курс заполнится."""
         if not self.is_fitted:
-            raise ValueError("модель не обучена")
+            raise ValueError("the model is not trained")
         scaled = self._scaled([mean_fill, float(ever_full)])
         total = self.intercept + sum(c * v for c, v in zip(self.coefficients, scaled))
         return 1.0 / (1.0 + math.exp(-total))
@@ -209,7 +209,7 @@ class AvailabilityModel:
             f"{name} {value:+.2f}" for name, value in zip(FEATURES, self.coefficients)
         )
         terms = ", ".join(self.trained_on)
-        return f"{weights}; обучена на {self.samples} наблюдениях ({terms})"
+        return f"{weights}; trained on {self.samples} observations ({terms})"
 
 
 def load(path: Path) -> AvailabilityModel:
@@ -281,10 +281,10 @@ def evaluate(rows: list[Observation], term: str) -> dict[str, dict[str, float]]:
 
     model = train(rows, before=term)
     scores = {
-        "модель": [model.predict_one(row) for row in test],
-        "эталон сейчас: заполнялся полностью": [float(row.ever_full) for row in test],
-        "эталон: среднее заполнение ≥ 100%": [float((row.mean_fill or 0) >= FULL) for row in test],
-        "константа: доля полных": [sum(actual) / len(actual)] * len(test),
+        "model": [model.predict_one(row) for row in test],
+        "baseline now: ever filled up": [float(row.ever_full) for row in test],
+        "baseline: mean fill >= 100%": [float((row.mean_fill or 0) >= FULL) for row in test],
+        "constant: share of full": [sum(actual) / len(actual)] * len(test),
     }
     return {
         name: {
@@ -303,8 +303,8 @@ def main() -> None:
     from ..config import DATA_PROCESSED
     from ..data.schedule import parse_pdf
 
-    parser = argparse.ArgumentParser(description="Обучить и проверить модель заполняемости")
-    parser.add_argument("schedule", type=Path, nargs="+", help="PDF расписаний с Enr/Cap")
+    parser = argparse.ArgumentParser(description="Train and validate the availability model")
+    parser.add_argument("schedule", type=Path, nargs="+", help="schedule PDFs with Enr/Cap")
     parser.add_argument(
         "-o", "--output", type=Path, default=DATA_PROCESSED / "availability.json"
     )
@@ -313,22 +313,22 @@ def main() -> None:
     snapshots = [parse_pdf(path).filter_level("UG") for path in args.schedule]
     rows = observations(snapshots)
     terms = sorted({row.term for row in rows}, key=term_key)
-    print(f"наблюдений: {len(rows)}, семестров: {len(terms)} ({', '.join(terms)})")
+    print(f"observations: {len(rows)}, terms: {len(terms)} ({', '.join(terms)})")
 
     for term in terms[1:]:
         metrics = evaluate(rows, term)
         if not metrics:
             continue
         first = next(iter(metrics.values()))
-        print(f"\n--- проверка на {term} ({first['n']} курсов с историей)")
+        print(f"\n--- validation on {term} ({first['n']} courses with history)")
         for name, value in metrics.items():
             print(
-                f"   {name:38s} AUC {value['auc']:.3f}  Brier {value['brier']:.3f}  "
-                f"точность {value['accuracy']:.0%}"
+                f"   {name:30s} AUC {value['auc']:.3f}  Brier {value['brier']:.3f}  "
+                f"accuracy {value['accuracy']:.0%}"
             )
 
     model = train(rows)
-    print(f"\nитоговая модель: {model.describe()}")
+    print(f"\nfinal model: {model.describe()}")
     model.save(args.output)
     print(f"-> {args.output}")
 

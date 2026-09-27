@@ -81,8 +81,8 @@ uv run python -m course_recommender.data.electives --year 2026 --program "COMPUT
 
 ```
 COMPUTER SCIENCE (CS) / technical
-   перечислено 16; правило: CSCI 200+
-   курсов в каталоге: 27
+   16 listed; rule: CSCI 200+
+   courses in the catalog: 27
 ```
 
 Пререквизиты и приоритеты — из документа Registrar, который публикуется перед
@@ -128,17 +128,17 @@ uv run python -m course_recommender.audit student_transcript.pdf \
 ```
 
 ```
-кредитов: 198 из 240, осталось 42
+credits: 198 of 240, 42 left
 
-не пройдено обязательных курсов: 2
-   сем 7  CSCI 408    6 ECTS  Senior Project I
-   сем 8  CSCI 409    6 ECTS  Senior Project II
+required courses not taken: 2
+   sem 7  CSCI 408    6 ECTS  Senior Project I
+   sem 8  CSCI 409    6 ECTS  Senior Project II
 
-свободные позиции плана: закрыто 5 из 10
-   + сем 5  Natural Science Elective             закрыт: BIOL 101
-   + сем 7  Technical Elective                   закрыт: CSCI 262
-   - сем 8  Technical Elective                   вариантов: 37
-   - сем 7  Social Science Elective              вариантов: 183
+open plan positions: 5 of 10 closed
+   + sem 5  Natural Science Elective             closed by: BIOL 101
+   + sem 7  Technical Elective                   closed by: CSCI 262
+   - sem 8  Technical Elective                   options: 37
+   - sem 7  Social Science Elective              options: 183
 ```
 
 Каждый пройденный курс разносится по тому, что он закрывает: обязательную
@@ -169,10 +169,11 @@ uv run python -m course_recommender.data.grades UG_Grade_Report_*.pdf \
 ```
 
 ```
-CSCI 231 Computer Systems and Organization  средний 2.23
-   Fall 2025  секция 1  балл 2.39  n= 89  ушли  9.2%  Shinnazar Seytnazarov
-   Fall 2025  секция 2  балл 2.19  n= 83  ушли 13.5%  Hashim Ali
-   Fall 2025  секция 3  балл 1.99  n= 46  ушли  6.1%  Hari Mohan Rai
+CSCI 231 Computer Systems and Organization
+mean grade 2.23, bad outcomes 31%
+   Fall 2025    section 1  grade 2.39  median 2.67  n= 89  withdrew  9.2%  Shinnazar Seytnazarov
+   Fall 2025    section 2  grade 2.19  median 2.33  n= 83  withdrew 13.5%  Hashim Ali
+   Fall 2025    section 3  grade 1.99  median 2.00  n= 46  withdrew  6.1%  Hari Mohan Rai
 ```
 
 Разброс считается внутри семестра, а не между: между семестрами меняется
@@ -209,11 +210,13 @@ uv run python -m course_recommender.models.availability school_schedule_by_term*
 вероятность, — иначе выигрыш в калибровке достался бы модели даром.
 
 ```
---- проверка на Fall 2026 (374 курсов с историей)
-   модель                                 AUC 0.760  Brier 0.214
-   эталон сейчас: заполнялся полностью    AUC 0.694  Brier 0.289
-   эталон: среднее заполнение ≥ 100%      AUC 0.663  Brier 0.294
-   константа: доля полных                 AUC 0.500  Brier 0.237
+observations: 1808, terms: 5 (Spring 2025, Summer 2025, Fall 2025, Spring 2026, Fall 2026)
+
+--- validation on Fall 2026 (374 courses with history)
+   model                          AUC 0.760  Brier 0.214  accuracy 64%
+   baseline now: ever filled up   AUC 0.694  Brier 0.289  accuracy 71%
+   baseline: mean fill >= 100%    AUC 0.663  Brier 0.294  accuracy 71%
+   constant: share of full        AUC 0.500  Brier 0.237  accuracy 61%
 ```
 
 На всех трёх проверочных семестрах модель выигрывает и по AUC, и по Brier.
@@ -251,10 +254,11 @@ uv sync --extra web
 uv run python -m course_recommender.web
 ```
 
-Интерфейс на английском. Названия курсов, handbook, транскрипты и документы
-Registrar и так англоязычные, и русские подписи рядом с ними выглядели
-чужеродно; переключателя языков нет. Комментарии и документация в коде остаются
-русскими — это разные вещи: язык продукта и язык разработки.
+Интерфейс на английском, как и вывод всех команд. Названия курсов, handbook,
+транскрипты и документы Registrar и так англоязычные, и русские подписи рядом
+с ними выглядели чужеродно; переключателя языков нет. Комментарии, docstring’и
+и этот README остаются русскими — это разные вещи: язык продукта и язык
+разработки.
 
 Студент загружает транскрипт — больше ничего вводить не нужно: год поступления,
 специальность, школа и предстоящий семестр берутся из файла. Неполный файл
@@ -377,32 +381,31 @@ uv run python -m course_recommender.recommend \
 ```
 
 ```
-BSc in COMPUTER SCIENCE (CS), семестр 7
-пройдено курсов: 24, кредитов: 162
-модель заполняемости: mean_fill +0.62, ever_full +0.58; обучена на 554 наблюдениях
+BSc in COMPUTER SCIENCE (CS), semester 7
+completed courses: 24, credits: 162
+availability model: mean_fill +0.62, ever_full +0.58; trained on 554 observations
 
-CSCI 408   Senior Project I                           балл 0.91
+CSCI 408   Senior Project I                           score 0.91
    on the plan for this semester; 1st priority registration; 94% full on average
-   шанс получить место ≈ 97%   (заполнится с вероятностью 17%, семестров в истории: 2)
-   средний балл 3.79; плохо кончился у 0%
+   seat chance ≈ 97%   (fills up with probability 17%, terms of history: 2)
+   mean grade 3.79; ended badly for 0%
 
-CSCI 437   Internet of Things: Technologies and App   балл 0.86
+CSCI 437   Internet of Things: Technologies and App   score 0.86
    closes the plan position “Technical Elective”; 1st priority registration; 70% full on average
-   шанс получить место ≈ 98%   (заполнится с вероятностью 11%, семестров в истории: 3)
-   средний балл 2.88; плохо кончился у 19%
-      ведёт Dimitrios Zormpas: раньше 2.88 (n=45)
+   seat chance ≈ 98%   (fills up with probability 11%, terms of history: 3)
+   mean grade 2.88; ended badly for 19%
+      taught by Dimitrios Zormpas: previously 2.88 (n=45)
 
-CSCI 335   Introduction to Microprocessor Design an   балл 0.86
+CSCI 335   Introduction to Microprocessor Design an   score 0.86
    closes the plan position “Technical Elective”; 1st priority registration; 80% full last time
-   шанс получить место ≈ 98%   (заполнится с вероятностью 13%, семестров в истории: 1)
-   не хватает: ELCE 202
-   запасной вариант: CSCI 437
+   seat chance ≈ 98%   (fills up with probability 13%, terms of history: 1)
+   missing: ELCE 202
+   fallback: CSCI 437
 ```
 
-Строка объяснения здесь английская, а подписи вокруг — русские: объяснение
-строит `Recommendation.why`, и эта же строка уходит на сайт, который целиком
-на английском. Переводить её отдельно для CLI незачем — проще довести до
-английского весь вывод, когда до него дойдут руки.
+Вывод CLI на английском — как и интерфейс, и по той же причине: коды курсов,
+названия и имена преподавателей приходят из англоязычных документов, и русские
+подписи вокруг них только мешали читать.
 
 Курсы по согласованию с преподавателем — их 109 из 1191 — высокого шанса не
 получают: они стоят полупустыми не потому, что на них легко попасть, а потому
@@ -424,8 +427,8 @@ uv run python -m course_recommender.models.embeddings --transcript student_trans
 ```
 
 ```
-  0.16  CSCI 496   Generative Artificial Intelligence     похож на CSCI 390
-  0.12  CSCI 471   Complexity and Computability           похож на CSCI 270
+  0.16  CSCI 496   Generative Artificial Intelligence     similar to CSCI 390
+  0.12  CSCI 471   Complexity and Computability           similar to CSCI 270
 ```
 
 Курс релевантен, если похож на то, что студенту уже зашло: ищется самый
@@ -439,8 +442,8 @@ uv run python -m course_recommender.models.embeddings --transcript student_trans
 и это заметно:
 
 ```
-TF-IDF:      MATH 407 Graph Theory — 0.00, объяснить нечем
-эмбеддинги:  MATH 407 Graph Theory — похож на CSCI 270 Algorithms
+TF-IDF:      MATH 407 Graph Theory — 0.00, nothing to explain it with
+эмбеддинги:  MATH 407 Graph Theory — similar to CSCI 270 Algorithms
 ```
 
 У 31% курсов описания нет вовсе, и TF-IDF про них не может сказать ничего;
@@ -480,18 +483,18 @@ uv run python -m course_recommender.recommend --transcript student_transcript.pd
 ```
 
 ```
-семестр собран: 18 ECTS из 30, курсов 3
-не хватает 12 ECTS — закрыть нечем
+semester assembled: 18 ECTS of 30, 3 courses
+12 ECTS short — nothing left to fill them with
   CSCI 408                6 ECTS  Senior Project I
-      расписание неизвестно, время не проверено
-  CSCI 437   секция 1L    6 ECTS  Internet of Things: Technologies and A
+      schedule unknown, time not checked
+  CSCI 437   section 1L   6 ECTS  Internet of Things: Technologies and A
       MWF 10:00-10:50
-      ведёт Dimitrios Zormpas
-  PLS 140    секция 1L    6 ECTS  Introduction to Comparative Politics
+      taught by Dimitrios Zormpas
+  PLS 140    section 1L   6 ECTS  Introduction to Comparative Politics
       TR 15:00-16:15
-      ведёт Caress Schenk
+      taught by Caress Schenk
 
-не вошло:
+left out:
   CSCI 335   the “Technical Elective” positions are already filled
   MATH 417   the “Technical Elective” positions are already filled
   CSCI 423   the “Technical Elective” positions are already filled
