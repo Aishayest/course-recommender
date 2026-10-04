@@ -35,3 +35,7 @@ models/*.bin
 # локальные правила и настройки Claude Code
 CLAUDE.md
 .claude/
+
+# Разбор проекта держим локально, не в репозитории.
+OVERVIEW.md
+OVERVIEW.en.md
