@@ -1,8 +1,30 @@
 """Пути и параметры проекта."""
 
+import os
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+
+def _root() -> Path:
+    """Корень, относительно которого лежит data.
+
+    В репозитории пакет лежит в src/, и корень — две папки вверх. В образе
+    пакет поставлен в site-packages, и data рядом с ним нет: она копируется
+    в рабочий каталог. Поэтому путь проверяется, а не вычисляется вслепую —
+    иначе приложение молча поднимается без данных и отвечает "данных нет"
+    на каждой странице.
+    """
+    if override := os.environ.get("COURSE_RECOMMENDER_ROOT"):
+        return Path(override).resolve()
+    beside_package = Path(__file__).resolve().parents[2]
+    if (beside_package / "data").is_dir():
+        return beside_package
+    beside_cwd = Path.cwd().resolve()
+    if (beside_cwd / "data").is_dir():
+        return beside_cwd
+    return beside_package
+
+
+ROOT = _root()
 
 DATA_RAW = ROOT / "data" / "raw"
 DATA_INTERIM = ROOT / "data" / "interim"
