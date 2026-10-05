@@ -15,7 +15,9 @@ RUN pip install --no-cache-dir ".[web]"
 # Выгрузка handbook и подготовленные кеши.
 COPY data ./data
 
-ENV HOST=0.0.0.0 PORT=8000
+# Хостинг терминирует https у себя и зовёт контейнер по http: заголовкам
+# его прокси доверяем, иначе ссылки на статику уедут на http.
+ENV HOST=0.0.0.0 PORT=8000 FORWARDED_ALLOW_IPS=*
 EXPOSE 8000
 
 CMD ["python", "-m", "course_recommender.web"]

@@ -20,8 +20,17 @@ def main() -> None:
     parser.add_argument("--reload", action="store_true")
     args = parser.parse_args()
 
+    # За прокси хостинга приложение видит http, хотя наружу отдаётся https.
+    # Без доверия к X-Forwarded-Proto url_for построит ссылки на статику с
+    # http, и браузер вырежет их как mixed content: страница останется без
+    # стилей. Локально доверять некому, поэтому список берётся из окружения.
     uvicorn.run(
-        "course_recommender.web.app:app", host=args.host, port=args.port, reload=args.reload
+        "course_recommender.web.app:app",
+        host=args.host,
+        port=args.port,
+        reload=args.reload,
+        proxy_headers=True,
+        forwarded_allow_ips=os.environ.get("FORWARDED_ALLOW_IPS", "127.0.0.1"),
     )
 
 
