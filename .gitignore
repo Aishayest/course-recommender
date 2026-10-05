@@ -39,3 +39,6 @@ CLAUDE.md
 # Разбор проекта держим локально, не в репозитории.
 OVERVIEW.md
 OVERVIEW.en.md
+
+# Рабочие заметки по проекту — тоже локально.
+project_context.md
